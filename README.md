@@ -27,6 +27,7 @@ For ease of viewing of records, it is recommended to use the "Editor Live Previe
 
 The minimum possible code is added to the image field itself, and the main functionality can be changed in map templates and styles for the "Image Occlusion Simple (v1.0)" record type
 
+![Simple Image Occlusion_3](https://github.com/user-attachments/assets/18b212c8-eb93-48f5-9bc5-37e2d50796b0)
 
 
 **HELP AND SUPPORT**
