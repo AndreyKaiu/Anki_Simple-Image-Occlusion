@@ -27,4 +27,16 @@ For ease of viewing of records, it is recommended to use the "Editor Live Previe
 
 The minimum possible code is added to the image field itself, and the main functionality can be changed in map templates and styles for the "Image Occlusion Simple (v1.0)" record type
 
+**HELP AND SUPPORT**
 
+**Please do not use reviews for bug reports or support requests.**<br>
+**And be sure to like,** as your support is always needed. Thank you.
+I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
+
+**VERSIONS**
+- 1.0, date: 2025-05-04. First release
+
+**SPECIAL THANKS**
+- Thanks for helping with the development: chatgpt, GitHub.copilot - they helped more than hindered :), since I still had to delve into it myself and completely rework the code. But without them, I definitely would not have managed it, since I do not program in Python, and certainly not an Anki developer.
+
+=========================
