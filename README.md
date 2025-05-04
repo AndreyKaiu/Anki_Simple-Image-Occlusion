@@ -1,6 +1,10 @@
 # Anki_Simple-Image-Occlusion
 Add-on for the Anki program. Create cards that hide part of the image and prompt the user to enter text for verification (if the sign is ?, otherwise the usual hiding).
 
+![Simple Image Occlusion_1](https://github.com/user-attachments/assets/85c76003-f81f-4e4a-8e84-1cc841ac5803)
+
+![Simple Image Occlusion_2](https://github.com/user-attachments/assets/7d738941-42a0-4422-bbc5-d6fd92d7da7d)
+
 When installing the add-on, the note type "Image Occlusion Simple (v1.0)" is created. Perhaps in other versions a note type with a different number in brackets will be added.
 
 There is a special button to call the editor of closing rectangles on the background of the image (the cursor must be on the field with the image). The editor allows you to create regular rectangles to test your knowledge (yellow) and additional hiding ones (blue). It is possible to add a line to indicate a point on the picture. For complex cases, the rectangle can be rotated (right mouse button), converted to a circle (oval). The rectangle can have text (test word) and a hint for the word. Even if there is no hint, the user will still be shown the "?" sign so that he knows that this is an input field.
