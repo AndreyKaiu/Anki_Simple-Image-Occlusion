@@ -23,4 +23,8 @@ You can always create another copy of the entry for this record or create a sepa
 
 When viewing a card, you can change the scale (not ideal, especially for Android). Entering and checking words is simplified, that is, checking is done without taking into account the case of characters and many other signs (Android especially likes to make the first letter capital). If the word is written correctly, such a field will turn green. When entering, you can press the tab key to move to another field for the next input (you can also press the "Enter" key to make it easier for Android). To simplify orientation, scroll to the next field and the field will blink red several times.
 
+For ease of viewing of records, it is recommended to use the "Editor Live Preview" add-on https://ankiweb.net/shared/info/1960039667
+
+The minimum possible code is added to the image field itself, and the main functionality can be changed in map templates and styles for the "Image Occlusion Simple (v1.0)" record type
+
 
