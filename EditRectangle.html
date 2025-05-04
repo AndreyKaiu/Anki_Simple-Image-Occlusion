@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>Editable rectangles</title>
+    <style>
+           
+        body, button {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }   
+
+        .sio-container {            
+            text-align: center;  
+            z-index: 2;        
+        }  
+
+        .sio-image-container {
+            position: relative;
+            display: inline-block;
+            user-select: none; 
+            z-index: 4;
+        }
+
+        .sio-image {
+            width: 100%;
+            height: auto;
+            display: block;   
+            z-index: 4; 
+        } 
+
+        .sio-rect {
+            position: absolute;
+            background-color: rgba(255, 235, 162, 1);
+            border: 2px solid yellow;
+            cursor: default;
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+            transform-origin: 0 0; /* The point of rotation */
+            z-index: 10;            
+        }  
+        
+        .sio-rect.round {
+            border-radius: 50%;
+        }
+        
+        .sio-rect.selected {
+            cursor: move; /* The cursor moves only for the selection, if the text is not edited */            
+            border-width: 2px;
+            border-style: dashed;    
+            /* border-color: violet; useful only for display, not in the editor*/       
+        }
+
+        .temp-sio-rect {
+            cursor: move; /*The cursor moves only for the selection, if the text is not edited */            
+            border: 2px dashed;   
+            cursor: crosshair;    
+            padding: 0px;     
+        }
+        
+        .sio-rect.selected.text-editing {
+            cursor: default; /* Remove the move cursor in edit mode */
+        }
+        
+        .txt-sio-rect {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;                       
+            box-sizing: border-box;            
+            display: flex;                                    
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;    
+            justify-content: center;      
+            align-items: center;          
+            text-align: center;           
+            white-space: normal;          
+            word-break: break-word;       
+            padding: 0px;   
+            /* font-size: 1rem;   */
+	        line-height: 1;   
+            z-index: 15;           
+        }
+        
+        .resize-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #000;
+            z-index: 50;
+            display: none;
+        }
+        
+        .selected .resize-handle {
+            display: block;
+        }
+        
+
+        .nw { top: -4px; left: -4px; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
+        .ne { top: -4px; right: -4px; cursor: nesw-resize; background-color: rgb(255, 0, 0); }
+        .sw { bottom: -4px; left: -4px; cursor: nesw-resize; background-color: rgb(255, 0, 0);}
+        .se { bottom: -4px; right: -4px; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
+        .resize-handle.rotate {
+            width: 10px;
+            height: 10px;
+        }
+        .nw.rotate {top: -5px; left: -5px; border-radius: 50%; background-color: rgb(0, 0, 255);}        
+        .ne.rotate { top: -5px; right: -5px; border-radius: 50%; background-color: rgb(255, 0, 0); }
+        .sw.rotate { bottom: -5px; left: -5px; border-radius: 50%; background-color: rgb(255, 0, 0);}
+        .se.rotate { bottom: -5px; right: -5px; border-radius: 50%; background-color: rgb(255, 0, 0); }
+
+        .line .sw.rotate, .line .se.rotate {
+            display: none;
+        }
+
+        .nw.rotate::after {            
+            content: "⟳";
+            position: absolute;
+            right: 15px;
+            top: -30px;
+            font-size: 22px;
+        }
+       
+        .text-editable {
+            outline: none;
+        }
+
+        .sio-rect.transparent .txt-sio-rect {
+            visibility: hidden;
+        }
+        
+        .buttons {
+            position: fixed;
+            bottom: 5px;            
+            z-index: 100;
+        }
+
+        .button-container {
+            position: fixed;
+            bottom: 5px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        button {
+            margin: 2px 0px 1px;
+        }
+
+        .temp-sio-rect {
+            background-color: rgba(255, 235, 162, 1);
+            border: 2px solid yellow;            
+        }
+        .sio-rect.hiding {
+            background-color: rgb(1, 78, 140);            
+            border: 2px solid blue;
+            z-index: 5;
+        }
+        
+        .sio-rect.transparent {
+            background-color: rgba(255, 235, 162, 0);
+        }
+        
+        .sio-rect.line {
+            position: absolute;
+            background-color: violet; /* The color of the line */
+            transform-origin: 0 0; /* The point of rotation */
+            /*pointer-events: none; /* Click passes through the line */
+            border-width: 0px;
+            z-index: 20;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <div class="buttons">
+            <button id="removeBtn" onclick="removeRectangle()" title="Press the keys Ctrl+Del (for All: Ctrl+Shift+Del)">❌ delete</button>
+            <button id="showhideAllBtn" onclick="showhideAllRectangle()" title="Press the key F5 (F3 or Ctrl+LMouse - for one selected)">👁️ Show / Hide all</button>
+            <button id="editTextBtn" onclick="editText()" title="Press the key F2">✏️ edit "word::hint"</button>                              
+            <button id="addBtn" onclick="addRectangle(1)" title="Press the key F7">🟨 add rectangle</button>
+            <button id="add2Btn" onclick="addRectangle(2)" title="Press the key F8">🟦 add hiding rectangle</button>
+            <button id="addLine" onclick="addRectangle(3)" title="Press the key F9">↘️</button>
+            <button id="exchangeBtn" onclick="exchangeRectangle()" title="Change type. Press the key F4">🟨 &#8596; 🟦</button>
+            <button id="roundBtn" onclick="rectangleToRound()" title="Change shape. Press the key F6">□ &#8596; ○</button>
+        </div>
+    </div>
+	<div class="sio-container">
+    <div class="sio-image-container">
+        <img src="test.jpg" class="sio-image">
+    </div>    
+	</div>
+    <div>&nbsp;</div>
+    <script src="EditRectangle.js"></script>
+</body>
+</html>
