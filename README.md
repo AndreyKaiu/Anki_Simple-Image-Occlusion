@@ -34,7 +34,7 @@ The minimum possible code is added to the image field itself, and the main funct
 
 **Please do not use reviews for bug reports or support requests.**<br>
 **And be sure to like,** as your support is always needed. Thank you.
-I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
+I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
 - 1.0, date: 2025-05-04. First release
