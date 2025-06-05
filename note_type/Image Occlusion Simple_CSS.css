@@ -1,0 +1,205 @@
+img { max-height: none; }
+img { max-width: none; } 
+.card {		
+    font-family: arial;
+    font-size: 12px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}  
+.sio-container {	
+	text-align: center;
+	z-index: 2;	
+	
+}
+.sio-image-container {	
+	position: relative;
+	display: inline-block;	
+	user-select: none;
+	-webkit-touch-callout: none;
+  -webkit-user-select: none; 
+	z-index: 4;
+}
+
+
+.sio-image {
+	text-align: center;
+	position: relative;
+	margin: 0 auto;
+	padding: 0px 0px;
+  width: 100%;
+	height: auto;	
+	display: block;
+	z-index: 4;
+
+}
+
+.sio-image-container.wfit .sio-image {
+	max-width: 100%;
+  max-height: 90vh; 
+  object-fit: cover;
+}
+
+.sio-image-container.h100 .sio-image {
+	margin: 0;
+	height: 90vh;
+	width: auto;
+	max-height: 90vh;
+	max-width: none;
+}
+
+
+.w25{
+	width: 25%;
+}
+.w50{
+	width: 50%;
+}
+.w75{
+	width: 75%;
+}
+.w100{
+	width: 100%;
+}
+.w150{
+	width: 150%;
+}
+.w200{
+	width: 200%;
+}
+.w400{
+	width: 400%;
+}
+
+.sio-rect {
+  position: absolute;
+  background-color: rgba(255, 235, 162, 1);
+  border: 2px solid yellow;
+  cursor: default;
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+	transform-origin: 0 0; /* The point of rotation */
+  z-index: 10;
+	
+  color: black;
+  display: flex;
+  justify-content: center;      
+  align-items: center;          
+  text-align: center;           
+  white-space: normal;          
+  word-break: break-word;         
+	/* font-size: 10px;   */
+	line-height: 1;        
+  user-select: none;          
+	-webkit-touch-callout: none;
+  -webkit-user-select: none;  
+}  
+.sio-rect.round {
+    border-radius: 50%;
+}
+.sio-rect.hiding {
+  background-color: rgb(1, 78, 140);
+  border: 2px solid blue;
+	user-select: none;          
+	-webkit-touch-callout: none;
+  -webkit-user-select: none;
+  z-index: 5;
+}
+.sio-rect.transparent {
+  background-color: rgba(255, 235, 162, 0);
+}
+.sio-rect.line {
+  position: absolute;
+  background-color: violet; /* The color of the line */
+  transform-origin: 0 0; /* The point of rotation */
+  pointer-events: none; /* Click passes through the line */
+  border-width: 0px;	
+  z-index: 20;
+}
+.sio-rect[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.sio-rect:empty:before {
+  content: attr(hint); 
+  color: gray;
+  pointer-events: none;
+  display: block;
+}
+.sio-rect.line:empty:before, .sio-rect.hiding:empty:before,
+.sio-rect.transparent::before {
+	content: '';
+}
+#sio-controls {
+	margin: 0px;
+  padding: 0px;
+  position: fixed;
+  display: flex;
+  bottom: 10px;  
+  width: 100%;  
+  justify-content: center;  
+  z-index: 100;
+	height: 25px;
+}
+#sio-controls.ankidroid {	
+	margin: 0px;
+  padding: 0px;
+  position: fixed;
+  display: flex; 
+  top: 2px;
+  left: 0px;
+  justify-content: start;
+  width: 100%;   
+  z-index: 100;
+	height: 25px;
+}
+#sio-controls button, #sio-controls.ankidroid button {
+  padding: 3px 15px;
+  margin: 0px 5px;
+  cursor:pointer;
+	z-index: 110;
+	background-color: #cccccc;
+	max-height: 25px;
+	height: 25px;
+	white-space: nowrap; /* prevents line breaks */
+	overflow: hidden; /* hides output text */
+	/* text-overflow: ellipsis; adds ellipsis if it doesn't fit */
+	max-width: 100%; /* doesn't go beyond the container */
+	box-sizing: border-box; /* takes padding into account in the width */
+}
+.sio-rect::after {
+  content: '✖';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  font-size: 8px;
+  color: #a00;
+  cursor: pointer;
+  user-select: none;
+	z-index: 200;
+}
+.sio-rect.line::after {
+  content: '';
+}
+.sio-rect.selected:focus {
+  cursor: default;
+  border-width: 2px;
+  /* border-style: dashed; */
+  border-color: violet;
+	outline-color: violet;
+}
+
+.sio-rect.flash-border {
+  animation: flashBorder 0.5s ease-in-out 3;
+}
+@keyframes flashBorder {
+  0%, 100% {
+    border-color: transparent;
+    outline-color: transparent;
+  }
+  50% {
+    border-color: rgb(255, 0, 0);
+    outline-color: rgb(255, 0, 0);
+  }
+}

@@ -1,0 +1,544 @@
+<div style="height: 25px;" class="onlyankidroid">&nbsp;</div>
+<div class="sio-container">
+    <div class="sio-image-container">
+        {{Front}}
+    </div>
+</div>
+<div style="height: 25px;">&nbsp;</div>
+<div id="sio-controls">      
+    <button id="zoomFitButton" onclick="zoomFit()">
+        <div style="position: relative; width: 20px; height: 20px; margin: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="20" height="20">
+                <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="black" stroke-width="1.2" />
+                <rect x="4" y="4" width="12" height="12" rx="1" fill="none" stroke="black" stroke-width="1" />
+            </svg>
+        </div>
+    </button>
+    <button id="zoomH100Button" onclick="zoomH100()">
+        <div style="position: relative; width: 20px; height: 20px; margin: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 0 28 20" width="24" height="20">
+                <rect x="0" y="1" width="18" height="18" rx="1" fill="none" stroke="black" stroke-width="1.2" />
+                <rect x="-4" y="5" width="28" height="10" rx="1" fill="none" stroke="black" stroke-width="0.8" />
+            </svg>
+        </div>
+    </button>
+		<button id="zoomInButton" onclick="zoomIn()">+</button>
+    <button id="zoomOutButton" onclick="zoomOut()">-</button>    
+    <button id="toggleButton" onclick="toggleBtn()">Show \ Hide</button>
+<button id="clearButton" onclick="clearBtn()">Clear</button>  
+</div>
+
+
+<script>
+    var isAnkiDroid = (typeof AnkiDroidJS !== "undefined");
+    if (!isAnkiDroid) {
+        document.querySelectorAll('.onlyankidroid').forEach(elOAD => {
+            elOAD.style.display = "none";
+        });
+    }
+    else {
+        elSC = document.getElementById('sio-controls');
+        if (elSC) elSC.classList.add('ankidroid');
+    }
+
+    // When loading, show rectangles for entering
+    function transparentRect() {
+        const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
+        const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line'));
+        if (rectangles.length === 0) return;
+        rectangles.forEach(rect => {
+            rect.style.display = "";
+            rect.classList.add('transparent');
+            rect.dataset.wasFocused = "false";
+        });
+    }
+
+    if( document.getElementById("transparent_answer") !== null ) { // only for back-side 
+        transparentRect();        
+    }
+
+    function getScrollbarWidth() {
+        const outer = document.createElement('div');
+        outer.style.visibility = 'hidden';
+        outer.style.overflow = 'scroll';
+        outer.style.msOverflowStyle = 'scrollbar'; // IE
+        document.body.appendChild(outer);
+        const inner = document.createElement('div');
+        outer.appendChild(inner);
+        const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+        outer.parentNode.removeChild(outer);
+        return scrollbarWidth;
+    }
+
+    window.uScrollbarWidth = getScrollbarWidth();
+
+
+    function zoomFit() {
+        document.getElementById('zoomInButton').removeAttribute('disabled');
+        document.getElementById('zoomOutButton').removeAttribute('disabled');
+        elbtfit = document.getElementById('zoomFitButton');
+        elbth100 = document.getElementById('zoomH100Button');
+        el = document.getElementsByClassName('sio-image-container')[0];
+        el.classList.remove('h100');
+        el.classList.remove('w25');
+        el.classList.remove('w50');
+        el.classList.remove('w75');
+        el.classList.remove('w100');
+        el.classList.remove('w150');
+        el.classList.remove('w200');
+        el.classList.remove('w400');
+        el.classList.add('wfit');
+    }
+
+
+    function zoomH100() {
+        document.getElementById('zoomInButton').removeAttribute('disabled');
+        document.getElementById('zoomOutButton').removeAttribute('disabled');
+        elbtfit = document.getElementById('zoomFitButton');
+        elbth100 = document.getElementById('zoomH100Button');
+        el = document.getElementsByClassName('sio-image-container')[0];
+        el.classList.remove('wfit');
+        el.classList.remove('w25');
+        el.classList.remove('w50');
+        el.classList.remove('w75');
+        el.classList.remove('w100');
+        el.classList.remove('w150');
+        el.classList.remove('w200');
+        el.classList.remove('w400');
+        el.classList.add('h100');
+    }
+
+
+    function fitFontSizeToRect(rectElement) {
+	let txtEl = String(rectElement.textContent);	
+    let txtWordEl = String(rectElement.getAttribute('word'));
+    let txtHintEl = String(rectElement.getAttribute('hint'));
+    if(txtEl.length==0 && txtHintEl.length > txtWordEl.length ) txtEl = txtHintEl + "NN";
+    else if(txtWordEl.length > txtEl.length ) txtEl = txtWordEl + "N";    
+
+	let maxChars = 12;
+	if( txtEl.length > 0 ) {
+		let pz = txtEl.indexOf("::");
+		if(pz > 0) txtEl = txtEl.slice(0, pz); 
+		maxChars = Math.min(txtEl.length, maxChars);
+	}
+	const minFontSize = 10;
+	const maxFontSize = 100; // Upper limit
+	const rectWidth = rectElement.clientWidth; // Let's get the width of the rectangle
+    const rectHeight= rectElement.clientHeight;
+	
+	const temp = document.createElement("span"); // Create a time element for measurement
+	temp.style.visibility = "hidden";
+	temp.style.whiteSpace = "nowrap";
+	temp.style.position = "absolute";
+	temp.style.padding = "0";
+	temp.style.margin = "0";
+	temp.style.fontFamily = getComputedStyle(rectElement).fontFamily;
+	temp.textContent = "N".repeat(maxChars); // The widest text option
+	document.body.appendChild(temp);
+	let fontSize = maxFontSize;
+	while (fontSize > minFontSize) {
+		temp.style.fontSize = fontSize + "px";
+		const textWidth = temp.getBoundingClientRect().width;
+		const textHeight = temp.getBoundingClientRect().height;
+		if (textWidth <= rectWidth && textHeight <= rectHeight) {
+			break;
+		}
+		if(fontSize < 24) fontSize--;
+		else if(fontSize < 48) fontSize -= 2;
+		else if(fontSize < 96) fontSize -= 4;
+		else fontSize -= 8;
+	}	
+	document.body.removeChild(temp); // Let's remove the temporary element	
+	rectElement.style.fontSize = fontSize + "px"; 
+}
+
+
+// Update the size of the font from the size of the image container
+function updateFontSize() {
+	els = document.querySelectorAll('.sio-rect');
+	for (var i = 0; i < els.length; i++) {
+		try {
+			fitFontSizeToRect(els[i]);		
+		} catch(err) {}		
+	}
+}
+
+
+    function zoomOut() {
+        let maxSW1 = (document.documentElement.scrollWidth + window.uScrollbarWidth) - window.innerWidth;
+        let maxSH1 = (document.documentElement.scrollHeight + window.uScrollbarWidth) - window.innerHeight;
+        let sx, sy;
+        if (maxSW1 <= 3) sx = 0.5; else sx = window.scrollX / maxSW1;
+        if (maxSH1 <= 3) sy = 0.5; else sy = window.scrollY / maxSH1;
+
+        document.getElementById('zoomInButton').removeAttribute('disabled');
+        el = document.getElementsByClassName('sio-image-container')[0];
+        if (el.classList.contains('h100')) el.classList.remove('h100');
+        if (el.classList.contains('wfit')) el.classList.remove('wfit');
+        if (el.classList.contains('w50')) {
+            el.classList.remove('w50');
+            el.classList.add('w25');
+            document.getElementById('zoomOutButton').setAttribute('disabled', '');
+        }
+        else if (el.classList.contains('w75')) {
+            el.classList.remove('w75');
+            el.classList.add('w50');
+        }
+        else if (el.classList.contains('w100')) {
+            el.classList.remove('w100');
+            el.classList.add('w75');
+        }
+        else if (el.classList.contains('w150')) {
+            el.classList.remove('w150');
+            el.classList.add('w100');
+        }
+        else if (el.classList.contains('w200')) {
+            el.classList.remove('w200');
+            el.classList.add('w150');
+        }
+        else if (el.classList.contains('w400')) {
+            el.classList.remove('w400');
+            el.classList.add('w200');
+        }
+        else el.classList.add('w100');
+
+        updateFontSize();
+
+        setTimeout(() => { //Restore the viewing center  		
+            let maxSW2 = (document.documentElement.scrollWidth + window.uScrollbarWidth) - window.innerWidth;
+            let maxSH2 = (document.documentElement.scrollHeight + window.uScrollbarWidth) - window.innerHeight;
+            let nSx = 0, nSy = 0;
+            if (maxSW2 > 2) nSx = sx * maxSW2;
+            if (maxSH2 > 2) nSy = sy * maxSH2;
+            window.scrollTo(nSx, nSy);
+        }, 0);
+    }
+
+
+    function zoomIn() {
+        let maxSW1 = (document.documentElement.scrollWidth + window.uScrollbarWidth) - window.innerWidth;
+        let maxSH1 = (document.documentElement.scrollHeight + window.uScrollbarWidth) - window.innerHeight;
+        let sx, sy;
+        if (maxSW1 <= 3) sx = 0.5; else sx = window.scrollX / maxSW1;
+        if (maxSH1 <= 3) sy = 0.5; else sy = window.scrollY / maxSH1;
+
+        document.getElementById('zoomOutButton').removeAttribute('disabled');
+        el = document.getElementsByClassName('sio-image-container')[0];
+        if (el.classList.contains('h100')) el.classList.remove('h100');
+        if (el.classList.contains('wfit')) el.classList.remove('wfit');
+        if (el.classList.contains('w25')) {
+            el.classList.remove('w25');
+            el.classList.add('w50');
+        }
+        else if (el.classList.contains('w50')) {
+            el.classList.remove('w50');
+            el.classList.add('w75');
+        }
+        else if (el.classList.contains('w75')) {
+            el.classList.remove('w75');
+            el.classList.add('w100');
+        }
+        else if (el.classList.contains('w100')) {
+            el.classList.remove('w100');
+            el.classList.add('w150');
+        }
+        else if (el.classList.contains('w150')) {
+            el.classList.remove('w150');
+            el.classList.add('w200');
+        }
+        else if (el.classList.contains('w200')) {
+            el.classList.remove('w200');
+            el.classList.add('w400');
+            document.getElementById('zoomInButton').setAttribute('disabled', '');
+        }
+        else el.classList.add('w100');
+
+        updateFontSize();
+
+        setTimeout(() => { //Restore the viewing center 		
+            let maxSW2 = (document.documentElement.scrollWidth + window.uScrollbarWidth) - window.innerWidth;
+            let maxSH2 = (document.documentElement.scrollHeight + window.uScrollbarWidth) - window.innerHeight;
+            let nSx = 0, nSy = 0;
+            if (maxSW2 > 2) nSx = sx * maxSW2;
+            if (maxSH2 > 2) nSy = sy * maxSH2;
+            window.scrollTo(nSx, nSy);
+        }, 0);
+    }
+
+
+    function clearBtn() { // Cleaning processor
+        const rects = document.querySelectorAll('.sio-rect');
+        rects.forEach(function (el) {
+            el.textContent = ""; //clear the text
+            el.style.color = "black"; //Color reset
+            if (el.classList.contains('hiding')) //Return the background
+                el.style.backgroundColor = "rgba(1, 78, 140, 1)";
+            else if (!el.classList.contains('line'))
+                el.style.backgroundColor = "rgba(255, 235, 162, 1)";
+            el.dataset.wasFocused = "false";
+        });
+        if (window.getSelection) window.getSelection().removeAllRanges(); //Remove the selection
+    }
+
+
+    function toggleBtn() { // 👁️ Show \ Hide
+        var rects = document.querySelectorAll('.sio-rect');
+        var button = document.getElementById('toggleButton');
+        var isVisible = false;
+
+        for (var i = 0; i < rects.length; i++) {
+            if (rects[i].style.display !== 'none') {
+                isVisible = true;
+                break;
+            }
+        }
+
+        if (isVisible) {
+            for (var i = 0; i < rects.length; i++) {
+                rects[i].style.display = 'none';
+                rects[i].dataset.wasFocused = "false";
+                rects[i].classList.remove('transparent');
+            }
+            if (window.getSelection) window.getSelection().removeAllRanges();
+            button.textContent = '👁️‍🗨️ Hide';
+        } else {
+            for (var i = 0; i < rects.length; i++) {
+                rects[i].style.display = '';
+                rects[i].style.userSelect = '';
+                rects[i].style.webkitUserSelect = '';
+                rects[i].style.MozUserSelect = '';
+                rects[i].classList.remove('transparent');
+            }
+            button.textContent = '👁️ Show';
+        }
+    }
+
+
+    function setCursorToEnd(element) {
+        if (element.isContentEditable) {
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(element); // Select the element contents
+            range.collapse(false); // Set the cursor to the end
+            selection.removeAllRanges(); // Clear the current selection
+            selection.addRange(range); // Set a new range
+        }
+    }
+
+
+    function keydownEnterTab(event) {
+        if (event.key === 'Enter' || event.key === 'Tab') {
+            event.preventDefault(); // Prevent default behavior
+            // Find all elements with class "txt-sio-rect"
+            const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
+            const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line')
+                && !(rect.style.display == 'none') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+            // && !rect.classList.contains('line') && !rect.style.display == 'none'    && !(el.getAttribute('word') == '') 
+            // && !el.hasAttribute('word') && !(el.hasAttribute('word') && el.getAttribute('word') == '') ); 
+
+            if (rectangles.length === 0) return; // If there are no rectangles, do nothing
+
+            // Determine the current element with focus
+            const activeElement = document.activeElement;
+            const currentIndex = rectangles.indexOf(activeElement);
+            if (currentIndex >= 0) {
+                rectangles[currentIndex].classList.remove('selected');
+            }
+            if (activeElement) activeElement.blur();
+
+            // We go to the next element or return to the first
+            const nextIndex = (currentIndex + 1) % rectangles.length;
+            const nextRectangle = rectangles[nextIndex];
+
+            nextRectangle.contentEditable = true;
+            nextRectangle.classList.add('selected');
+            nextRectangle.classList.add('text-editing'); //Add a class for editing		
+
+            nextRectangle.blur();
+            // Install the focus on the next element
+            nextRectangle.focus();
+            setCursorToEnd(nextRectangle);
+
+            // Scroll the screen to the next element
+            let lp = nextRectangle.style.left;
+            if (lp.indexOf("%", 1) > 0) {
+                lp = parseFloat(lp);
+                if (lp <= 30) nextRectangle.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start' });
+                else if (lp >= 65) nextRectangle.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'end' });
+                else nextRectangle.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+            else nextRectangle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+
+            // Miganie frames:
+            nextRectangle.classList.add("flash-border");
+            setTimeout(() => {
+                nextRectangle.classList.remove("flash-border");
+            }, 1500);
+        }
+    }
+
+
+    function getUnrotatedRatios(el, event) {
+        rect = el;
+        const trn = rect.style.transform;
+        rect.style.transform = `rotate(0deg)`;
+        const rect0 = rect.getBoundingClientRect(); //Get real dimensions and position
+        const rectWidth = rect0.width; //The width of the rectangle
+        const rectHeight = rect0.height; //The height of the rectangle
+        const rectLeft = rect0.left; //Position of a rectangle by x
+        const rectTop = rect0.top; //Position of a rectangle on y
+        rect.style.transform = trn;
+        const x = event.clientX - rectLeft;
+        const y = event.clientY - rectTop;
+        // Angle of rotation
+        const match = el.style.transform.match(/rotate\(([-\d.]+)deg\)/);
+        const angleDeg = match ? parseFloat(match[1]) : 0;
+        const angleRad = -angleDeg * Math.PI / 180;
+        // Reverse the point back
+        let unrotatedX = Math.cos(angleRad) * x - Math.sin(angleRad) * y;
+        let unrotatedY = Math.sin(angleRad) * x + Math.cos(angleRad) * y;
+        return {
+            xRatio: unrotatedX / rectWidth,
+            yRatio: unrotatedY / rectHeight
+        };
+    }
+
+
+    function clickSiorect(event) {
+        let el = this;
+        const { xRatio, yRatio } = getUnrotatedRatios(this, event);        
+        if ((xRatio > 0.7 && yRatio < 0.4) || !el.hasAttribute('word')
+            || (el.hasAttribute('word') && el.getAttribute('word') == '')
+            || el.classList.contains('hiding') ) {
+            const sel = window.getSelection();
+            if (sel && sel.toString().length > 0) {
+                window.getSelection().removeAllRanges();
+                return;
+            }
+            if (document.activeElement === el) el.blur();
+            document.body.focus();
+            el.classList.remove('selected');
+            el.style.display = 'none';
+            event.preventDefault();
+            return;
+        }
+        if (el.classList.contains('hiding') || el.classList.contains('line')
+            || !el.hasAttribute('word') || (el.hasAttribute('word') && el.getAttribute('word') == '')) {
+            el.contentEditable = "false";
+            return;
+        }
+        el.contentEditable = "true";
+        document.querySelectorAll('.sio-rect').forEach(siorect => {
+            siorect.classList.remove('selected');
+        });
+        el.classList.add('selected');
+        el.focus();
+
+        if (el.dataset.wasFocused === "false") {
+            el.dataset.wasFocused = "true";
+            setTimeout(() => {
+                try {
+                    const range = document.createRange();
+                    range.selectNodeContents(el);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } catch (err) {
+                    //console.log('Error of discharge:', err);
+                }
+            }, 300);
+        }
+    }
+
+
+    function onlySimpleText(str) { // Simplifying text for comparison
+        str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); //Remove diacritic
+        str = str.replace(/<[^>]*>/g, ""); //Delete tags
+        str = str.replace(/[^\p{L}\p{N}\s]/gu, ""); //Leave only letters/numbers/gaps
+        str = str.replace(/\s+/g, " "); // Multiple gaps -> one
+        return str.toLowerCase().trim();
+    }
+
+
+    function validateInput(event) {
+        let elRect = this;
+        const userText = onlySimpleText(elRect.textContent);
+        const targetWords = onlySimpleText(elRect.getAttribute("word") || "").split(",");
+        let matched = false;
+        for (let word of targetWords) {
+            if (userText === word) {
+                elRect.style.color = "black";
+                elRect.style.backgroundColor = "#0af00a";
+                matched = true;
+                break;
+            } else if (word.startsWith(userText) && userText.length > 0) {
+                elRect.style.color = "black";
+                if (elRect.classList.contains('hiding')) 			// Return the background
+                    elRect.style.backgroundColor = "rgba(1, 78, 140, 1)";
+                else
+                    elRect.style.backgroundColor = "rgba(255, 235, 162, 1)";
+                matched = true;
+            }
+        }
+
+        if (!matched) {
+            elRect.style.color = "black";
+            elRect.style.backgroundColor = "#fb8c8c";
+        }
+    }
+
+
+    function pasteSimpl(event) { // We insert only the text
+        event.preventDefault(); // Prevent the standard insert behavior
+        // We get a text from the Buffer of the Exchange
+        const text = (event.clipboardData || window.clipboardData).getData('text');
+        // document.execCommand('insertText', false, text); OLD
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(text));
+    }
+
+
+    function handlers_for_all_siorect() {
+        document.querySelectorAll('.sio-rect').forEach(div => {
+            // If there is a word, then the first should go in the hint '? '		
+            let atW = div.getAttribute('word');
+            let atH = div.getAttribute('hint');
+            if (atW && atW !== "" && (!atH || atH.trimLeft().indexOf("?") < 0)) {
+                if (atH) {
+                    div.setAttribute('hint', '? ' + atH);
+                } else {
+                    div.setAttribute('hint', '? ');
+                }
+            }            
+
+            div.contentEditable = "false";
+            div.dataset.wasFocused = "false";
+            div.addEventListener('click', clickSiorect);
+            div.addEventListener('input', validateInput);
+            div.addEventListener('paste', pasteSimpl);
+        });
+    }
+
+
+    function init() { // initialization
+        // alert('init');        
+        if (!document.is_init) {
+            updateFontSize(); // The initial font size
+            // When to update the font size         
+            window.addEventListener('scroll', updateFontSize);
+            window.addEventListener('resize', updateFontSize);
+            document.addEventListener('keydown', keydownEnterTab);
+        }
+        handlers_for_all_siorect();
+        document.is_init = true;
+    }
+
+    init();
+
+
+</script>
