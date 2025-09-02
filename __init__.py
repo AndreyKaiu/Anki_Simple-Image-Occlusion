@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 1.0, date: 2025-05-04
+# Version 1.1, date: 2025-09-02
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -502,7 +502,7 @@ gui_hooks.browser_will_show.append(browser_show)
 def create_note_type_if_not_exists():
     col = mw.col
     models = col.models    
-    name = "Image Occlusion Simple (v1.0)"
+    name = "Image Occlusion Simple (v1.1)"
     if models.by_name(name):
         return
     
