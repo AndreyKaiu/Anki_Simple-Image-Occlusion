@@ -1,3 +1,4 @@
+<!-- Version 1.1, date: 2025-09-02 -->
 <div style="height: 25px;" class="onlyankidroid">&nbsp;</div>
 <div class="sio-container">
     <div class="sio-image-container">
@@ -22,24 +23,29 @@
             </svg>
         </div>
     </button>
-		<button id="zoomInButton" onclick="zoomIn()">+</button>
+        <button id="zoomInButton" onclick="zoomIn()">+</button>
     <button id="zoomOutButton" onclick="zoomOut()">-</button>    
     <button id="toggleButton" onclick="toggleBtn()">Show \ Hide</button>
 <button id="clearButton" onclick="clearBtn()">Clear</button>  
 </div>
 
 
-<script>
+<script>    
+    var langSS = "en-US"; 
     var isAnkiDroid = (typeof AnkiDroidJS !== "undefined");
     if (!isAnkiDroid) {
         document.querySelectorAll('.onlyankidroid').forEach(elOAD => {
             elOAD.style.display = "none";
         });
     }
-    else {
+    else {        
         elSC = document.getElementById('sio-controls');
         if (elSC) elSC.classList.add('ankidroid');
+        jsApiContract = { "version": "0.0.3", "developer": "infinyte01@mail.com" };
+        apiAnkiDroid = new AnkiDroidJS(jsApiContract);
+        apiAnkiDroid.ankiTtsSetLanguage(langSS);   
     }
+
 
     // When loading, show rectangles for entering
     function transparentRect() {
@@ -110,58 +116,58 @@
 
 
     function fitFontSizeToRect(rectElement) {
-	let txtEl = String(rectElement.textContent);	
+    let txtEl = String(rectElement.textContent);    
     let txtWordEl = String(rectElement.getAttribute('word'));
     let txtHintEl = String(rectElement.getAttribute('hint'));
     if(txtEl.length==0 && txtHintEl.length > txtWordEl.length ) txtEl = txtHintEl + "NN";
     else if(txtWordEl.length > txtEl.length ) txtEl = txtWordEl + "N";    
 
-	let maxChars = 12;
-	if( txtEl.length > 0 ) {
-		let pz = txtEl.indexOf("::");
-		if(pz > 0) txtEl = txtEl.slice(0, pz); 
-		maxChars = Math.min(txtEl.length, maxChars);
-	}
-	const minFontSize = 10;
-	const maxFontSize = 100; // Upper limit
-	const rectWidth = rectElement.clientWidth; // Let's get the width of the rectangle
+    let maxChars = 12;
+    if( txtEl.length > 0 ) {
+        let pz = txtEl.indexOf("::");
+        if(pz > 0) txtEl = txtEl.slice(0, pz); 
+        maxChars = Math.min(txtEl.length, maxChars);
+    }
+    const minFontSize = 10;
+    const maxFontSize = 100; // Upper limit
+    const rectWidth = rectElement.clientWidth; // Let's get the width of the rectangle
     const rectHeight= rectElement.clientHeight;
-	
-	const temp = document.createElement("span"); // Create a time element for measurement
-	temp.style.visibility = "hidden";
-	temp.style.whiteSpace = "nowrap";
-	temp.style.position = "absolute";
-	temp.style.padding = "0";
-	temp.style.margin = "0";
-	temp.style.fontFamily = getComputedStyle(rectElement).fontFamily;
-	temp.textContent = "N".repeat(maxChars); // The widest text option
-	document.body.appendChild(temp);
-	let fontSize = maxFontSize;
-	while (fontSize > minFontSize) {
-		temp.style.fontSize = fontSize + "px";
-		const textWidth = temp.getBoundingClientRect().width;
-		const textHeight = temp.getBoundingClientRect().height;
-		if (textWidth <= rectWidth && textHeight <= rectHeight) {
-			break;
-		}
-		if(fontSize < 24) fontSize--;
-		else if(fontSize < 48) fontSize -= 2;
-		else if(fontSize < 96) fontSize -= 4;
-		else fontSize -= 8;
-	}	
-	document.body.removeChild(temp); // Let's remove the temporary element	
-	rectElement.style.fontSize = fontSize + "px"; 
+    
+    const temp = document.createElement("span"); // Create a time element for measurement
+    temp.style.visibility = "hidden";
+    temp.style.whiteSpace = "nowrap";
+    temp.style.position = "absolute";
+    temp.style.padding = "0";
+    temp.style.margin = "0";
+    temp.style.fontFamily = getComputedStyle(rectElement).fontFamily;
+    temp.textContent = "N".repeat(maxChars); // The widest text option
+    document.body.appendChild(temp);
+    let fontSize = maxFontSize;
+    while (fontSize > minFontSize) {
+        temp.style.fontSize = fontSize + "px";
+        const textWidth = temp.getBoundingClientRect().width;
+        const textHeight = temp.getBoundingClientRect().height;
+        if (textWidth <= rectWidth && textHeight <= rectHeight) {
+            break;
+        }
+        if(fontSize < 24) fontSize--;
+        else if(fontSize < 48) fontSize -= 2;
+        else if(fontSize < 96) fontSize -= 4;
+        else fontSize -= 8;
+    }    
+    document.body.removeChild(temp); // Let's remove the temporary element    
+    rectElement.style.fontSize = fontSize + "px"; 
 }
 
 
 // Update the size of the font from the size of the image container
 function updateFontSize() {
-	els = document.querySelectorAll('.sio-rect');
-	for (var i = 0; i < els.length; i++) {
-		try {
-			fitFontSizeToRect(els[i]);		
-		} catch(err) {}		
-	}
+    els = document.querySelectorAll('.sio-rect');
+    for (var i = 0; i < els.length; i++) {
+        try {
+            fitFontSizeToRect(els[i]);        
+        } catch(err) {}        
+    }
 }
 
 
@@ -205,7 +211,7 @@ function updateFontSize() {
 
         updateFontSize();
 
-        setTimeout(() => { //Restore the viewing center  		
+        setTimeout(() => { //Restore the viewing center          
             let maxSW2 = (document.documentElement.scrollWidth + window.uScrollbarWidth) - window.innerWidth;
             let maxSH2 = (document.documentElement.scrollHeight + window.uScrollbarWidth) - window.innerHeight;
             let nSx = 0, nSy = 0;
@@ -256,7 +262,7 @@ function updateFontSize() {
 
         updateFontSize();
 
-        setTimeout(() => { //Restore the viewing center 		
+        setTimeout(() => { //Restore the viewing center         
             let maxSW2 = (document.documentElement.scrollWidth + window.uScrollbarWidth) - window.innerWidth;
             let maxSH2 = (document.documentElement.scrollHeight + window.uScrollbarWidth) - window.innerHeight;
             let nSx = 0, nSy = 0;
@@ -326,9 +332,9 @@ function updateFontSize() {
         }
     }
 
-
-    function keydownEnterTab(event) {
-        if (event.key === 'Enter' || event.key === 'Tab') {
+    
+    function keydownEnterTab(event) {        
+        if (event.key === 'Enter' || event.key === 'Tab') {               
             event.preventDefault(); // Prevent default behavior
             // Find all elements with class "txt-sio-rect"
             const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
@@ -353,7 +359,7 @@ function updateFontSize() {
 
             nextRectangle.contentEditable = true;
             nextRectangle.classList.add('selected');
-            nextRectangle.classList.add('text-editing'); //Add a class for editing		
+            nextRectangle.classList.add('text-editing'); //Add a class for editing        
 
             nextRectangle.blur();
             // Install the focus on the next element
@@ -406,8 +412,18 @@ function updateFontSize() {
     }
 
 
-    function clickSiorect(event) {
+    function pointerdownSiorect(event) {
         let el = this;
+        if( el.style.backgroundColor == "rgb(10, 240, 10)" ) {
+            let w = el.getAttribute("word");
+            speakText(w);    
+        } 
+    }
+
+    
+    function clickSiorect(event) {
+        let el = this;        
+
         const { xRatio, yRatio } = getUnrotatedRatios(this, event);        
         if ((xRatio > 0.7 && yRatio < 0.4) || !el.hasAttribute('word')
             || (el.hasAttribute('word') && el.getAttribute('word') == '')
@@ -429,7 +445,14 @@ function updateFontSize() {
             el.contentEditable = "false";
             return;
         }
-        el.contentEditable = "true";
+
+        if( el.style.backgroundColor != "rgb(10, 240, 10)" ) {
+            el.contentEditable = "true";
+        }
+        else {
+            if(el.classList.contains("selected")) el.contentEditable = "true";
+            else el.contentEditable = "false";
+        }
         document.querySelectorAll('.sio-rect').forEach(siorect => {
             siorect.classList.remove('selected');
         });
@@ -462,20 +485,54 @@ function updateFontSize() {
     }
 
 
-    function validateInput(event) {
+    // text-to-speech
+    function speakText(txtSpeak) {             
+        /* AnkiDroidJS API */
+        if (typeof AnkiDroidJS !== 'undefined') {        
+            async function apiADResult() {
+                try { apiAnkiDroid.ankiTtsSetLanguage(langSS); } catch(e){}
+                try { apiAnkiDroid.ankiTtsStop(); } catch(e){}
+                try { apiAnkiDroid.ankiTtsSpeak( txtSpeak ); } catch(e){}            
+            }
+            apiADResult();
+        }
+        else {
+            try {
+                let voices = speechSynthesis.getVoices();
+                const utterance = new SpeechSynthesisUtterance(txtSpeak);
+                let selectedVoice = voices.find(voice => voice.lang === langSS || voice.lang === langSS.slice(0, 2));
+                if (selectedVoice) {
+                    utterance.lang = selectedVoice;
+                }
+                else {
+                    utterance.lang = langSS; 
+                }
+                
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(utterance);
+                }
+            }
+            catch(e){}
+        }
+    }
+   
+    function validateInput(event) {               
         let elRect = this;
+        let w = elRect.getAttribute("word");        
         const userText = onlySimpleText(elRect.textContent);
-        const targetWords = onlySimpleText(elRect.getAttribute("word") || "").split(",");
+        const targetWords = onlySimpleText(w || "").split(",");
         let matched = false;
         for (let word of targetWords) {
             if (userText === word) {
                 elRect.style.color = "black";
-                elRect.style.backgroundColor = "#0af00a";
-                matched = true;
+                elRect.style.backgroundColor = "rgb(10, 240, 10)";
+                matched = true;                                
+                //speakText(w);                
                 break;
             } else if (word.startsWith(userText) && userText.length > 0) {
                 elRect.style.color = "black";
-                if (elRect.classList.contains('hiding')) 			// Return the background
+                if (elRect.classList.contains('hiding'))             // Return the background
                     elRect.style.backgroundColor = "rgba(1, 78, 140, 1)";
                 else
                     elRect.style.backgroundColor = "rgba(255, 235, 162, 1)";
@@ -505,7 +562,7 @@ function updateFontSize() {
 
     function handlers_for_all_siorect() {
         document.querySelectorAll('.sio-rect').forEach(div => {
-            // If there is a word, then the first should go in the hint '? '		
+            // If there is a word, then the first should go in the hint '? '        
             let atW = div.getAttribute('word');
             let atH = div.getAttribute('hint');
             if (atW && atW !== "" && (!atH || atH.trimLeft().indexOf("?") < 0)) {
@@ -519,6 +576,7 @@ function updateFontSize() {
             div.contentEditable = "false";
             div.dataset.wasFocused = "false";
             div.addEventListener('click', clickSiorect);
+            div.addEventListener('pointerdown', pointerdownSiorect);
             div.addEventListener('input', validateInput);
             div.addEventListener('paste', pasteSimpl);
         });
