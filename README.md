@@ -11,7 +11,9 @@ Add-on for the Anki program. Create cards that hide part of the image and prompt
 
 This add-on is simpler in some ways, and not quite so in others. In any case, I needed the ability to enter text on the hiding rectangles themselves, to check such text.
 
-When installing my add-on, the "Image Occlusion Simple (v1.0)" note type is created. Perhaps in other versions, a note type with a different number in brackets will be added.
+When installing my add-on, the "Image Occlusion Simple (v1.1)" note type is created. Perhaps in other versions, a note type with a different number in brackets will be added.
+
+Those who have previously installed the add-on may have version 1.0. The only difference with version 1.1 is in the card face template code, where the function of voicing the entered word by the voice engine is added when it is clicked (clicking again will allow you to enter the editing mode). If your voice language is not English, then find the line 'var langSS = "en-US";' in the card face template and replace it with your language. If you need to have different languages ​​for different cards, then create a separate field, say with the name "LngTag" and then write in the line: 'var langSS = "{{LngTag}}";'
 
 There is a special button to call the editor of closing rectangles on the background of the image (the cursor must be on the field with the image). The editor allows you to create regular rectangles to test your knowledge (yellow) and additional hiding ones (blue). It is possible to add a line to indicate a point on the picture. For complex cases, the rectangle can be rotated (right mouse button), converted into a circle (oval). The rectangle can have text (test word) and a hint for the word. Even if there is no hint, the user will still be shown the "?" so that he knows that this is an input field.
 
@@ -25,7 +27,7 @@ When viewing a card, you can change the scale (not ideal, especially for Android
 
 For ease of viewing of records, it is recommended to use the "Editor Live Preview" add-on https://ankiweb.net/shared/info/1960039667
 
-The minimum possible code is added to the image field itself, and the main functionality can be changed in map templates and styles for the "Image Occlusion Simple (v1.0)" record type
+The minimum possible code is added to the image field itself, and the main functionality can be changed in map templates and styles for the "Image Occlusion Simple (v1.1)" record type
 
 ![Simple Image Occlusion_3](https://github.com/user-attachments/assets/18b212c8-eb93-48f5-9bc5-37e2d50796b0)
 
@@ -37,6 +39,7 @@ The minimum possible code is added to the image field itself, and the main funct
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
+- 1.1, date: 2025-09-02. The only difference with version 1.1 is in the card face template code, where the function of voicing the entered word by the voice engine when it is clicked is added (clicking again will allow you to enter the editing mode).
 - 1.0, date: 2025-05-04. First release
 
 **SPECIAL THANKS**
