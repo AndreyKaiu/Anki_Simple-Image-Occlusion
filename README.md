@@ -39,7 +39,7 @@ The minimum possible code is added to the image field itself, and the main funct
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
-- 1.1, date: 2025-09-02. The only difference with version 1.1 is in the card face template code, where the function of voicing the entered word by the voice engine when it is clicked is added (clicking again will allow you to enter the editing mode).
+- 1.1, date: 2025-09-02. The only difference with version 1.0 is in the card face template code, where the function of voicing the entered word by the voice engine when it is clicked is added (clicking again will allow you to enter the editing mode).
 - 1.0, date: 2025-05-04. First release
 
 **SPECIAL THANKS**
