@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 1.1, date: 2025-09-02
+# Version 1.1, date: 2025-10-12
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
 from aqt import gui_hooks
 from aqt.utils import showInfo
+from aqt.utils import askUser
 from pathlib import Path
 import re
 import os
 import shutil
 import time
+import inspect
 from aqt.addcards import AddCards
 
 from aqt import mw
@@ -503,8 +505,53 @@ def create_note_type_if_not_exists():
     col = mw.col
     models = col.models    
     name = "Image Occlusion Simple (v1.1)"
-    if models.by_name(name):
+    update_Addon_Key = 'update_Addon_675107747_20251012_23'
+    existing = models.by_name(name)
+    if existing:
+        # Предложим пользователю обновить шаблон если он еще его не обновлял
+        try:
+            # Загрузка
+            update_Addon = mw.pm.profile.get(update_Addon_Key, '')
+        except:
+            update_Addon = ''
+        
+        if update_Addon != '':
+            return
+        
+        # Проверяем сигнатуру askUser
+        sig = inspect.signature(askUser)
+        kwargs = {"text": (
+            f"The note type '{name}' already exists.\n"
+            "Do you want to update its templates and styling from the new version?\n"
+            "(Don't update if you've made any design changes; save your changes and reload Anki first.)"
+        )}
+        if "msgTitle" in sig.parameters:
+            kwargs["msgTitle"] = "Update note type?"
+        if "default" in sig.parameters:
+            kwargs["default"] = True
+
+        should_update = askUser(**kwargs)
+        
+        if should_update:
+            # Loading HTML and CSS
+            base_path = Path(__file__).parent / "note_type"
+            front = (base_path / "Image Occlusion Simple_Front_Side.html").read_text(encoding="utf-8")
+            back = (base_path / "Image Occlusion Simple_Back_Side.html").read_text(encoding="utf-8")
+            styling = (base_path / "Image Occlusion Simple_CSS.css").read_text(encoding="utf-8")
+            
+            existing["css"] = styling
+
+            for tmpl in existing["tmpls"]:
+                if tmpl["name"] == "Card 1":
+                    tmpl["qfmt"] = front
+                    tmpl["afmt"] = back
+
+            models.save(existing)
+            col.models.flush()
+            
+            mw.pm.profile[update_Addon_Key] = 'True'
         return
+    
     
     # Loading HTML and CSS
     base_path = Path(__file__).parent / "note_type"
