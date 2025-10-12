@@ -1,4 +1,4 @@
-<!-- Version 1.1, date: 2025-09-02 -->
+<!-- Version 1.1, date: 2025-10-12 -->
 <div style="height: 25px;" class="onlyankidroid">&nbsp;</div>
 <div class="sio-container">
     <div class="sio-image-container">
@@ -32,11 +32,16 @@
 
 <script>    
     var langSS = "en-US"; 
-    var isAnkiDroid = (typeof AnkiDroidJS !== "undefined");
+    var isAnkiDroid = (typeof AnkiDroidJS !== "undefined");    
     if (!isAnkiDroid) {
         document.querySelectorAll('.onlyankidroid').forEach(elOAD => {
             elOAD.style.display = "none";
         });
+        var isAnkiWeb = (window.location.hostname === "ankiuser.net");
+        if(isAnkiWeb){
+            elSC = document.getElementById('sio-controls');
+            if (elSC) elSC.classList.add('ankiweb');
+        }
     }
     else {        
         elSC = document.getElementById('sio-controls');
