@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 1.1, date: 2025-10-12
+# Version 1.1.2, date: 2025-12-27
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -210,7 +210,7 @@ def show_image_dialog(self):
 
     # Option to choose between single card or multiple cards
     card_option_layout = QHBoxLayout()
-    create_button = QPushButton(localizationF("Create", "Create"))
+    create_button = QPushButton(localizationF("Create_new", "Create new"))
     create_button.clicked.connect(lambda: createNotes(self, web_view, img_field))
     card_option_layout.addWidget(create_button)
 
@@ -236,9 +236,14 @@ def show_image_dialog(self):
     # Adding a save button
     locF = localizationF("Save","💾 Save")    
     save_button = QPushButton(locF)
-    save_button.clicked.connect(lambda: save(self, web_view, img_field))
-      
+    save_button.clicked.connect(lambda: save(self, web_view, img_field))      
     button_layout.addWidget(save_button)
+
+    # Adding a saveclose button
+    locF = localizationF("Save_сlose","💾 Save and Close")    
+    saveclose_button = QPushButton(locF)
+    saveclose_button.clicked.connect(lambda: saveclose(self, web_view, img_field))      
+    button_layout.addWidget(saveclose_button)
 
     # Adding a close button    
     close_button = QPushButton(localizationF("Close", "Close"))
@@ -329,6 +334,8 @@ def process_html(html_content):
     rectangles = []
     for rect in soup.find_all('div', class_='sio-rect'):
         style = rect.get('style', '')
+        if '%' not in style:
+            continue  # We skip the ENTIRE rect block if its style does not contain any % at all
         # Extract left and top values for sorting
         left = 0
         top = 0
@@ -406,6 +413,13 @@ def save(editor, web_view, img_field):
     get_modified_html(web_view, on_html_processed)
 
 
+def saveclose(editor, web_view, img_field):
+    global dialog
+    save(editor, web_view, img_field)
+    dialog.close()
+
+
+
 def RefreshDeck_id(editor, deck_id):  
     """update the type of column maps"""     
     deck_name = browserS.mw.col.decks.name(deck_id)
@@ -414,6 +428,7 @@ def RefreshDeck_id(editor, deck_id):
 
 
 def create(editor, web_view, img_field):
+    editornoteid = editor.note.id
     def on_html_processed(html_content):
         if not html_content:
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Save...</p>")
@@ -424,25 +439,46 @@ def create(editor, web_view, img_field):
         if not editor.note:
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Note not initialized...</p>")
             return
-
-        # Find the note type and deck
-        # model = editor.note.model()
+        
+        IOS_model_name = "Image Occlusion Simple (v1.1)"
         note_type = editor.note.note_type()
         deck_id = editor.note.cards()[0].did if editor.note.cards() else editor.mw.col.decks.selected()
+        cur_IOS = note_type == IOS_model_name 
+        findIOS = False 
+
+        # We are looking for the Image Occlusion Simple model.        
+        models = editor.mw.col.models        
+        for model in models.all():
+            if model['name'] == IOS_model_name:
+                note_type = model
+                findIOS = True
+                break
+        
+        savedNote = False
         crN = 0
         # Create one new with full html_content
-        if single_card_radio.isChecked():            
-            new_note = editor.mw.col.new_note(note_type) #model)
-            # Copy values from original note to maintain consistency
-            for field_name in editor.note.keys():
-                if field_name == img_field:
-                    new_note[field_name] = html_content
+        if single_card_radio.isChecked():  
+            if editornoteid != 0 or not cur_IOS: # not added or the current note is not Image Occlusion Simple
+                new_note = editor.mw.col.new_note(note_type) #model)
+                if not findIOS:
+                    # Copy values from original note to maintain consistency
+                    for field_name in editor.note.keys():
+                        if field_name == img_field:
+                            new_note[field_name] = html_content
+                        else:
+                            new_note[field_name] = editor.note[field_name]
                 else:
-                    new_note[field_name] = editor.note[field_name]
+                    for field_name in editor.note.keys():
+                        if field_name == img_field:
+                            new_note["Front"] = html_content
 
-            # Add the note to the collection
-            editor.mw.col.add_note(new_note, deck_id)
-            crN += 1            
+                # Add the note to the collection            
+                editor.mw.col.add_note(new_note, deck_id)                               
+            else:
+                editor.note[img_field] = html_content 
+                savedNote = True                
+            crN += 1
+        
 
         else:  # Otherwise, it is necessary to create for each class Sio-Rect (but not for Line or Hiding)            
             soup = BeautifulSoup(html_content, 'html.parser')
@@ -458,19 +494,42 @@ def create(editor, web_view, img_field):
                 new_html_content = str(new_soup) # We convert HTML back into the line               
                 new_note = editor.mw.col.new_note(note_type) # Create a new record
                 
-                for field_name in editor.note.keys():
-                    if field_name == img_field:
-                        new_note[field_name] = new_html_content
+                if not findIOS:
+                    for field_name in editor.note.keys():
+                        if field_name == img_field:
+                            new_note[field_name] = new_html_content
+                        else:
+                            new_note[field_name] = editor.note[field_name]
+                    # Add the note to the collection
+                    editor.mw.col.add_note(new_note, deck_id)
+                    crN += 1
+                else:                    
+                    if editornoteid != 0 or not cur_IOS: # not added or the current note is not Image Occlusion Simple                    
+                        new_note["Front"] = new_html_content
+                        # Add the note to the collection
+                        editor.mw.col.add_note(new_note, deck_id)
                     else:
-                        new_note[field_name] = editor.note[field_name]
+                        if crN == 0:
+                            editor.note["Front"] = new_html_content
+                            savedNote = True
+                            editor.note[img_field] = new_html_content                            
+                        else:                         
+                            new_note["Front"] = new_html_content
+                            # Add the note to the collection
+                            editor.mw.col.add_note(new_note, deck_id)     
+                    crN += 1   
 
-                # Add the note to the collection
-                editor.mw.col.add_note(new_note, deck_id)
-                crN += 1
+        if savedNote: # we don't count the one being added, it hasn't been created yet
+            crN -= 1
 
         locF = localizationF("Created_notes","Created notes:")        
-        tooltip(f"<p style='color: yellow; background-color: black'>{locF} {crN}</p>")
-        QTimer.singleShot(500, lambda:RefreshDeck_id(editor, deck_id))
+        tooltip(f"<p style='color: yellow; background-color: black'>{locF} {crN}</p>")           
+        if editornoteid != 0:
+            QTimer.singleShot(500, lambda:RefreshDeck_id(editor, deck_id))
+        if savedNote:            
+            editor.loadNoteKeepingFocus()
+        
+
 
     # We pass the handler to get_modified_html
     get_modified_html(web_view, on_html_processed)
@@ -505,12 +564,33 @@ def create_note_type_if_not_exists():
     col = mw.col
     models = col.models    
     name = "Image Occlusion Simple (v1.1)"
+
+    Attention_Addon_Key = 'attention_Addon_675107747_20251227_22'
+    try:        
+        attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
+    except:
+        attention_Addon = ''
+    if attention_Addon == '':
+        try:
+
+            if askUser(text="""Good news: the note type hasn't changed. Your decks won't be affected in any way.
+Important news: the algorithm for adding a new note has changed slightly. When you click the 'Add' button with the 'Image Occlusion Simple (v1.1)' type and create new notes, the current note will also be taken into account. When creating new notes, a note of the 'Image Occlusion Simple (v1.1)' type is now always created.
+READ MORE on the 'Simple Image Occlusion' add-on page.
+Do not show this window again?""",                     
+                        msgfunc=QMessageBox.information,
+                        defaultno=False,
+                        title="Add-on 'Image Occlusion Simple' version 1.1.2. Attention!"):
+                mw.pm.profile[Attention_Addon_Key] = 'True'
+        except:
+            pass
+
+
     update_Addon_Key = 'update_Addon_675107747_20251012_23'
     existing = models.by_name(name)
     if existing:
-        # Предложим пользователю обновить шаблон если он еще его не обновлял
+        # We will prompt the user to update the template if he has not updated it yet.
         try:
-            # Загрузка
+            # Loading
             update_Addon = mw.pm.profile.get(update_Addon_Key, '')
         except:
             update_Addon = ''
@@ -518,7 +598,7 @@ def create_note_type_if_not_exists():
         if update_Addon != '':
             return
         
-        # Проверяем сигнатуру askUser
+        # Checking the askUser signature
         sig = inspect.signature(askUser)
         kwargs = {"text": (
             f"The note type '{name}' already exists.\n"
@@ -526,9 +606,10 @@ def create_note_type_if_not_exists():
             "(Don't update if you've made any design changes; save your changes and reload Anki first.)"
         )}
         if "msgTitle" in sig.parameters:
-            kwargs["msgTitle"] = "Update note type?"
+            kwargs["msgTitle"] = "Image Occlusion Simple. Update note type?"
         if "default" in sig.parameters:
             kwargs["default"] = True
+            
 
         should_update = askUser(**kwargs)
         

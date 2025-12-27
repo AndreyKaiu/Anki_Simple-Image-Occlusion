@@ -19,6 +19,7 @@
             display: inline-block;
             user-select: none; 
             z-index: 4;
+            margin-bottom: 50px;
         }
 
         .sio-image {
@@ -26,6 +27,7 @@
             height: auto;
             display: block;   
             z-index: 4; 
+            box-shadow: 0 0 0 2px #aaa;
         } 
 
         .sio-rect {
@@ -47,7 +49,7 @@
         .sio-rect.selected {
             cursor: move; /* The cursor moves only for the selection, if the text is not edited */            
             border-width: 2px;
-            border-style: dashed;    
+            border-style: solid;    
             /* border-color: violet; useful only for display, not in the editor*/       
         }
 
@@ -145,16 +147,22 @@
         button {
             margin: 2px 0px 1px;
         }
-
-        .temp-sio-rect {
-            background-color: rgba(255, 235, 162, 1);
-            border: 2px solid yellow;            
-        }
+        
         .sio-rect.hiding {
             background-color: rgb(1, 78, 140);            
             border: 2px solid blue;
             z-index: 5;
         }
+        
+        .temp-sio-rect {
+            background-color: rgba(255, 235, 162, 1);
+            border: 2px dashed red;
+        }
+        .temp-sio-rect.hiding {
+            background-color: rgba(255, 235, 162, 1);
+            border: 2px dashed violet;
+        }
+        
         
         .sio-rect.transparent {
             background-color: rgba(255, 235, 162, 0);
@@ -167,6 +175,9 @@
             /*pointer-events: none; /* Click passes through the line */
             border-width: 0px;
             z-index: 20;
+        }
+        .temp-sio-rect.line {            
+            border: 1px dashed red;
         }
 
 

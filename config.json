@@ -18,7 +18,10 @@
             "Created_notes": "Created notes:",
             "Simple_image_occlusion": "Simple image occlusion",
             "Question": "Question",
-            "want_to_create": "Are you sure you want to create"
+            "want_to_create": "Are you sure you want to create",
+            "Cancel": "Cancel",
+            "Create_new": "Create new",
+            "Save_сlose": "💾 Save and Close"
         },
         "ru": {                        
             "Close": "Закрыть",            
@@ -34,7 +37,10 @@
             "Created_notes": "Создано записей:",
             "Simple_image_occlusion": "Простое скрытие части изображения (Simple image occlusion)",
             "Question": "Вопрос",
-            "want_to_create": "Вы уверены, что хотите создать"
+            "want_to_create": "Вы уверены, что хотите создать",
+            "Cancel": "Отмена",
+            "Create_new": "Создать новый",
+            "Save_сlose": "💾 Сохранить и закрыть"           
         },
        "ar": {
             "Close": "إغلاق",
@@ -50,7 +56,10 @@
             "Created_notes": "الملاحظات التي تم إنشاؤها:",
             "Simple_image_occlusion": "إخفاء صورة بسيط",
             "Question": "سؤال",
-            "want_to_create": "هل أنت متأكد أنك تريد الإنشاء"
+            "want_to_create": "هل أنت متأكد أنك تريد الإنشاء",
+            "Cancel": "إلغاء",
+            "Create_new": "إنشاء جديد",
+            "Save_сlose": "💾 حفظ وإغلاق"
             },
         "de": {
             "Close": "Schließen",
@@ -66,7 +75,10 @@
             "Created_notes": "Erstellte Notizen:",
             "Simple_image_occlusion": "Einfache Bildausblendung",
             "Question": "Frage",
-            "want_to_create": "Möchten Sie wirklich erstellen"
+            "want_to_create": "Möchten Sie wirklich erstellen",
+            "Cancel": "Abbrechen",
+            "Create_new": "Neu erstellen,",
+            "Save_сlose": "💾 Speichern und schließen"
         },        
         "es": {
             "Close": "Cerrar",
@@ -82,7 +94,10 @@
             "Created_notes": "Notas creadas:",
             "Simple_image_occlusion": "Oclusión de imagen simple",
             "Question": "Pregunta",
-            "want_to_create": "¿Está seguro de que desea crear?"
+            "want_to_create": "¿Está seguro de que desea crear?",
+            "Cancel": "Cancelar",
+            "Create_new": "Crear nuevo",
+            "Save_сlose": "💾 Guardar y cerrar"
         },
         "fr": {
             "Close": "Fermer",
@@ -98,7 +113,10 @@
             "Created_notes": "Notes créées :",
             "Simple_image_occlusion": "Occlusion d'image simple",
             "Question": "Question",
-            "want_to_create": "Êtes-vous sûr de vouloir créer"
+            "want_to_create": "Êtes-vous sûr de vouloir créer",
+            "Cancel": "Annuler",
+            "Create_new": "Créer",
+            "Save_сlose": "💾 Enregistrer et fermer"
         },
         "hi": {
             "Close": "बंद करें",
@@ -114,7 +132,10 @@
             "Created_notes": "बनाई गई नोट्स:",
             "Simple_image_occlusion": "सरल छवि अस्पष्टता",
             "Question": "प्रश्न",
-            "want_to_create": "क्या आप वाकई बनाना चाहते हैं"
+            "want_to_create": "क्या आप वाकई बनाना चाहते हैं",
+            "Cancel": "कैंसल करें",
+            "Create_new": "नया बनाएं",
+            "Save_сlose": "💾 सेव करें और बंद करें"
         },
         "it": {
             "Close": "Chiudi",
@@ -130,7 +151,10 @@
             "Created_notes": "Note create:",
             "Simple_image_occlusion": "Occlusione immagine semplice",
             "Question": "Domanda",
-            "want_to_create": "Sei sicuro di voler creare"
+            "want_to_create": "Sei sicuro di voler creare",
+            "Cancel": "Annulla",
+            "Create_new": "Crea nuovo",
+            "Save_сlose": "💾 Salva e chiudi"
         },
         "ja": {
             "Close": "閉じる",
@@ -146,7 +170,10 @@
             "Created_notes": "作成されたノート：",
             "Simple_image_occlusion": "シンプルな画像の隠蔽",
             "Question": "質問",
-            "want_to_create": "作成してもよろしいですか？"
+            "want_to_create": "作成してもよろしいですか？",
+            "Cancel": "キャンセル",
+            "Create_new": "新規作成",
+            "Save_сlose": "💾 💾 保存して閉じる"
         },
         "ko": {
             "Close": "닫기",
@@ -162,7 +189,10 @@
             "Created_notes": "생성된 노트:",
             "Simple_image_occlusion": "간단한 이미지 차단",
             "Question": "질문",
-            "want_to_create": "정말로 생성하시겠습니까?"
+            "want_to_create": "정말로 생성하시겠습니까?",
+            "Cancel": "취소",
+            "Create_new": "새로 만들기",
+            "Save_сlose": "💾 저장하고 닫기"
         },
         "pt": {
             "Close": "Fechar",
@@ -178,7 +208,10 @@
             "Created_notes": "Notas criadas:",
             "Simple_image_occlusion": "Oclusão de imagem simples",
             "Question": "Pergunta",
-            "want_to_create": "Tem certeza de que deseja criar?"
+            "want_to_create": "Tem certeza de que deseja criar?",
+            "Cancel": "Cancelar",
+            "Create_new": "Criar novo",
+            "Save_сlose": "💾 Guardar e fechar"
         },
         "pt-BR": {
             "Close": "Fechar",
@@ -194,7 +227,10 @@
             "Created_notes": "Notas criadas:",
             "Simple_image_occlusion": "Oclusão de imagem simples",
             "Question": "Pergunta",
-            "want_to_create": "Tem certeza de que deseja criar?"
+            "want_to_create": "Tem certeza de que deseja criar?",
+            "Cancel": "Cancelar",
+            "Create_new": "Criar novo",
+            "Save_сlose": "💾 Salvar e fechar"
         },        
         "zh_CN": {
             "Close": "关闭",
@@ -210,7 +246,10 @@
             "Created_notes": "已创建笔记：",
             "Simple_image_occlusion": "简单图像遮挡",
             "Question": "问题",
-            "want_to_create": "你确定要创建吗？"            
+            "want_to_create": "你确定要创建吗？",
+            "Cancel": "取消",
+            "Create_new": "创建新项目",
+            "Save_сlose": "💾 保存并关闭"            
         }
     }
 }
