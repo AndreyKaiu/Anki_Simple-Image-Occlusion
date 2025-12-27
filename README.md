@@ -31,6 +31,13 @@ The minimum possible code is added to the image field itself, and the main funct
 
 ![Simple Image Occlusion_3](https://github.com/user-attachments/assets/18b212c8-eb93-48f5-9bc5-37e2d50796b0)
 
+Version 1.1.2 from December 27, 2025. The note type hasn't changed; it remains "Image Occlusion Simple (v1.1)" and working with your decks remains the same.
+
+Since activating the add-on via the "Add New Note" button could cause an error if users immediately wanted to create an occlusion, we had to modify the algorithm. Initially, we assumed we already had notes with images and were using them to create occlusions. But since many people find it more convenient to immediately add a new note using the "Add" button, insert an image, and apply occlusion, I've changed the algorithm: you click the "Add" button, select the "Image Occlusion Simple (v1.1)" note type, choose a deck, insert an image, and if you later want to create new notes of the "Image Occlusion Simple (v1.1)" type, since one note has already been added, it won't be counted when creating new notes, and you must click the "Add" (save) button yourself. Then, check how many notes you've created and what's in them. If you select a note type other than "Image Occlusion Simple (v1.1)" after clicking the "Add" button, the full number of "Image Occlusion Simple (v1.1)" notes will be created when you create new notes using this add-on, as this wasn't the case previously.
+
+I haven't changed the algorithm for saving edited data. I just added a "Save and Close" field to prevent double-clicking.
+
+When creating rectangles in the addon, people wouldn't always release the mouse button on the image itself, which could cause an error. To eliminate this error, the created rectangles are now a different color and have a dotted line. A gray border has been added to the image to prevent confusion. A little white space has been added to the bottom of the image, as there were issues accessing the bottom of the image when the buttons were stacked in two rows.
 
 **HELP AND SUPPORT**
 
@@ -39,9 +46,10 @@ The minimum possible code is added to the image field itself, and the main funct
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
-- 1.1, date: 2025-10-12. Fixed a button display issue when viewing on ankiweb.net. The note type version hasn't changed, but you'll need to agree to change the template code (save your design first if you changed the default for "Image Occlusion Simple (v1.1)").
+- 1.1.2, date: 2025-10-12. The note type version hasn't changed. Added a "Save and Close" button. Renamed the Create button to "Create New." Notes of the "Image Occlusion Simple (v1.1)" type are now always created. Fixed a bug with adding a new note and immediately creating it using the addon. Some design changes have been made to rectangles that have not yet been created but are indicated by a border. 
+- 1.1.1, date: 2025-10-12. Fixed a button display issue when viewing on ankiweb.net. The note type version hasn't changed, but you'll need to agree to change the template code (save your design first if you changed the default for "Image Occlusion Simple (v1.1)").
 - 1.1, date: 2025-09-02. The only difference with version 1.0 is in the card face template code, where the function of voicing the entered word by the voice engine when it is clicked is added (clicking again will allow you to enter the editing mode). Thanks to all those 500 who downloaded it. This version was made especially for this event. If you have any problems or suggestions, write to the forum, maybe I'll implement it if I have some free time.
-- 1.0, date: 2025-06-05. The note_type folder has been added. What does this mean? That no one has checked it before, but I had this type of record and the error was not detected :(
+- 1.0.1, date: 2025-06-05. The note_type folder has been added. What does this mean? That no one has checked it before, but I had this type of record and the error was not detected :(
 - 1.0, date: 2025-05-04. First release
 
 **SPECIAL THANKS**
