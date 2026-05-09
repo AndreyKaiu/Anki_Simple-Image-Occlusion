@@ -1,6 +1,9 @@
 # Anki_Simple-Image-Occlusion
 Add-on for the Anki program. Create cards that hide part of the image and prompt the user to enter text for verification (if the sign is ?, otherwise the usual hiding).
 
+[**If you previously read everything below for versions 1.0 and 1.1, you can immediately jump to the description of version 1.2**](version2)
+
+
 **This is not the "Image Occlusion Enhanced" add-on!** See it here https://ankiweb.net/shared/info/1374772155
 
 
@@ -39,6 +42,12 @@ I haven't changed the algorithm for saving edited data. I just added a "Save and
 
 When creating rectangles in the addon, people wouldn't always release the mouse button on the image itself, which could cause an error. To eliminate this error, the created rectangles are now a different color and have a dotted line. A gray border has been added to the image to prevent confusion. A little white space has been added to the bottom of the image, as there were issues accessing the bottom of the image when the buttons were stacked in two rows.
 
+=============================================
+<span id="version2"></span>
+**Version 2, May 9, 2026**
+
+
+
 **HELP AND SUPPORT**
 
 **Please do not use reviews for bug reports or support requests.**<br>
@@ -46,6 +55,7 @@ When creating rectangles in the addon, people wouldn't always release the mouse 
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
+- 2.0, date: 2026-05-09. There are many changes in the "Image Occlusion Simple (v2)" version. Many fields have been added to make it easier to transfer data from the standard "Image Occlusion" type. The add-on code has been modified to allow creation of both the old and new "Image Occlusion Simple" types.
 - 1.1.2, date: 2025-12-27. The note type version hasn't changed. Added a "Save and Close" button. Renamed the Create button to "Create New." Notes of the "Image Occlusion Simple (v1.1)" type are now always created. Fixed a bug with adding a new note and immediately creating it using the addon. Some design changes have been made to rectangles that have not yet been created but are indicated by a border. 
 - 1.1.1, date: 2025-10-12. Fixed a button display issue when viewing on ankiweb.net. The note type version hasn't changed, but you'll need to agree to change the template code (save your design first if you changed the default for "Image Occlusion Simple (v1.1)").
 - 1.1, date: 2025-09-02. The only difference with version 1.0 is in the card face template code, where the function of voicing the entered word by the voice engine when it is clicked is added (clicking again will allow you to enter the editing mode). Thanks to all those 500 who downloaded it. This version was made especially for this event. If you have any problems or suggestions, write to the forum, maybe I'll implement it if I have some free time.
