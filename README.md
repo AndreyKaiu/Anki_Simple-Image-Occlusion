@@ -43,8 +43,24 @@ I haven't changed the algorithm for saving edited data. I just added a "Save and
 When creating rectangles in the addon, people wouldn't always release the mouse button on the image itself, which could cause an error. To eliminate this error, the created rectangles are now a different color and have a dotted line. A gray border has been added to the image to prevent confusion. A little white space has been added to the bottom of the image, as there were issues accessing the bottom of the image when the buttons were stacked in two rows.
 
 =============================================
+
 <span id="version2"></span>
 **Version 2, May 9, 2026**
+
+Even without installing the add-on, you can evaluate its performance by following [the link: https://andreykaiu.github.io/Anki_Simple-Image-Occlusion/Seas%20(6th%20Grade).html](https://andreykaiu.github.io/Anki_Simple-Image-Occlusion/Seas%20(6th%20Grade).html)
+
+<img width="912" height="793" alt="Seas 6_1" src="https://github.com/user-attachments/assets/d458140b-3523-40da-add9-9bb385b24616" />
+
+Click the "Game" button to start the game. You must click on the yellow rectangles that hide (or indicate) the object you're looking for. Once you quickly (within 1-2 seconds) find the object, an additional "Next" button will become available. Click this button to open a new page with a different game or, as in this case, to display the quiz assessment form.
+
+The interface may be displayed in the language configured in your browser. If you complete this short game very well, it's a good idea to include your country in addition to your name when filling out the survey, as I'd like to know the preferred target languages.
+
+The example above shows a card with a complex fill-in task, not a simple hiding task. However, this type of filling allows you to both pronounce the words (depending on your system's TTS) and play a speed game, since only instant recall demonstrates your excellent memorization. As a reward for excellent performance, you might be shown a link that could lead to a higher level or somewhere else, even to a website where you might relax (you can set this yourself, or your teacher can send you ready-made cards for viewing outside of Anki).
+
+If a card is being shown to many people in the audience and something needs to be explained, demonstrated, or emphasized, then you can turn on the pointer mode (you can enter all the words at once if this information is needed).
+
+<img width="838" height="730" alt="Seas 6_2" src="https://github.com/user-attachments/assets/16f0ccfb-4cfe-4b83-81a8-1180a78d179a" />
+
 
 
 
