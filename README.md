@@ -1,7 +1,7 @@
 # Anki_Simple-Image-Occlusion
 Add-on for the Anki program. Create cards that hide part of the image and prompt the user to enter text for verification (if the sign is ?, otherwise the usual hiding).
 
-[**If you previously read everything below for versions 1.0 and 1.1, you can immediately jump to the description of version 1.2**](version2)
+[**If you previously read everything below for versions 1.0 and 1.1, you can immediately jump to the description of version 1.2**](#version2)
 
 
 **This is not the "Image Occlusion Enhanced" add-on!** See it here https://ankiweb.net/shared/info/1374772155
