@@ -81,6 +81,20 @@ The 'Words' field is automatically filled in when something is written in the re
 
 The 'LngTag' field can be left blank if the language is English, or it can have a hyphen if TTS is not needed. Well, and maybe a TTS settings entry, as described in the Anki help.
 
+<img width="862" height="678" alt="SIOv2_2" src="https://github.com/user-attachments/assets/a28db55b-0c84-4c3e-8dac-636e0f87ed59" />
+
+An audio file can be added to the card (in the 'AudioFile' field). This makes sense when the card only has one rectangle and it makes sense to add some audio to it.
+
+Anything that needs to be added to the front of the card should be written in the 'Front Extra' field. For the back of the card, you can write in the other two fields. Just don't fill out the 'Comments' field right away; it's best to fill it out for each user individually. But if you're making the card for yourself, you can, of course, fill it out however you like.
+
+The last field, 'URLVictory', is only needed for a game. You might want to include links there to another website or to another similar card that can be completed after this one.
+
+
+
+
+
+
+
 **HELP AND SUPPORT**
 
 **Please do not use reviews for bug reports or support requests.**<br>
