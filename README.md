@@ -61,6 +61,11 @@ If a card is being shown to many people in the audience and something needs to b
 
 <img width="838" height="730" alt="Seas 6_2" src="https://github.com/user-attachments/assets/16f0ccfb-4cfe-4b83-81a8-1180a78d179a" />
 
+To clarify the action of a key, you need to hover the mouse pointer over it and wait for the tooltip to appear.
+
+The "Export to HTML" button is available to the user, either in the HTML file itself or only on the ankiuser.net website. If only certain words are difficult for you, you can hide others and leave only the difficult ones. Then, by clicking "Export to HTML," you'll get a file that, when uploaded, will immediately show you what you need to pay attention to when memorizing.
+
+Anki only allows you to copy the HTML code for such a file; you must create a blank file with UTF8 encoding yourself. Currently, there are difficulties creating a file from Anki when embedding a large audio file (over 2 megabytes). However, since this functionality (exporting to HTML) is rarely needed and is primarily for teachers, most users will not experience any issues.
 
 
 
