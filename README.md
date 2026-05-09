@@ -42,15 +42,6 @@ I haven't changed the algorithm for saving edited data. I just added a "Save and
 
 When creating rectangles in the addon, people wouldn't always release the mouse button on the image itself, which could cause an error. To eliminate this error, the created rectangles are now a different color and have a dotted line. A gray border has been added to the image to prevent confusion. A little white space has been added to the bottom of the image, as there were issues accessing the bottom of the image when the buttons were stacked in two rows.
 
-After you install this add-on for your Anki program (computer version only), you can create new cards as before, but here the following fields have been added:
-
-<img width="1213" height="903" alt="SIOv2_1" src="https://github.com/user-attachments/assets/e125f921-2de9-41b0-921a-dcf228ab080b" />
-
-It is important to fill in the 'Front' field as always, pasting from the clipboard a cut-out piece of the screen on which the desired page of the PDF file or something else is displayed.
-
-
-
-
 =============================================
 
 <span id="version2"></span>
@@ -75,6 +66,10 @@ To clarify the action of a key, you need to hover the mouse pointer over it and 
 The "Export to HTML" button is available to the user, either in the HTML file itself or only on the ankiuser.net website. If only certain words are difficult for you, you can hide others and leave only the difficult ones. Then, by clicking "Export to HTML," you'll get a file that, when uploaded, will immediately show you what you need to pay attention to when memorizing.
 
 Anki only allows you to copy the HTML code for such a file; you must create a blank file with UTF8 encoding yourself. Currently, there are difficulties creating a file from Anki when embedding a large audio file (over 2 megabytes). However, since this functionality (exporting to HTML) is rarely needed and is primarily for teachers, most users will not experience any issues.
+
+After you install this add-on for your Anki program (computer version only), you can create new cards as before, but here the following fields have been added:
+
+<img width="1213" height="903" alt="SIOv2_1" src="https://github.com/user-attachments/assets/e125f921-2de9-41b0-921a-dcf228ab080b" />
 
 When adding a card, select the 'Image Occlusion Simple (v2)' type. If you previously installed this add-on, you can create a card using the older type.
 
