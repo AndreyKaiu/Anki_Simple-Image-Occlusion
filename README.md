@@ -42,26 +42,6 @@ I haven't changed the algorithm for saving edited data. I just added a "Save and
 
 When creating rectangles in the addon, people wouldn't always release the mouse button on the image itself, which could cause an error. To eliminate this error, the created rectangles are now a different color and have a dotted line. A gray border has been added to the image to prevent confusion. A little white space has been added to the bottom of the image, as there were issues accessing the bottom of the image when the buttons were stacked in two rows.
 
-Creating hidden rectangles:
-
-<img width="1281" height="940" alt="SIOv2_3" src="https://github.com/user-attachments/assets/f4936f8e-13c0-441b-89f7-32204f43c2e2" />
-
-Not much has changed. Everything is almost the same. However, you can now select a version (it automatically detects based on the type you selected, provided you previously installed the add-on). You can now specify the direction for selecting the next rectangle when filling when pressing 'Tab' (or 'Enter'). The problem is that in documents and texts, the transition to the next occlusion should be horizontal, but in some drawings it's vertical, by column.
-
-A button for selecting a selection area has been added to the image itself. Operations now work on groups of elements. There are also undo and redo commands. Each button has a tooltip describing what it can do and the hotkeys it uses.
-
-Since we sometimes had to view documents with very small print (usually instructions), a 200% zoom button was needed for convenience. This helps with eye strain, so the hotkey [F1] was chosen.
-
-The line was replaced with an arrow, but the direction was reversed, since it is easier to click from an unoccupied point and connect it to a rectangle that already occupies some area of ​​the drawing (although I am more used to dragging the line from left to right).
-
-The line can also be dotted. This is an invisible line. Sometimes drawings already have lines, and there may be more than one leading to the caption. So, unnecessary clutter with lines is unnecessary. For good memorization, it's important to click on the correct point in the drawing (this is the starting point of the arrow, i.e., its sharp end) so that the caption is activated.
-
-You can now change some colors in the ":root" section of the card type's CSS, but sometimes red helps when you need to draw attention to something. In this note type, you can label the rectangle so that the hint begins with an exclamation point '::!'—this will cause the rectangle to be framed in red, drawing our attention to it first. This is sometimes necessary when certain pieces of information are difficult to remember or are crucial and must be checked first (what's the point of remembering the 10 words of a safe password if you can't remember where the safe itself is?).
-
-Note that when selecting rectangles, you can now hold down Alt to draw a shape from the center, hold down Shift to create a precise square (circle), and hold down Ctrl to increment the shape. When rotating (right-click on a point on the rectangle's border), try holding these keys as well. And when moving, Shift will help you maintain horizontal or vertical alignment.
-
-
-
 
 =============================================
 
@@ -110,7 +90,23 @@ Anything that needs to be added to the front of the card should be written in th
 
 The last field, 'URLVictory', is only needed for a game. You might want to include links there to another website or to another similar card that can be completed after this one.
 
+Creating hidden rectangles:
 
+<img width="1281" height="940" alt="SIOv2_3" src="https://github.com/user-attachments/assets/f4936f8e-13c0-441b-89f7-32204f43c2e2" />
+
+Not much has changed. Everything is almost the same. However, you can now select a version (it automatically detects based on the type you selected, provided you previously installed the add-on). You can now specify the direction for selecting the next rectangle when filling when pressing 'Tab' (or 'Enter'). The problem is that in documents and texts, the transition to the next occlusion should be horizontal, but in some drawings it's vertical, by column.
+
+A button for selecting a selection area has been added to the image itself. Operations now work on groups of elements. There are also undo and redo commands. Each button has a tooltip describing what it can do and the hotkeys it uses.
+
+Since we sometimes had to view documents with very small print (usually instructions), a 200% zoom button was needed for convenience. This helps with eye strain, so the hotkey [F1] was chosen.
+
+The line was replaced with an arrow, but the direction was reversed, since it is easier to click from an unoccupied point and connect it to a rectangle that already occupies some area of ​​the drawing (although I am more used to dragging the line from left to right).
+
+The line can also be dotted. This is an invisible line. Sometimes drawings already have lines, and there may be more than one leading to the caption. So, unnecessary clutter with lines is unnecessary. For good memorization, it's important to click on the correct point in the drawing (this is the starting point of the arrow, i.e., its sharp end) so that the caption is activated.
+
+You can now change some colors in the ":root" section of the card type's CSS, but sometimes red helps when you need to draw attention to something. In this note type, you can label the rectangle so that the hint begins with an exclamation point '::!'—this will cause the rectangle to be framed in red, drawing our attention to it first. This is sometimes necessary when certain pieces of information are difficult to remember or are crucial and must be checked first (what's the point of remembering the 10 words of a safe password if you can't remember where the safe itself is?).
+
+Note that when selecting rectangles, you can now hold down Alt to draw a shape from the center, hold down Shift to create a precise square (circle), and hold down Ctrl to increment the shape. When rotating (right-click on a point on the rectangle's border), try holding these keys as well. And when moving, Shift will help you maintain horizontal or vertical alignment.
 
 
 
