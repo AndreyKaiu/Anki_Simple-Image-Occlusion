@@ -1,3 +1,7 @@
+<!-- -*- coding: utf-8 -*- -->
+<!-- add-on for anki program "Simple Image Occlusion" -->
+<!-- https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion -->
+<!-- Version 2.0, date: 2026-05-09 -->
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -5,6 +9,10 @@
     <title>Editable rectangles</title>
     <style>
            
+        :root {            
+            --angle-text: "⟳"; /* (changes only from code) */ 
+        }
+        
         body, button {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         }   
@@ -20,6 +28,11 @@
             user-select: none; 
             z-index: 4;
             margin-bottom: 50px;
+            width: 100%;            
+        }
+
+        .scale200 {            
+            width: 200%;            
         }
 
         .sio-image {
@@ -33,8 +46,8 @@
         .sio-rect {
             position: absolute;
             background-color: rgba(255, 235, 162, 1);
-            border: 2px solid yellow;
-            cursor: default;
+            border: 2px solid #aa007f; /* The color of the line and border rect */
+            /* cursor: default; */
             box-sizing: border-box;
             margin: 0px;
             padding: 0px;
@@ -47,16 +60,20 @@
         }
         
         .sio-rect.selected {
-            cursor: move; /* The cursor moves only for the selection, if the text is not edited */            
+            /* cursor: move; The cursor moves only for the selection, if the text is not edited             */
             border-width: 2px;
             border-style: solid;    
             /* border-color: violet; useful only for display, not in the editor*/       
         }
+        .sio-rect.selected.cursor-move {
+			cursor: move;
+		}
+	
 
         .temp-sio-rect {
-            cursor: move; /*The cursor moves only for the selection, if the text is not edited */            
-            border: 2px dashed;   
-            cursor: crosshair;    
+            /* cursor: move; The cursor moves only for the selection, if the text is not edited */            
+            border: 2px dashed;
+            cursor: crosshair;
             padding: 0px;     
         }
         
@@ -96,25 +113,41 @@
         }
         
 
-        .nw { top: -4px; left: -4px; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
+        .nw { top: -4px; left: -4px; border-radius: 50%; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
         .ne { top: -4px; right: -4px; cursor: nesw-resize; background-color: rgb(255, 0, 0); }
-        .sw { bottom: -4px; left: -4px; cursor: nesw-resize; background-color: rgb(255, 0, 0);}
+        .sw { bottom: -4px; left: -4px; cursor: nesw-resize; background-color: rgb(255, 0, 0); }
         .se { bottom: -4px; right: -4px; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
         .resize-handle.rotate {
             width: 10px;
             height: 10px;
         }
-        .nw.rotate {top: -5px; left: -5px; border-radius: 50%; background-color: rgb(0, 0, 255);}        
+        
+        .line .resize-handle {
+            width: 6px;
+            height: 6px;
+        }
+        .line .resize-handle.nw { top: -2px; left: -3px; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
+        .line .resize-handle.ne { top: -2px; right: -3px; cursor: nesw-resize; background-color: rgb(255, 0, 0); }
+        .line .resize-handle.sw { bottom: -2px; left: -3px; cursor: nesw-resize; background-color: rgb(255, 0, 0); }
+        .line .resize-handle.se { bottom: -2px; right: -3px; cursor: nwse-resize; background-color: rgb(255, 0, 0); }
+        
+        .nw.rotate {top: -5px; left: -5px; border-radius: 50%; background-color: rgb(0, 0, 255); }
         .ne.rotate { top: -5px; right: -5px; border-radius: 50%; background-color: rgb(255, 0, 0); }
-        .sw.rotate { bottom: -5px; left: -5px; border-radius: 50%; background-color: rgb(255, 0, 0);}
+        .sw.rotate { bottom: -5px; left: -5px; border-radius: 50%; background-color: rgb(255, 0, 0); }
         .se.rotate { bottom: -5px; right: -5px; border-radius: 50%; background-color: rgb(255, 0, 0); }
+
+        .around-the-center .nw.rotate {top: -5px; left: -5px; border-radius: 50%; background-color: rgb(0, 0, 255); }
+        .around-the-center .ne.rotate { top: -5px; right: -5px; border-radius: 50%; background-color: rgb(0, 0, 255); }
+        .around-the-center .sw.rotate { bottom: -5px; left: -5px; border-radius: 50%; background-color: rgb(0, 0, 255); }
+        .around-the-center .se.rotate { bottom: -5px; right: -5px; border-radius: 50%; background-color: rgb(0, 0, 255); }
+       
 
         .line .sw.rotate, .line .se.rotate {
             display: none;
         }
 
-        .nw.rotate::after {            
-            content: "⟳";
+        .nw.rotate::after {                        
+            content: var(--angle-text);
             position: absolute;
             right: 15px;
             top: -30px;
@@ -170,15 +203,76 @@
         
         .sio-rect.line {
             position: absolute;
-            background-color: violet; /* The color of the line */
+            background-color: #8b00aa; /* The color of the line and border rect */
             transform-origin: 0 0; /* The point of rotation */
             /*pointer-events: none; /* Click passes through the line */
             border-width: 0px;
             z-index: 20;
+        }     
+
+        .sio-rect.selectedRect {
+            border-color: #ff0000;  /* The color of the line and border rect */                    
         }
+        
+        .sio-rect.line.notvisible {
+            background-color: yellow;
+            height: 0.5px;
+            border-width: 1px;
+            border-color: red;
+            border-style: dashed;
+        }
+
+        .sio-rect.line::before {
+            content: "";
+            position: absolute;
+            right: 0; 
+            top: 50%;
+            transform: translate(50%, -50%);
+            width: 4px;
+            height: 4px;
+            background-color: #aa007f;
+            border-radius: 50%;
+        }
+        
+        .sio-rect.line::after {
+            content: "";
+            position: absolute;
+            left: 0; /* beginning of the line */
+            /* right: 0;  end of the line */
+            top: 50%;
+            transform: translate(-50%, -50%); /* 50%, -50% end of the line */
+            width: 0;
+            height: 0;
+            border-right: 6px solid #aa007f; /* The color of the line and border rect */
+            /* border-left: 6px solid #aa007f;  end of the line */
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .sio-rect.selected.line::after {
+            border-right: 9px solid #aa007f; /* The color of the line and border rect */            
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;   
+            left: 50%;           
+        }
+        
         .temp-sio-rect.line {            
             border: 1px dashed red;
         }
+		
+		.temp-sio-rect.selectarea {            
+            border: 2px dashed gray;
+			background-color: rgba(0, 0, 0, 0.3);
+            /* cursor: crosshair; */
+        }
+
+        .cursor-crosshair {
+			cursor: crosshair;
+		}        
+        .cursor-copy {
+			cursor: copy;
+		}
+        
 
 
     </style>
@@ -186,14 +280,16 @@
 <body>
     <div class="button-container">
         <div class="buttons">
-            <button id="removeBtn" onclick="removeRectangle()" title="Press the keys Ctrl+Del (for All: Ctrl+Shift+Del)">❌ delete</button>
-            <button id="showhideAllBtn" onclick="showhideAllRectangle()" title="Press the key F5 (F3 or Ctrl+LMouse - for one selected)">👁️ Show / Hide all</button>
-            <button id="editTextBtn" onclick="editText()" title="Press the key F2">✏️ edit "word::hint"</button>                              
-            <button id="addBtn" onclick="addRectangle(1)" title="Press the key F7">🟨 add rectangle</button>
-            <button id="add2Btn" onclick="addRectangle(2)" title="Press the key F8">🟦 add hiding rectangle</button>
-            <button id="addLine" onclick="addRectangle(3)" title="Press the key F9">↘️</button>
-            <button id="exchangeBtn" onclick="exchangeRectangle()" title="Change type. Press the key F4">🟨 &#8596; 🟦</button>
-            <button id="roundBtn" onclick="rectangleToRound()" title="Change shape. Press the key F6">□ &#8596; ○</button>
+            <button id="removeBtn" onclick="removeRectangle()" title="Press the keys [(Ctrl or Shift)+Del] (for All: Ctrl+Shift+Del; Ctrl+Z→undo; Ctrl+Shift+Z→redo)">❌ delete</button>
+            <button id="editTextBtn" onclick="editText()" title="Edit 'word::hint' [F2] (ESC→off) Enter '::!' - main attention">✏️ "word::hint"</button>
+            <button id="showhideAllBtn" onclick="showhideAllRectangle()" title="Show / Hide all — [F5] or [Shift+F1] (for selected — F3 or Ctrl+LMouse)">👁️ Show</button>                                    
+            <button id="selBtn" onclick="addRectangle(4)" title="Selection area (ESC→off/on; Shift→+; Alt→-; Ctrl+Shift+A→all; Ctrl+Shift+Alt+L,T,W,H,R→align)">⬚</button>            
+            <button id="addBtn" onclick="addRectangle(1)" title="Add rect [F7] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+🟨</button>
+            <button id="add2Btn" onclick="addRectangle(2)" title="Add hiding rect [F8] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+🟦</button>
+            <button id="addLine" onclick="addRectangle(3)" title="Add line [F9] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+⬅️</button>
+            <button id="roundBtn" onclick="rectangleToRound()" title="Change shape (or arrow type) [F6]">□↦ ⬌ ○⇢</button>
+            <button id="exchangeBtn" onclick="exchangeRectangle()" title="Change type [F4]">🟨 &#8596; 🟦</button>
+            <button id="scale200Btn" onclick="scale200()" title="Double the scale [F1]">&nbsp;200%&nbsp;</button>
         </div>
     </div>
 	<div class="sio-container">

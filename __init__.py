@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 1.1.2, date: 2025-12-27
+# Version 2.0, date: 2026-05-09
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -24,6 +24,9 @@ from bs4 import BeautifulSoup
 from aqt.gui_hooks import profile_did_open
 
 from anki.consts import MODEL_STD
+
+
+
 
 try:
     from PyQt6.QtWidgets import QApplication, QVBoxLayout, QDialog, QMessageBox, QMainWindow     
@@ -84,9 +87,75 @@ def localizationF(par1, default=""):
 
 
 dialog = None
+editorD = None
+close_avtosave = True
+words_field_val = None
+lngtag_field_val = None
+audiofile_field_val = None
+Header_field_val = None
+HeaderURL_filepdfpage_field_val = None
+FrontExtra_field_val = None
+Back_field_val = None
+BackExtra_field_val = None
+Comments_field_val = None
+URLVictory_field_val = None
 idxcurrentField = 0
 single_card_radio = None
 browserS = None
+ExistsIOS1 = False
+ExistsIOS2 = False
+CreateTypeIOS = 'v2'
+v2_radio = None
+next_down = None
+
+
+
+# needed to get the file name from "pycmd('play:'
+def inject_audio_filenames(text: str, card, kind: str) -> str:
+    if 'data-srcsio="' in text:
+        return text
+
+    card.render_output()
+
+    q_tags = card.question_av_tags()
+    a_tags = card.answer_av_tags()
+
+    def repl(match):
+        full_tag = match.group(0)
+        cmd = match.group(2)
+        
+        try:
+            _, context, idx = cmd.split(":")
+            idx = int(idx)
+
+            tags = q_tags if context == "q" else a_tags
+
+            if 0 <= idx < len(tags):
+                filename = tags[idx].filename
+            elif tags:
+                filename = tags[0].filename
+            else:
+                filename = ""
+
+        except Exception:
+            filename = ""
+
+        return full_tag.replace(
+            '<a',
+            f'<a data-srcsio="{filename}"',
+            1
+        )
+
+    return re.sub(
+        r'(<a[^>]*class="[^"]*soundLink[^"]*"[^>]*onclick="[^"]*pycmd\(\'(play:[^\']+)\'\)[^"]*"[^>]*>)',
+        repl,
+        text
+    )
+
+gui_hooks.card_will_show.append(inject_audio_filenames)
+
+
+
 
 
 def browser_show(browser):
@@ -105,22 +174,50 @@ def user_consent(text, title):
 
 
 def show_image_dialog(self):
-    global single_card_radio 
-    global idxcurrentField
-    global dialog
+    global single_card_radio, next_down, editorD 
+    global idxcurrentField, close_avtosave
+    global dialog, words_field_val, audiofile_field_val, Header_field_val, HeaderURL_filepdfpage_field_val, FrontExtra_field_val, Back_field_val, BackExtra_field_val, Comments_field_val, URLVictory_field_val, lngtag_field_val, ExistsIOS1, ExistsIOS2, CreateTypeIOS, v2_radio
+    words_field_val = None # if the 'Words' field is found
+    lngtag_field_val = None # if the 'LngTag' field is found
+    audiofile_field_val = None
+    Header_field_val = None
+    HeaderURL_filepdfpage_field_val = None
+    FrontExtra_field_val = None
+    Back_field_val = None
+    BackExtra_field_val = None
+    Comments_field_val = None
+    URLVictory_field_val = None
+
+    editorD = self
+    
     img_field = None
     img_path = None
     content = None
     idx = getattr(self, "currentField", None)
     idxcurrentField = idx
 
-    if idx is None:
-        locF = localizationF("Unable_to_determine_active_field", "Unable to determine active field.")
-        showInfo(locF)
+    model_name = self.note.model()["name"]
+    if not model_name.startswith("Image Occlusion Simple"):
+        showInfo("ERROR. The note type must begin with 'Image Occlusion Simple'")
         return
-
-    # Get the field name by index
+    
     field_names = list(self.note.keys())
+    if "Front" not in field_names:
+        showInfo("ERROR. Field 'Front' not found.")
+        return
+    
+    idx = field_names.index("Front")
+    # Set the current field index
+    self.currentField = idx
+    # Force focus on the editor
+    self.web.eval(f"focusField({idx});")
+
+    # if idx is None:
+    #     locF = localizationF("Unable_to_determine_active_field", "Unable to determine active field.")
+    #     showInfo(locF)
+    #     return        
+
+    # Get the field name by index    
     if idx < 0 or idx >= len(field_names):
         locF = localizationF("Invalid_field_index", "Invalid field index.")
         showInfo(locF)
@@ -131,9 +228,62 @@ def show_image_dialog(self):
     content = self.note[field]
     m = re.search(r'<img[^>]+src=["\'](.*?)["\']', content)
     if not m:
-        locF = localizationF("There_are_no_images_in_the_field", "There are no images in the field {field}")
-        showInfo(f"{locF}.")
+        locF = localizationF("There_are_no_images_in_the_field", "There are no images in the field {field}")        
+        showInfo(f"{locF.format(field=field)}.")
         return
+    
+    # Check for the presence of the 'Words' field and save its value
+    if 'Words' in field_names:
+        words_field_val = self.note['Words']
+        if words_field_val is None:
+            words_field_val = ""
+
+    # Check for the presence of the 'LngTag' field and save its value
+    if 'LngTag' in field_names:
+        lngtag_field_val = self.note['LngTag']       
+        if lngtag_field_val is None:
+            lngtag_field_val = ""
+    
+    if 'AudioFile' in field_names:
+        audiofile_field_val = self.note['AudioFile']
+        if audiofile_field_val is None:
+            audiofile_field_val = ""
+
+    if 'Header' in field_names:
+        Header_field_val = self.note['Header']
+        if Header_field_val is None:
+            Header_field_val = ""
+
+    if 'HeaderURL_filepdf#page=' in field_names:
+        HeaderURL_filepdfpage_field_val = self.note['HeaderURL_filepdf#page=']
+        if HeaderURL_filepdfpage_field_val is None:
+            HeaderURL_filepdfpage_field_val = ""
+
+    if 'Front Extra' in field_names:
+        FrontExtra_field_val = self.note['Front Extra']
+        if FrontExtra_field_val is None:
+            FrontExtra_field_val = ""
+    
+    if 'Back' in field_names:
+        Back_field_val = self.note['Back']
+        if Back_field_val is None:
+            Back_field_val = ""
+    
+    if 'Back Extra' in field_names:
+        BackExtra_field_val = self.note['Back Extra']
+        if BackExtra_field_val is None:
+            BackExtra_field_val = ""
+    
+    if 'Comments' in field_names:
+        Comments_field_val = self.note['Comments']
+        if Comments_field_val is None:
+            Comments_field_val = ""
+    
+    if 'URLVictory' in field_names:
+        URLVictory_field_val = self.note['URLVictory']
+        if URLVictory_field_val is None:
+            URLVictory_field_val = ""
+    
 
     img_field = field
     img_path = m.group(1).split("?")[0]    
@@ -165,7 +315,7 @@ def show_image_dialog(self):
         f'<img src="{img_path}" class="sio-image">'
     )
    
-    html_field = self.note[img_field] # get HTML in the field
+    html_field = self.note[img_field] # get HTML in the field    
     rectangles_html = transform_html(html_field)
     if rectangles_html:
         html_content = html_content.replace(
@@ -192,6 +342,7 @@ def show_image_dialog(self):
 
     # Create a window to display HTML
     dialog = QDialog(self.widget)
+
     locF = localizationF("Simple_image_occlusion", "Simple image occlusion")
     dialog.setWindowTitle(locF)
     if pyqt_version == "PyQt6":
@@ -213,11 +364,65 @@ def show_image_dialog(self):
     create_button = QPushButton(localizationF("Create_new", "Create new"))
     create_button.clicked.connect(lambda: createNotes(self, web_view, img_field))
     card_option_layout.addWidget(create_button)
+    
+    tab_label = QLabel("Tab:")
+    card_option_layout.addWidget(tab_label)
+    next_down = QCheckBox('⤓')    
+    if 'data-tab-down=' in html_field: 
+        next_down.setChecked(True)
+    else:
+        next_down.setChecked(False)
+    card_option_layout.addWidget(next_down)
+
+    locF = localizationF("Version", "Version")
+    card_option_label2 = QLabel(locF+":")
+    card_option_layout.addWidget(card_option_label2)
+    
+    IOS_model_name1 = "Image Occlusion Simple (v1.1)"
+    IOS_model_name2 = "Image Occlusion Simple (v2)"
+    note_type = self.note.note_type()    
+    cur_IOS1 = note_type['name'] == IOS_model_name1 
+    cur_IOS2 = note_type['name'] == IOS_model_name2 
+
+    ExistsIOS1 = False
+    ExistsIOS2 = False
+    CreateTypeIOS = 'v2'
+    models = self.mw.col.models
+    for model in models.all():
+        if model['name'] == IOS_model_name1:            
+            ExistsIOS1 = True  
+        if model['name'] == IOS_model_name2:            
+            ExistsIOS2 = True              
+    
+    ver_group = QButtonGroup()
+    if not ExistsIOS1 and not cur_IOS1:
+        v2_radio = QRadioButton('v2')
+        v2_radio.setChecked(True)
+        CreateTypeIOS = 'v2'        
+        ver_group.addButton(v2_radio)        
+        card_option_layout.addWidget(v2_radio)
+    else:
+        v1_1_radio = QRadioButton('v1.1')
+        v2_radio = QRadioButton('v2')
+        if cur_IOS1:
+            v1_1_radio.setChecked(True)    
+            v2_radio.setChecked(False)
+            CreateTypeIOS = 'v1.1'
+        elif cur_IOS2:
+            v1_1_radio.setChecked(False)    
+            v2_radio.setChecked(True)
+            CreateTypeIOS = 'v2'
+        
+        ver_group.addButton(v1_1_radio)
+        card_option_layout.addWidget(v1_1_radio)
+        ver_group.addButton(v2_radio)        
+        card_option_layout.addWidget(v2_radio)
+   
 
     locF = localizationF("Card_Options", "Card Options:")
     card_option_label = QLabel(locF)
     card_option_layout.addWidget(card_option_label)
-
+    
     locF = localizationF("Card_for_all_rectangles","1 Card for all rectangles")
     single_card_radio = QRadioButton(locF)
     single_card_radio.setChecked(True)
@@ -246,13 +451,23 @@ def show_image_dialog(self):
     button_layout.addWidget(saveclose_button)
 
     # Adding a close button    
-    close_button = QPushButton(localizationF("Close", "Close"))
-    close_button.clicked.connect(dialog.close)
+    close_button = QPushButton(localizationF("Cancel and close", "Cancel and close"))
+    close_button.clicked.connect(lambda: closeDialog())
     button_layout.addWidget(close_button)
     layout.addLayout(button_layout)
 
+    # avtosave by ESC
+    original_reject = dialog.reject
+    def custom_reject():
+        global close_avtosave
+        if close_avtosave:
+            saveclose(self, web_view, img_field)            
+        original_reject()
+    dialog.reject = custom_reject
+    close_avtosave = True
+
     dialog.setLayout(layout)    
-    dialog.unsetCursor() # cursor as in HTML    
+    dialog.unsetCursor() # cursor as in HTML       
     dialog.exec()    
 
 
@@ -297,9 +512,13 @@ def transform_html(html_field):
         word = rect.get('word', '')
         hint = rect.get('hint', '')
         
-        line = ' line' if 'line' in rect.get('class', []) else ''        
+        line = ' line' if 'line' in rect.get('class', []) else ''
         round = ' round' if 'round' in rect.get('class', []) else ''
+        notvisible = ' notvisible' if 'notvisible' in rect.get('class', []) else ''
         hiding = ' hiding' if 'hiding' in rect.get('class', []) else ''
+        if line != '':
+            hiding = ''
+            round = ''
 
         # Forming the contents of txt-rectangle
         txt_content = word
@@ -308,8 +527,8 @@ def transform_html(html_field):
 
         # Forming div class="sio-rect"
         rectangle_html = f'''
-<div class="sio-rect{hiding}{round}{line}" style="{filtered_style}" >
-    <div class="txt-sio-rect" contenteditable="true">{txt_content}</div>
+<div class="sio-rect{hiding}{round}{line}{notvisible} cursor-move" style="{filtered_style}" >
+    <div class="txt-sio-rect" contenteditable="false">{txt_content}</div>
     <div class="resize-handle nw"></div>
     <div class="resize-handle ne"></div>
     <div class="resize-handle sw"></div>
@@ -324,7 +543,8 @@ def transform_html(html_field):
 
 
 def process_html(html_content):
-    """Parses HTML and returns minified HTML"""
+    global next_down
+    """Parses HTML and returns minified HTML and list of words"""
     soup = BeautifulSoup(html_content, 'html.parser')
     # We extract <img>
     img_tag = soup.find('img')
@@ -332,18 +552,53 @@ def process_html(html_content):
 
     # We extract <div class="sio-rect">
     rectangles = []
+    words_list = []  # List to collect all words
+    
     for rect in soup.find_all('div', class_='sio-rect'):
         style = rect.get('style', '')
         if '%' not in style:
             continue  # We skip the ENTIRE rect block if its style does not contain any % at all
+        
+        # Checking the conditions for including a word in words_list        
+        rect_classes = rect.get('class', [])
+        rect_style = rect.get('style', '')
+        
+        # Checking whether this rectangle should be included in words_list
+        include_in_words = (
+            'hiding' not in rect_classes and
+            'line' not in rect_classes and
+            'display: none' not in rect_style
+        )
+        
         # Extract left and top values for sorting
         left = 0
         top = 0
-        for match in re.finditer(r'(left|top):([^;]+);', style):
-            if match.group(1) == 'left':
-                left = float(match.group(2).strip('%'))  # Convert percentage to float
-            elif match.group(1) == 'top':
-                top = float(match.group(2).strip('%'))  # Convert percentage to float
+        width = 0
+        height = 0
+        for match in re.finditer(r'(left|top|width|height):([^;]+);', style):
+            key = match.group(1)
+            raw = match.group(2)
+            if key == 'left':
+                if '%' in raw:
+                    left = float(raw.strip('%'))  # Convert percentage to float
+                else:
+                    left = 0
+            elif key == 'top':
+                if '%' in raw:
+                    top = float(raw.strip('%'))  # Convert percentage to float
+                else:
+                    top = 0
+            elif key == 'width':
+                if '%' in raw:
+                    width = float(raw.strip('%'))  # Convert percentage to float
+                else:
+                    width = 0
+            elif key == 'height':
+                if '%' in raw:
+                    height = float(raw.strip('%'))  # Convert percentage to float
+                else:
+                    height = 0
+                    
 
         # We leave only the parameters left, top, width, height, transform 
         filtered_style = ' '.join(
@@ -359,38 +614,140 @@ def process_html(html_content):
             else:
                 word = text
         
+        # Add a word to the list if it meets the filtering criteria
+        if include_in_words and word and word.strip():
+            words_list.append(word.strip())
+        
         line = ' line' if 'line' in rect.get('class', []) else ''        
         round = ' round' if 'round' in rect.get('class', []) else ''
+        notvisible = ' notvisible' if 'notvisible' in rect.get('class', []) else ''
         hiding = ' hiding' if 'hiding' in rect.get('class', []) else ''
         contenteditable = 'contenteditable="false"' if hiding else 'contenteditable="true"'
+        if line != '':
+            hiding = ''
+            round = ''
+
+        # Do not take into account lines and hidden objects in sorting
+        if line!='' or hiding != '':
+            left = 100
+            top = 100  
+
         # Append rectangle data with position for sorting
         rectangles.append({
-            'html': f'<div class="sio-rect{hiding}{round}{line}" style="{filtered_style}" word="{word}" hint="{hint}"></div>',
+            'html': f'<div class="sio-rect{hiding}{round}{line}{notvisible}" style="{filtered_style}" word="{word}" hint="{hint}"></div>',
             'left': left,
-            'top': top
+            'top': top,
+            'width': width,
+            'height': height
         })
 
-    # Sort rectangles by top, then by left
-    rectangles.sort(key=lambda r: (r['top'], r['left']))
+
+
+    def normalize_left(rectangles):
+        leftM = -1
+
+        while True:
+            RM = None
+            min_left = float('inf')
+            
+            for r in rectangles:
+                if r['left'] > leftM and r['left'] < min_left:
+                    min_left = r['left']
+                    RM = r
+
+            if RM is None:
+                break
+
+            leftM = RM['left']
+            widthM = RM['width']
+            
+            for r in rectangles:
+                if r is RM:
+                    continue
+
+                if r['left'] != leftM:
+                    cond = (
+                        (leftM > r['left'] and leftM <= r['left'] + (r['width'] / 2) ) or
+                        (r['left'] > leftM and r['left'] <= leftM + (widthM / 2) )
+                    )
+
+                    if cond:
+                        r['left'] = leftM
+
+
+    def normalize_top(rectangles):
+        topM = -1
+
+        while True:
+            RM = None
+            min_top = float('inf')
+
+            for r in rectangles:
+                if r['top'] > topM and r['top'] < min_top:
+                    min_top = r['top']
+                    RM = r
+
+            if RM is None:
+                break
+
+            topM = RM['top']
+            heightM = RM['height']
+
+            for r in rectangles:
+                if r is RM:
+                    continue
+
+                if r['top'] != topM:
+                    cond = (
+                        (topM > r['top'] and topM <= r['top'] + r['height'] / 2) or
+                        (r['top'] > topM and r['top'] <= topM + heightM / 2)
+                    )
+
+                    if cond:
+                        r['top'] = topM
+
+    
+
+    if next_down.isChecked():        
+        normalize_top(rectangles)        
+        normalize_left(rectangles)       
+        # Sort rectangles by left, then by top        
+        rectangles.sort(key=lambda r: (r['left'], r['top']))
+    else:  
+        normalize_left(rectangles)
+        normalize_top(rectangles)
+        # Sort rectangles by top, then by left
+        rectangles.sort(key=lambda r: (r['top'], r['left']))
+
+    
+    # AnkiDroid may be replacing line breaks with <br>, causing problems.
+    # rects_html = '\n'.join(rect['html'] for rect in rectangles)
+    # final_html = f'<img src="{img_src}" class="sio-image">\n{rects_html}'
 
     # Assemble the final HTML
-    rects_html = '\n'.join(rect['html'] for rect in rectangles)
-    final_html = f'<img src="{img_src}" class="sio-image">\n{rects_html}'
-    return final_html
+    rects_html = ''.join(rect['html'] for rect in rectangles)    
+    if next_down.isChecked():
+        final_html = f'<img src="{img_src}" class="sio-image" data-tab-down="true">{rects_html}'
+    else:        
+        final_html = f'<img src="{img_src}" class="sio-image">{rects_html}'
+    
+    words_list.sort()
 
+    return final_html, words_list
 
 
 def get_modified_html(web_view, callback):
     """Gets the modified HTML from QWebEngineView and processes it"""
     def internal_callback(html):
-        processed_html = process_html(html)        
-        callback(processed_html)
+        processed_html, words_list = process_html(html)
+        # We pass both values ​​to the callback
+        callback(processed_html, words_list)
     web_view.page().toHtml(internal_callback)
 
 
-
-def save(editor, web_view, img_field):
-    def on_html_processed(html_content):
+def save(editor, web_view, img_field):    
+    def on_html_processed(html_content, words_list):
+        global words_field_val, lngtag_field_val, audiofile_field_val, Header_field_val, HeaderURL_filepdfpage_field_val, FrontExtra_field_val, Back_field_val, BackExtra_field_val, Comments_field_val, URLVictory_field_val
         if not html_content:
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Save...</p>")
             return
@@ -401,23 +758,86 @@ def save(editor, web_view, img_field):
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Note not initialized...</p>")
             return
 
+        # Saving HTML in the image field
         editor.note[img_field] = html_content
+        
+        # If words_field_val is passed and it is not None, update the Words field
+        if words_field_val is not None:
+            # If there is a list of words, combine them
+            if words_list and len(words_list) > 0:
+                # We combine words using a space or another separator
+                combined_words = '; '.join(words_list)
+                editor.note['Words'] = combined_words
+            else:
+                # If there are no words, save the empty line
+                editor.note['Words'] = ''
+        
+        # If lngtag_field_val is passed and it is not None, update the LngTag field
+        if lngtag_field_val is not None:
+            editor.note['LngTag'] = lngtag_field_val
+        
+        if audiofile_field_val is not None:
+            editor.note['AudioFile'] = audiofile_field_val
+        
+        if Header_field_val is not None:
+            editor.note['Header'] = Header_field_val
+        
+        if HeaderURL_filepdfpage_field_val is not None:
+            editor.note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+        if FrontExtra_field_val is not None:
+            editor.note['Front Extra'] = FrontExtra_field_val
+
+        if Back_field_val is not None:
+            editor.note['Back'] = Back_field_val
+        
+        if BackExtra_field_val is not None:
+            editor.note['Back Extra'] = BackExtra_field_val
+        
+        if Comments_field_val is not None:
+            editor.note['Comments'] = Comments_field_val
+        
+        if URLVictory_field_val is not None:
+            editor.note['URLVictory'] = URLVictory_field_val
+        
+        # Mark the note as modified
+        # editor.note.modified = True
+        
+        
         if editor.note.id != 0:
             editor.note.flush()
+            # editor.mw.col.update_note(editor.note)
+            editor.mw.fade_in_webview()
+            editor._refresh_needed = None
+        
         editor.loadNoteKeepingFocus()
+                                
 
         locF = localizationF("Saved", "Saved")
         tooltip(f"<p style='color: yellow; background-color: black'>{locF}</p>")
 
-    # We pass the handler to get_modified_html
+    # Pass both values ​​to get_modified_html
     get_modified_html(web_view, on_html_processed)
 
 
+
 def saveclose(editor, web_view, img_field):
-    global dialog
+    global dialog, close_avtosave, idxcurrentField, editorD  
     save(editor, web_view, img_field)
+    close_avtosave = True
+    if idxcurrentField is not None and editorD is not None:
+        editorD.currentField = idxcurrentField
+        editorD.web.eval(f"focusField({idxcurrentField});")
     dialog.close()
 
+
+def closeDialog():
+    global dialog, close_avtosave, idxcurrentField, editorD 
+    close_avtosave = False
+    if idxcurrentField is not None and editorD is not None:
+        editorD.currentField = idxcurrentField
+        editorD.web.eval(f"focusField({idxcurrentField});")
+    dialog.close()
 
 
 def RefreshDeck_id(editor, deck_id):  
@@ -427,9 +847,14 @@ def RefreshDeck_id(editor, deck_id):
         browserS.sidebar.update_search(f'"deck:{deck_name}"')
 
 
+
 def create(editor, web_view, img_field):
     editornoteid = editor.note.id
-    def on_html_processed(html_content):
+
+    def on_html_processed(html_content, words_list):
+        global words_field_val, lngtag_field_val, audiofile_field_val, Header_field_val, HeaderURL_filepdfpage_field_val, FrontExtra_field_val, Back_field_val, BackExtra_field_val, Comments_field_val, URLVictory_field_val
+        global ExistsIOS1, ExistsIOS2, CreateTypeIOS, v2_radio
+
         if not html_content:
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Save...</p>")
             return
@@ -440,26 +865,49 @@ def create(editor, web_view, img_field):
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Note not initialized...</p>")
             return
         
-        IOS_model_name = "Image Occlusion Simple (v1.1)"
+        IOS_model_name1 = "Image Occlusion Simple (v1.1)"
+        IOS_model_name2 = "Image Occlusion Simple (v2)"
         note_type = editor.note.note_type()
-        deck_id = editor.note.cards()[0].did if editor.note.cards() else editor.mw.col.decks.selected()
-        cur_IOS = note_type == IOS_model_name 
+        deck_id = editor.note.cards()[0].did if editor.note.cards() else editor.mw.col.decks.selected()        
+        findIOS1 = False 
+        findIOS2 = False 
         findIOS = False 
 
+        if not v2_radio is None:
+            if v2_radio.isChecked():
+                CreateTypeIOS = 'v2'
+            else:
+                CreateTypeIOS = 'v1.1'
+
         # We are looking for the Image Occlusion Simple model.        
-        models = editor.mw.col.models        
-        for model in models.all():
-            if model['name'] == IOS_model_name:
-                note_type = model
-                findIOS = True
-                break
+        models = editor.mw.col.models
+
+        if CreateTypeIOS == 'v2' and ExistsIOS2:
+            for model in models.all():
+                if model['name'] == IOS_model_name2:
+                    note_type = model
+                    findIOS2 = True  
+                    break
+        elif CreateTypeIOS != 'v2' and ExistsIOS1: 
+            for model in models.all():
+                if model['name'] == IOS_model_name1:
+                    note_type = model
+                    findIOS1 = True
+                    break
+             
+        findIOS = findIOS1 or findIOS2
+
+        cur_IOS1 = note_type['name'] == IOS_model_name1 
+        cur_IOS2 = note_type['name'] == IOS_model_name2 
         
         savedNote = False
         crN = 0
+        
         # Create one new with full html_content
         if single_card_radio.isChecked():  
-            if editornoteid != 0 or not cur_IOS: # not added or the current note is not Image Occlusion Simple
-                new_note = editor.mw.col.new_note(note_type) #model)
+            if editornoteid != 0 or not (cur_IOS1 or cur_IOS2): # not added or the current note is not Image Occlusion Simple
+                # !!!! Remove this code, since there should always already be a note type starting with 'Image Occlusion Simple'
+                new_note = editor.mw.col.new_note(note_type)
                 if not findIOS:
                     # Copy values from original note to maintain consistency
                     for field_name in editor.note.keys():
@@ -472,10 +920,84 @@ def create(editor, web_view, img_field):
                         if field_name == img_field:
                             new_note["Front"] = html_content
 
+                    if findIOS2:
+                        # Update the Words field
+                        if words_list and len(words_list) > 0:
+                            combined_words = '; '.join(words_list)
+                            if 'Words' in new_note.keys():
+                                new_note['Words'] = combined_words                  
+                        
+                        # Update the LngTag field if lngtag_field_val is not None
+                        if lngtag_field_val is not None and 'LngTag' in new_note.keys():
+                            new_note['LngTag'] = lngtag_field_val
+
+                        if audiofile_field_val is not None and 'AudioFile' in new_note.keys():
+                            new_note['AudioFile'] = audiofile_field_val
+
+                        if Header_field_val is not None and 'Header' in new_note.keys():
+                            new_note['Header'] = Header_field_val
+
+                        if HeaderURL_filepdfpage_field_val is not None and 'HeaderURL_filepdf#page=' in new_note.keys():
+                            new_note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+                        if FrontExtra_field_val is not None and 'Front Extra' in new_note.keys():
+                            new_note['Front Extra'] = FrontExtra_field_val
+
+                        if Back_field_val is not None and 'Back' in new_note.keys():
+                            new_note['Back'] = Back_field_val
+                        
+                        if BackExtra_field_val is not None and 'Back Extra' in new_note.keys():
+                            new_note['Back Extra'] = BackExtra_field_val
+                        
+                        if Comments_field_val is not None and 'Comments' in new_note.keys():
+                            new_note['Comments'] = Comments_field_val
+                        
+                        if URLVictory_field_val is not None and 'URLVictory' in new_note.keys():
+                            new_note['URLVictory'] = URLVictory_field_val
+                        
+
                 # Add the note to the collection            
                 editor.mw.col.add_note(new_note, deck_id)                               
             else:
-                editor.note[img_field] = html_content 
+                editor.note[img_field] = html_content
+
+                if cur_IOS2:
+                    # Update the Words field in the current note
+                    if words_list and len(words_list) > 0:
+                        combined_words = '; '.join(words_list)
+                        if 'Words' in editor.note.keys():
+                            editor.note['Words'] = combined_words
+                    
+                    # Update the LngTag field in the current note
+                    if lngtag_field_val is not None and 'LngTag' in editor.note.keys():
+                        editor.note['LngTag'] = lngtag_field_val
+
+                    if audiofile_field_val is not None and 'AudioFile' in editor.note.keys():
+                        editor.note['AudioFile'] = audiofile_field_val
+
+                    if Header_field_val is not None and 'Header' in editor.note.keys():
+                        editor.note['Header'] = Header_field_val
+                    
+                    if HeaderURL_filepdfpage_field_val is not None and 'HeaderURL_filepdf#page=' in editor.note.keys():
+                        editor.note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+                    if FrontExtra_field_val is not None and 'Front Extra' in editor.note.keys():
+                        editor.note['Front Extra'] = FrontExtra_field_val
+                    
+                    if Back_field_val is not None and 'Back' in editor.note.keys():
+                        editor.note['Back'] = Back_field_val
+                    
+                    if BackExtra_field_val is not None and 'Back Extra' in editor.note.keys():
+                        editor.note['Back Extra'] = BackExtra_field_val
+                    
+                    if Comments_field_val is not None and 'Comments' in editor.note.keys():
+                        editor.note['Comments'] = Comments_field_val
+                    
+                    if URLVictory_field_val is not None and 'URLVictory' in editor.note.keys():
+                        editor.note['URLVictory'] = URLVictory_field_val
+                    
+                    
+                
                 savedNote = True                
             crN += 1
         
@@ -485,13 +1007,23 @@ def create(editor, web_view, img_field):
             sio_rects = soup.find_all('div', class_='sio-rect')
             # We filter the elements, excluding those that have a class "line" or "hiding"
             valid_rects = [rect for rect in sio_rects if 'line' not in rect.get('class', []) and 'hiding' not in rect.get('class', [])]
+            
             # Create a new entry for each Valid_rect
-            for current_rect in valid_rects:                
-                new_soup = BeautifulSoup(str(soup), 'html.parser') # Copy HTML for a new entry                
-                for rect in new_soup.find_all('div', class_='sio-rect'): # We process everything <div class = "sio-rect"> in the new entry
-                    if rect != current_rect:                        
-                        rect['class'] = rect.get('class', []) + ['hiding'] # Add the class "hiding" for all elements, except for the current                
-                new_html_content = str(new_soup) # We convert HTML back into the line               
+            for idx, current_rect in enumerate(valid_rects):                
+                new_soup = BeautifulSoup(str(soup), 'html.parser') # Copy HTML for a new entry
+                
+                # Get the word for the current rectangle
+                current_word = current_rect.get('word', '')
+                
+                # Processing all rects in a new copy
+                for rect in new_soup.find_all('div', class_='sio-rect'):
+                    if rect != current_rect:
+                        # Add the "hiding" class to all elements except the current one
+                        existing_classes = rect.get('class', [])
+                        if 'hiding' not in existing_classes:
+                            rect['class'] = existing_classes + ['hiding']
+                
+                new_html_content = str(new_soup) # We convert HTML back into the line
                 new_note = editor.mw.col.new_note(note_type) # Create a new record
                 
                 if not findIOS:
@@ -500,44 +1032,160 @@ def create(editor, web_view, img_field):
                             new_note[field_name] = new_html_content
                         else:
                             new_note[field_name] = editor.note[field_name]
+                    
                     # Add the note to the collection
                     editor.mw.col.add_note(new_note, deck_id)
                     crN += 1
                 else:                    
-                    if editornoteid != 0 or not cur_IOS: # not added or the current note is not Image Occlusion Simple                    
+                    if editornoteid != 0 or not (cur_IOS1 or cur_IOS2): # not added or the current note is not Image Occlusion Simple   
+                        # !!!! Remove this code, since there should always already be a note type starting with 'Image Occlusion Simple'                 
                         new_note["Front"] = new_html_content
+                        
+                        if findIOS2:
+                            # Save the current word in the Words field
+                            if current_word and 'Words' in new_note.keys():
+                                new_note['Words'] = current_word                            
+                            
+                            # Save LngTag (we always use the global lngtag_field_val)
+                            if lngtag_field_val is not None and 'LngTag' in new_note.keys():
+                                new_note['LngTag'] = lngtag_field_val
+
+                            if audiofile_field_val is not None and 'AudioFile' in new_note.keys():
+                                new_note['AudioFile'] = audiofile_field_val
+
+                            if Header_field_val is not None and 'Header' in new_note.keys():
+                                new_note['Header'] = Header_field_val
+
+                            if HeaderURL_filepdfpage_field_val is not None and 'HeaderURL_filepdf#page=' in new_note.keys():
+                                new_note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+                            if FrontExtra_field_val is not None and 'Front Extra' in new_note.keys():
+                                new_note['Front Extra'] = FrontExtra_field_val
+                            
+                            if Back_field_val is not None and 'Back' in new_note.keys():
+                                new_note['Back'] = Back_field_val
+                            
+                            if BackExtra_field_val is not None and 'Back Extra' in new_note.keys():
+                                new_note['Back Extra'] = BackExtra_field_val
+                            
+                            if Comments_field_val is not None and 'Comments' in new_note.keys():
+                                new_note['Comments'] = Comments_field_val
+                            
+                            if URLVictory_field_val is not None and 'URLVictory' in new_note.keys():
+                                new_note['URLVictory'] = URLVictory_field_val
+                            
+                            
+                        
                         # Add the note to the collection
                         editor.mw.col.add_note(new_note, deck_id)
                     else:
                         if crN == 0:
                             editor.note["Front"] = new_html_content
+                            editor.note[img_field] = new_html_content
+
+                            if cur_IOS2:                                
+                                # Save the current word in the Words field of the current note
+                                if current_word and 'Words' in editor.note.keys():
+                                    editor.note['Words'] = current_word                                
+                                
+                                # Save LngTag (we always use the global lngtag_field_val)
+                                if lngtag_field_val is not None and 'LngTag' in editor.note.keys():
+                                    editor.note['LngTag'] = lngtag_field_val
+
+                                if audiofile_field_val is not None and 'AudioFile' in editor.note.keys():
+                                    editor.note['AudioFile'] = audiofile_field_val
+
+                                if Header_field_val is not None and 'Header' in editor.note.keys():
+                                    editor.note['Header'] = Header_field_val
+
+                                if HeaderURL_filepdfpage_field_val is not None and 'HeaderURL_filepdf#page=' in editor.note.keys():
+                                    editor.note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+                                if FrontExtra_field_val is not None and 'Front Extra' in editor.note.keys():
+                                    editor.note['Front Extra'] = FrontExtra_field_val
+                                
+                                if Back_field_val is not None and 'Back' in editor.note.keys():
+                                    editor.note['Back'] = Back_field_val
+                                
+                                if BackExtra_field_val is not None and 'Back Extra' in editor.note.keys():
+                                    editor.note['Back Extra'] = BackExtra_field_val
+                                
+                                if Comments_field_val is not None and 'Comments' in editor.note.keys():
+                                    editor.note['Comments'] = Comments_field_val
+                                
+                                if URLVictory_field_val is not None and 'URLVictory' in editor.note.keys():
+                                    editor.note['URLVictory'] = URLVictory_field_val
+                                
+                         
+                                
+                                
                             savedNote = True
-                            editor.note[img_field] = new_html_content                            
                         else:                         
                             new_note["Front"] = new_html_content
+
+                            if cur_IOS2:                                
+                                # Save the current word in the Words field
+                                if current_word and 'Words' in new_note.keys():
+                                    new_note['Words'] = current_word                                
+                                
+                                # Save LngTag (we always use the global lngtag_field_val)
+                                if lngtag_field_val is not None and 'LngTag' in new_note.keys():
+                                    new_note['LngTag'] = lngtag_field_val
+
+                                if audiofile_field_val is not None and 'AudioFile' in new_note.keys():
+                                    new_note['AudioFile'] = audiofile_field_val
+
+                                if Header_field_val is not None and 'Header' in new_note.keys():
+                                    new_note['Header'] = Header_field_val
+                                
+                                if HeaderURL_filepdfpage_field_val is not None and 'HeaderURL_filepdf#page=' in new_note.keys():
+                                    new_note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+                                if FrontExtra_field_val is not None and 'Front Extra' in new_note.keys():
+                                    new_note['Front Extra'] = FrontExtra_field_val
+                                
+                                if Back_field_val is not None and 'Back' in new_note.keys():
+                                    new_note['Back'] = Back_field_val
+                                
+                                if BackExtra_field_val is not None and 'Back Extra' in new_note.keys():
+                                    new_note['Back Extra'] = BackExtra_field_val
+                                
+                                if Comments_field_val is not None and 'Comments' in new_note.keys():
+                                    new_note['Comments'] = Comments_field_val
+                                
+                                if URLVictory_field_val is not None and 'URLVictory' in new_note.keys():
+                                    new_note['URLVictory'] = URLVictory_field_val
+                            
                             # Add the note to the collection
-                            editor.mw.col.add_note(new_note, deck_id)     
-                    crN += 1   
+                            editor.mw.col.add_note(new_note, deck_id)
+                    crN += 1  
 
         if savedNote: # we don't count the one being added, it hasn't been created yet
             crN -= 1
 
+        # Update and save if there are changes        
+        if savedNote:
+            # editor.note.modified = True
+            if editor.note.id != 0:
+                editor.note.flush()
+                # editor.mw.col.update_note(editor.note)                
+                editor.mw.fade_in_webview()
+                editor._refresh_needed = None
+                
+            editor.loadNoteKeepingFocus()            
+
         locF = localizationF("Created_notes","Created notes:")        
         tooltip(f"<p style='color: yellow; background-color: black'>{locF} {crN}</p>")           
         if editornoteid != 0:
-            QTimer.singleShot(500, lambda:RefreshDeck_id(editor, deck_id))
-        if savedNote:            
-            editor.loadNoteKeepingFocus()
-        
-
+            QTimer.singleShot(500, lambda: RefreshDeck_id(editor, deck_id))
 
     # We pass the handler to get_modified_html
     get_modified_html(web_view, on_html_processed)
 
 
 def createNotes(editor, web_view, img_field):
-    global single_card_radio 
-    global dialog
+    global single_card_radio, close_avtosave 
+    global dialog, idxcurrentField, editorD    
     if single_card_radio:
         title = localizationF("Question", "Question")
         text = localizationF("want_to_create", "Are you sure you want to create")
@@ -546,8 +1194,12 @@ def createNotes(editor, web_view, img_field):
         else:
             text += " «" + localizationF("Card_per_rectangle", "Lots of notes (for each yellow)") + "»?"
         if user_consent(text, title):
+            close_avtosave = False            
             create(editor, web_view, img_field)
-            tooltip(f"<p style='color: yellow; background-color: black'>createNotes()</p>")
+            tooltip(f"<p style='color: yellow; background-color: black'>createNotes()</p>")            
+            if idxcurrentField is not None and editorD is not None:
+                editorD.currentField = idxcurrentField
+                editorD.web.eval(f"focusField({idxcurrentField});")
             dialog.close()
 
 
@@ -563,9 +1215,9 @@ gui_hooks.browser_will_show.append(browser_show)
 def create_note_type_if_not_exists():
     col = mw.col
     models = col.models    
-    name = "Image Occlusion Simple (v1.1)"
+    name = "Image Occlusion Simple (v2)"
 
-    Attention_Addon_Key = 'attention_Addon_675107747_20251227_22'
+    Attention_Addon_Key = 'attention_Addon_675107747_20260509_20'
     try:        
         attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
     except:
@@ -573,19 +1225,20 @@ def create_note_type_if_not_exists():
     if attention_Addon == '':
         try:
 
-            if askUser(text="""Good news: the note type hasn't changed. Your decks won't be affected in any way.
-Important news: the algorithm for adding a new note has changed slightly. When you click the 'Add' button with the 'Image Occlusion Simple (v1.1)' type and create new notes, the current note will also be taken into account. When creating new notes, a note of the 'Image Occlusion Simple (v1.1)' type is now always created.
-READ MORE on the 'Simple Image Occlusion' add-on page.
+            if askUser(text="""PLEASE READ the "Simple Image Occlusion" add-on page!
+A new note type, "Image Occlusion Simple (v2)," has been added!
+It's been made more complex to accommodate a variety of use cases: simple opening, text input, voiceover, and testing your knowledge in game mode.
+Working with the addon has also become slightly more complicated, as it now requires support for two types of 'Image Occlusion Simple', and different algorithms have been added.
 Do not show this window again?""",                     
                         msgfunc=QMessageBox.information,
                         defaultno=False,
-                        title="Add-on 'Image Occlusion Simple' version 1.1.2. Attention!"):
+                        title="Add-on 'Image Occlusion Simple' version 2. Attention!"):
                 mw.pm.profile[Attention_Addon_Key] = 'True'
         except:
             pass
 
 
-    update_Addon_Key = 'update_Addon_675107747_20251012_23'
+    update_Addon_Key = 'update_Addon_675107747_20260509_20'
     existing = models.by_name(name)
     if existing:
         # We will prompt the user to update the template if he has not updated it yet.

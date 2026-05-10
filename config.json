@@ -5,7 +5,7 @@
     },
     "LOCALIZATION": {
         "en": {                                    
-            "Close": "Close",            
+            "Cancel and close": "Cancel and close",            
             "Unable_to_determine_active_field": "Unable to determine active field.",
             "Invalid_field_index": "Invalid field index.",
             "There_are_no_images_in_the_field": "There are no images in the field {field}",
@@ -21,10 +21,11 @@
             "want_to_create": "Are you sure you want to create",
             "Cancel": "Cancel",
             "Create_new": "Create new",
-            "Save_сlose": "💾 Save and Close"
+            "Save_сlose": "💾 Save and Close",
+            "Version": "Version"
         },
         "ru": {                        
-            "Close": "Закрыть",            
+            "Cancel and close": "Отменить и закрыть",            
             "Unable_to_determine_active_field": "Не удалось определить активное поле.",
             "Invalid_field_index": "Неверный индекс поля.",
             "There_are_no_images_in_the_field": "В поле {field} нет изображений",
@@ -40,10 +41,11 @@
             "want_to_create": "Вы уверены, что хотите создать",
             "Cancel": "Отмена",
             "Create_new": "Создать новый",
-            "Save_сlose": "💾 Сохранить и закрыть"           
+            "Save_сlose": "💾 Сохранить и закрыть",
+            "Version": "Версия"           
         },
        "ar": {
-            "Close": "إغلاق",
+            "Cancel and close": "إلغاء وإغلاق",
             "Unable_to_determine_active_field": "تعذر تحديد الحقل النشط.",
             "Invalid_field_index": "فهرس الحقل غير صالح.",
             "There_are_no_images_in_the_field": "لا توجد صور في الحقل {field}",
@@ -59,10 +61,11 @@
             "want_to_create": "هل أنت متأكد أنك تريد الإنشاء",
             "Cancel": "إلغاء",
             "Create_new": "إنشاء جديد",
-            "Save_сlose": "💾 حفظ وإغلاق"
+            "Save_сlose": "💾 حفظ وإغلاق",
+            "Version": "إصدار"
             },
         "de": {
-            "Close": "Schließen",
+            "Cancel and close": "Abbrechen und schließen",
             "Unable_to_determine_active_field": "Aktives Feld konnte nicht bestimmt werden.",
             "Invalid_field_index": "Ungültiger Feldindex.",
             "There_are_no_images_in_the_field": "Keine Bilder im Feld {field}",
@@ -78,10 +81,11 @@
             "want_to_create": "Möchten Sie wirklich erstellen",
             "Cancel": "Abbrechen",
             "Create_new": "Neu erstellen,",
-            "Save_сlose": "💾 Speichern und schließen"
+            "Save_сlose": "💾 Speichern und schließen",
+            "Version": "Version"
         },        
         "es": {
-            "Close": "Cerrar",
+            "Cancel and close": "Cancelar y cerrar",
             "Unable_to_determine_active_field": "No se puede determinar el campo activo.",
             "Invalid_field_index": "Índice de campo no válido.",
             "There_are_no_images_in_the_field": "No hay imágenes en el campo {field}",
@@ -97,10 +101,11 @@
             "want_to_create": "¿Está seguro de que desea crear?",
             "Cancel": "Cancelar",
             "Create_new": "Crear nuevo",
-            "Save_сlose": "💾 Guardar y cerrar"
+            "Save_сlose": "💾 Guardar y cerrar",
+            "Version": "Versión"
         },
         "fr": {
-            "Close": "Fermer",
+            "Cancel and close": "Annuler et fermer",
             "Unable_to_determine_active_field": "Impossible de déterminer le champ actif.",
             "Invalid_field_index": "Indice de champ invalide.",
             "There_are_no_images_in_the_field": "Aucune image dans le champ {field}",
@@ -116,10 +121,11 @@
             "want_to_create": "Êtes-vous sûr de vouloir créer",
             "Cancel": "Annuler",
             "Create_new": "Créer",
-            "Save_сlose": "💾 Enregistrer et fermer"
+            "Save_сlose": "💾 Enregistrer et fermer",
+            "Version": "Version"
         },
         "hi": {
-            "Close": "बंद करें",
+            "Cancel and close": "रद्द करें और बंद करें",
             "Unable_to_determine_active_field": "सक्रिय फ़ील्ड निर्धारित करने में असमर्थ।",
             "Invalid_field_index": "अमान्य फ़ील्ड अनुक्रमणिका।",
             "There_are_no_images_in_the_field": "फ़ील्ड {field} में कोई छवियाँ नहीं हैं",
@@ -135,10 +141,11 @@
             "want_to_create": "क्या आप वाकई बनाना चाहते हैं",
             "Cancel": "कैंसल करें",
             "Create_new": "नया बनाएं",
-            "Save_сlose": "💾 सेव करें और बंद करें"
+            "Save_сlose": "💾 सेव करें और बंद करें",
+            "Version": "संस्करण"
         },
         "it": {
-            "Close": "Chiudi",
+            "Cancel and close": "Annulla e chiudi",
             "Unable_to_determine_active_field": "Impossibile determinare il campo attivo.",
             "Invalid_field_index": "Indice di campo non valido.",
             "There_are_no_images_in_the_field": "Non ci sono immagini nel campo {field}",
@@ -154,10 +161,11 @@
             "want_to_create": "Sei sicuro di voler creare",
             "Cancel": "Annulla",
             "Create_new": "Crea nuovo",
-            "Save_сlose": "💾 Salva e chiudi"
+            "Save_сlose": "💾 Salva e chiudi",
+            "Version": "Versione"
         },
         "ja": {
-            "Close": "閉じる",
+            "Cancel and close": "キャンセルして閉じる",
             "Unable_to_determine_active_field": "アクティブなフィールドを判定できません。",
             "Invalid_field_index": "無効なフィールドインデックス。",
             "There_are_no_images_in_the_field": "フィールド {field} に画像がありません",
@@ -173,10 +181,11 @@
             "want_to_create": "作成してもよろしいですか？",
             "Cancel": "キャンセル",
             "Create_new": "新規作成",
-            "Save_сlose": "💾 💾 保存して閉じる"
+            "Save_сlose": "💾 💾 保存して閉じる",
+            "Version": "バージョン"
         },
         "ko": {
-            "Close": "닫기",
+            "Cancel and close": "취소 및 닫기",
             "Unable_to_determine_active_field": "활성 필드를 결정할 수 없습니다.",
             "Invalid_field_index": "잘못된 필드 인덱스입니다.",
             "There_are_no_images_in_the_field": "필드 {field}에 이미지가 없습니다",
@@ -192,10 +201,11 @@
             "want_to_create": "정말로 생성하시겠습니까?",
             "Cancel": "취소",
             "Create_new": "새로 만들기",
-            "Save_сlose": "💾 저장하고 닫기"
+            "Save_сlose": "💾 저장하고 닫기",
+            "Version": "버전"
         },
         "pt": {
-            "Close": "Fechar",
+            "Cancel and close": "Cancelar e fechar",
             "Unable_to_determine_active_field": "Não foi possível determinar o campo ativo.",
             "Invalid_field_index": "Índice de campo inválido.",
             "There_are_no_images_in_the_field": "Não há imagens no campo {field}",
@@ -211,10 +221,11 @@
             "want_to_create": "Tem certeza de que deseja criar?",
             "Cancel": "Cancelar",
             "Create_new": "Criar novo",
-            "Save_сlose": "💾 Guardar e fechar"
+            "Save_сlose": "💾 Guardar e fechar",
+            "Version": "Versão"
         },
         "pt-BR": {
-            "Close": "Fechar",
+            "Cancel and close": "Cancelar e fechar",
             "Unable_to_determine_active_field": "Não foi possível determinar o campo ativo.",
             "Invalid_field_index": "Índice de campo inválido.",
             "There_are_no_images_in_the_field": "Não há imagens no campo {field}",
@@ -230,10 +241,11 @@
             "want_to_create": "Tem certeza de que deseja criar?",
             "Cancel": "Cancelar",
             "Create_new": "Criar novo",
-            "Save_сlose": "💾 Salvar e fechar"
+            "Save_сlose": "💾 Salvar e fechar",
+            "Version": "Versão"
         },        
         "zh_CN": {
-            "Close": "关闭",
+            "Cancel and close": "取消并关闭",
             "Unable_to_determine_active_field": "无法确定活动字段。",
             "Invalid_field_index": "字段索引无效。",
             "There_are_no_images_in_the_field": "字段 {field} 中没有图像",
@@ -249,7 +261,8 @@
             "want_to_create": "你确定要创建吗？",
             "Cancel": "取消",
             "Create_new": "创建新项目",
-            "Save_сlose": "💾 保存并关闭"            
+            "Save_сlose": "💾 保存并关闭",
+            "Version": "版本"           
         }
     }
 }

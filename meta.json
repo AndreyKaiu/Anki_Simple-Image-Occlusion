@@ -1,10 +1,1 @@
-{
-    "name": "Simple Image Occlusion",
-    "mod": 1766872338,
-    "min_point_version": 1,
-    "max_point_version": 250200,
-    "branch_index": 0,
-    "disabled": false,
-    "conflicts": [],
-    "update_enabled": true
-}
+{"name": "Simple Image Occlusion", "mod": 1778340274, "min_point_version": 1, "max_point_version": 250200, "branch_index": 0, "disabled": false, "conflicts": [], "update_enabled": true, "hint": "", "mark_color": "#000000"}
