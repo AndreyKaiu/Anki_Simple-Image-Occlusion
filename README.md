@@ -48,7 +48,7 @@ When creating rectangles in the addon, people wouldn't always release the mouse 
 <span id="version2"></span>
 **Version 2, May 9, 2026**
 
-Even without installing the add-on, you can evaluate its performance by following [the link: https://andreykaiu.github.io/Anki_Simple-Image-Occlusion/Seas%20(6th%20Grade).html](https://andreykaiu.github.io/Anki_Simple-Image-Occlusion/Seas%20(6th%20Grade).html)
+Even without installing the add-on, you can evaluate its effectiveness by following these steps: [the link: https://andreykaiu.github.io/Anki_Simple-Image-Occlusion/Seas%20(6th%20Grade).html](https://andreykaiu.github.io/Anki_Simple-Image-Occlusion/Seas%20(6th%20Grade).html)
 
 <img width="912" height="793" alt="Seas 6_1" src="https://github.com/user-attachments/assets/d458140b-3523-40da-add9-9bb385b24616" />
 
@@ -109,7 +109,18 @@ You can now change some colors in the ":root" section of the card type's CSS, bu
 Note that when selecting rectangles, you can now hold down Alt to draw a shape from the center, hold down Shift to create a precise square (circle), and hold down Ctrl to increment the shape. When rotating (right-click on a point on the rectangle's border), try holding these keys as well. And when moving, Shift will help you maintain horizontal or vertical alignment.
 
 
+List of hotkeys:
 
+* ❌ delete — "Press the keys [(Ctrl or Shift)+Del] (for All: Ctrl+Shift+Del; Ctrl+Z→undo; Ctrl+Shift+Z→redo)"
+* ✏️ "word::hint" — "Edit 'word::hint' [F2] (ESC→off) Enter '::!' - main attention"
+* 👁️ Show — "Show / Hide all — [F5] or [Shift+F1] (for selected — F3 or Ctrl+LMouse)"
+* ⬚ — "Selection area (ESC→off/on; Shift→+; Alt→-; Ctrl+Shift+A→all; Ctrl+Shift+Alt+L,T,W,H,R→align)"
+* +🟨 — "Add rect [F7] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)"
+* +🟦 — "Add hiding rect [F8] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)"
+* +⬅️ — "Add line [F9] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)"
+* □↦ ⬌ ○⇢ — "Change shape (or arrow type) [F6]"
+* 🟨 &#8596; 🟦 — "Change type [F4]"
+* 200% — "Double the scale [F1]"
 
 
 **HELP AND SUPPORT**
