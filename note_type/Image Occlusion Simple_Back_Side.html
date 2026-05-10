@@ -1,4 +1,16 @@
-<div style="display: none;" id="transparent_answer"></div>
+<div style="display: none;" id="transparent_answer"><span id=answer></span></div>
 {{FrontSide}}
-<hr id=answer>
-{{Back}}
+<div>
+    <hr>
+    {{#Back}}<div id="f_back">{{Back}}</div>{{/Back}}
+    {{#Back Extra}}<br><div id="f_back_extra">{{Back Extra}}</div>{{/Back Extra}}
+    {{#Comments}}<br><div id="f_comments">{{Comments}}</div>{{/Comments}}      
+</div>
+
+<div class="onlydesk onlyBack"><br><button onclick="this.style.cursor = 'wait'; setTimeout( ()=>{ExportToHTML(); this.style.cursor = 'default';},20);" title="Press Ctrl+Shift+E" style="font-size: 0.8rem;"><span data-trn>Copy all HTML to clipboard</span></button><br></div>
+<div class="onlyankiweb onlyBack"><br><button onclick="this.style.cursor = 'wait'; setTimeout( ()=>{ExportToHTML(); this.style.cursor = 'default';},20);" title="Press Ctrl+Shift+E" style="font-size: 0.8rem;"><span data-trn>Export to HTML</span></button><br>     
+<br>
+<p style="text-align: center; font-size: 0.8rem;"><span data-trn>Created using the</span> <a href="https://ankiweb.net/shared/info/675107747" target="_blank">"Simple Image Occlusion"</a> <span data-trn>add-on</span> <a href="https://apps.ankiweb.net/" target="_blank"><span data-trn>for Anki</span>.</a><br><span data-trn>Add-on author: A. Yu. Krutov</span></p>
+</div>
+
+<p style="height: 25px;">&nbsp;</p>
