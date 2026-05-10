@@ -1,0 +1,3607 @@
+<!-- Version 1.2, date: 2026-05-09 -->
+{{#Header}}<div id="f_header">{{#HeaderURL_filepdf#page=}}<a href="{{text:HeaderURL_filepdf#page=}}" target="_blank">{{/HeaderURL_filepdf#page=}}{{Header}}{{#HeaderURL_filepdf#page=}}<span id="pagePdf"></span></a>{{/HeaderURL_filepdf#page=}}</div>{{/Header}}
+<div class="sio-container">    
+    <div class="sio-image-container wfit">        
+        {{Front}}                
+        <canvas class="draw-layer"></canvas>
+    </div>  
+</div>
+<br>
+{{#AudioFile}}<div id="f_audiofile">{{AudioFile}}</div><br>{{/AudioFile}}
+{{#Front Extra}}<div id="f_front_extra">{{Front Extra}}</div><br>{{/Front Extra}}
+
+
+<div class="onlydesk onlyFront"><br><button onclick="this.style.cursor = 'wait'; setTimeout( ()=>{ExportToHTML(); this.style.cursor = 'default';},20);" title="Press Ctrl+Shift+E" style="font-size: 0.8rem;"><span data-trn>Copy all HTML to clipboard</span></button><br></div>
+<div class="onlyankiweb onlyFront"><br><button onclick="this.style.cursor = 'wait'; setTimeout( ()=>{ExportToHTML(); this.style.cursor = 'default';},20);" title="Press Ctrl+Shift+E" style="font-size: 0.8rem;"><span data-trn>Export to HTML</span></button><br>     
+<br>
+<p style="text-align: center; font-size: 0.8rem;"><span data-trn>Created using the</span> <a href="https://ankiweb.net/shared/info/675107747" target="_blank">"Simple Image Occlusion"</a> <span data-trn>add-on</span> <a href="https://apps.ankiweb.net/" target="_blank"><span data-trn>for Anki</span>.</a><br><span data-trn>Add-on author: A. Yu. Krutov</span></p>
+</div>
+<p class="onlyFront" style="height: 25px;">&nbsp;</p>
+
+<div id="sio-controls" class="scale1">           
+    <button id="zoomFitButton" onclick="zoomFit()" title="By image width [Shift+F3]">
+        <div style="position: relative; width: 20px; height: 20px; margin: auto auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="20" height="20">
+                <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="black" stroke-width="1.2" />
+                <rect x="4" y="4" width="12" height="12" rx="1" fill="none" stroke="black" stroke-width="1" />
+            </svg>            
+        </div>       
+         
+    </button>    
+    <button id="zoomH100Button" onclick="zoomH100()" title="By picture height [Shift+F4]">            
+        <div style="position: relative; width: 20px; height: 20px; margin: auto auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 0 28 20" width="24" height="20">
+                <rect x="0" y="1" width="18" height="18" rx="1" fill="none" stroke="black" stroke-width="1.2" />
+                <rect x="-4" y="5" width="26" height="10" rx="1" fill="none" stroke="black" stroke-width="0.8" />
+            </svg>
+        </div>
+    </button>
+    <button id="zoomOutButton" onclick="zoomOut()" title="Zoom out [F3]">-</button>
+    <button id="zoomInButton" onclick="zoomIn()" title="Zoom in [F4]">+</button>
+    <button id="toggleButton" onclick="toggleBtn()" title="Show / Hide image (Show other buttons) [Shift+F1]">👁️ <span data-trn>Show</span></button>
+    <button id="toggleButton2" class="hidden" onclick="toggleBtn2()" title="Hide image / Show (Show other buttons) [Shift+F1]">👁️‍🗨️ <span data-trn>Hide</span></button>
+    <button id="clearButton" onclick="clearBtn()" title="Clear / Fill in all rectangles [Shift+F5]" ><span data-trn>Clear</span></button>
+    <button id="clearButton2" class="hidden" onclick="clearBtn2()" title="Fill in all rectangles / Clear [Shift+F5]" ><span data-trn>Words</span></button>
+    <button id="editButton" onclick="editBtn()" title="Editing / Auto-enter a word [F2]">✏️</button>
+    <button id="editButton2" class="hidden" onclick="editBtn2()" title="Auto-enter a word / Editing [F2]">✅</button>
+    <button id="cursorButton" onclick="cursorBtn()" title="Pointer [Ctrl+Shift+F1] (Ctrl — draw, Ctrl+Shift — erase, Ctrl+Shift+Z — cancel, Ctrl+Shift+Del — clear)" style="display: none;">
+<svg viewBox="0 0 60 60" width="20" height="20">
+  <defs>
+    <linearGradient id="woodBtn" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#c89b5a"/>
+      <stop offset="50%" stop-color="#e0b879"/>
+      <stop offset="100%" stop-color="#b8833f"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="rotate(-75 30 30)">
+  <polygon 
+    points="5,27 55,30 55,32 5,34" 
+    fill="url(#woodBtn)"
+  />
+  
+  <circle cx="55" cy="31" r="3" fill="red" />
+</g>
+</svg>
+</button>
+    <button id="timeButton" onclick="gameEndOrStart()" title="Start / End the game [F7]">[0s] 0: <span data-trn>word</span></button>
+    <button id="gameButton" onclick="gameBtn()" title="Start / End the game [F7]"><span data-trn>Game</span></button>
+    {{#URLVictory}}
+    <button id="urlVictory" data-url="{{text:URLVictory}}" title="Link to the winner" style="display: none;">☆<u><span data-trn>Next</span></u>☆</button>
+    {{/URLVictory}}
+</div>
+
+
+<div id="bigCursor" style="display: none;">
+<svg width="100.000000pt" height="200.000000pt" viewBox="0 0 640.000000 1280.000000"
+ preserveAspectRatio="xMidYMid meet">
+<defs>
+<linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#c89b5a"/>
+<stop offset="30%" stop-color="#e0b879"/>
+<stop offset="60%" stop-color="#d2a86b"/>
+<stop offset="100%" stop-color="#b8833f"/>
+</linearGradient>
+<linearGradient id="tipShade" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="95%" stop-color="rgba(255,0,0,0)"/>
+  <stop offset="100%" stop-color="rgba(255,0,0,1)"/>
+</linearGradient>
+</defs>
+ <g transform="translate(0.000000,1280.000000) scale(0.1,-0.1)" fill="#000000" stroke="none">
+<path fill="url(#wood)" d="M4900 12515 c0 -2 -200 -699 -710 -2475 -160 -558 -430 -1499 -600
+-2090 -455 -1586 -753 -2622 -888 -3090 -158 -546 -348 -1204 -533 -1845 -210
+-726 -456 -1568 -616 -2109 -107 -363 -134 -465 -127 -485 12 -34 81 -84 151
+-111 108 -42 259 -24 283 32 5 13 45 165 90 338 44 173 223 873 399 1555 1015
+3951 1391 5413 1561 6075 147 571 485 1887 590 2295 76 295 318 1238 409 1596
+39 151 71 280 71 285 0 6 -18 15 -40 21 -22 5 -40 9 -40 8z"/>
+<path fill="url(#tipShade)" d="M4900 12515 c0 -2 -200 -699 -710 -2475 -160 -558 -430 -1499 -600
+-2090 -455 -1586 -753 -2622 -888 -3090 -158 -546 -348 -1204 -533 -1845 -210
+-726 -456 -1568 -616 -2109 -107 -363 -134 -465 -127 -485 12 -34 81 -84 151
+-111 108 -42 259 -24 283 32 5 13 45 165 90 338 44 173 223 873 399 1555 1015
+3951 1391 5413 1561 6075 147 571 485 1887 590 2295 76 295 318 1238 409 1596
+39 151 71 280 71 285 0 6 -18 15 -40 21 -22 5 -40 9 -40 8z"/>
+</g>
+</svg>
+</div>
+
+
+<script>
+// The most correct way to reassign document and window events    
+if (window.myAbortController) window.myAbortController.abort();
+window.myAbortController = new AbortController();
+var sig = {signal: window.myAbortController.signal};
+
+// translation for a specific language
+var listSL = ['ar', 'de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'pt', 'ru', 'zh'];
+// If you don't want to translate, write below: var lang2 = '--';
+var lang2 = navigator.language.substr(0, 2).toLowerCase(); 
+
+var langSS = '{{LngTag}}';
+if(langSS.trim() == '') // if not specified, it will be English
+    langSS = "en-US";
+else if(langSS.trim().startsWith('-'))
+    langSS = ""; // if you need to disable voice-over on click
+var resPar = parseLangSS(langSS);
+langSS = resPar.lang;
+var voicesSS = resPar.voices; 
+var speedSS = resPar.speed; 
+
+
+var rootCSS = document.documentElement;
+var stylesCSS = getComputedStyle(rootCSS);
+var rootcss_rectyellow = stylesCSS.getPropertyValue('--rectyellow').trim(); // rgba(255, 235, 162, 1)
+var rootcss_rectblue = stylesCSS.getPropertyValue('--rectblue').trim(); // rgba(1, 78, 140, 1)
+var rootcss_goodanswer = stylesCSS.getPropertyValue('--goodanswer').trim(); // rgb(10, 240, 10)
+var rootcss_badanswer = stylesCSS.getPropertyValue('--badanswer').trim(); // #fb8c8c
+
+var gameIsAllowed = true; // here you can disable the game button (or it will be prohibited if there are no words)
+var gameRun = false;
+var gameTime = 0; // game time in seconds
+var gameWords = ""; // list
+var gameNWords = 0; // list length
+var gameI = 0; // current index of the list element
+var gameIWord = ""; // current value
+var gameTimerInterval = null;
+var gamePauseSound = false;
+
+var editMode = false;
+var moveLineEl = null;
+var moveRectEl_Last = null;
+var moveRectEl = null;
+var moveBacklight = false;
+var imageSIOR = null;
+var movewh = 30;
+var ignore_rectangle_closing = false;
+
+var fontSizeTimer = null;
+
+var isIOS = document.getElementById("ios-v2") !== null;
+var isAnkiWeb = document.getElementById("qa_box") !== null || isIOS;
+
+var isAnkiDroid = false;
+var isDesk = false;
+if( !isAnkiWeb ) {
+    isAnkiDroid = (typeof AnkiDroidJS !== "undefined");
+    if(!isAnkiDroid) isDesk = typeof pycmd !== "undefined"; 
+}
+
+var isBack = isAnswer();
+
+var f_header = document.getElementById("f_header"); 
+if(f_header) {
+    document.title = f_header.textContent;
+}
+
+
+// Big pointer
+var bigCursorEnabled = false;
+var bigCursor = document.getElementById('bigCursor');
+if(bigCursor.style.display != 'none' && !bigCursorEnabled) {
+    cursorBtn();
+}    
+
+var strokes = [];
+var currentStroke = null;
+var mode = 'draw'; // draw | erase
+var canvasDL = document.querySelector('.draw-layer');
+var img = document.querySelector('.sio-image');
+var imgCont = document.querySelector('.sio-image-container');
+var ctx = canvasDL.getContext('2d');
+var drawEnabled = true;
+[
+  { type: 'draw', points: [ {x: 10, y: 20}, {x: 11, y: 21} ] },
+  { type: 'erase', points: [ {x: 15, y: 25} ] }
+]
+canvasDL.style.pointerEvents = 'auto';
+
+function initEditMode() {
+    const editButton = document.getElementById('editButton');
+    editMode = editButton.classList.contains('hidden');    
+}
+initEditMode();        
+    
+
+function headerURLSetPage() {
+    let pagePdf = document.getElementById('pagePdf');
+    if(pagePdf) {
+        let pageN = '{{text:HeaderURL_filepdf#page=}}';
+        pageN = pageN.trim();
+        pageN = pageN.split('#page=')[1];        
+        if(pageN && pageN.length > 0) {
+            if(pageN.length < 4)
+                pagePdf.innerText = ' - [' + '0'.repeat(4-pageN.length) + pageN + ']';
+            else 
+                pagePdf.innerText = ' - [' + pageN + ']';
+        }
+    }        
+}   
+headerURLSetPage(); 
+    
+
+setTimeout( ()=>{
+    if( isDesk ){
+        document.querySelectorAll('.onlydesk').forEach(elOAD => {        
+            elOAD.style.display = "";
+            if( (isBack && elOAD.classList.contains('onlyFront')) || (!isBack && elOAD.classList.contains('onlyBack'))) elOAD.style.display = "none";         
+        });   
+        document.querySelectorAll('.onlyankiweb').forEach(elOAD => {
+            elOAD.style.display = "none";
+        });
+        document.querySelectorAll('.onlyankidroid').forEach(elOAD => {
+            elOAD.style.display = "none";
+        }); 
+        
+        
+    } else if( isAnkiDroid ){
+        document.querySelectorAll('.onlydesk').forEach(elOAD => {
+            elOAD.style.display = "none";
+        });   
+        document.querySelectorAll('.onlyankiweb').forEach(elOAD => {
+            elOAD.style.display = "none";
+        });
+        document.querySelectorAll('.onlyankidroid').forEach(elOAD => {
+            elOAD.style.display = "";
+            if( (isBack && elOAD.classList.contains('onlyFront')) || (!isBack && elOAD.classList.contains('onlyBack'))) elOAD.style.display = "none";
+        }); 
+        
+        elSC = document.getElementById('sio-controls');
+        if (elSC) elSC.classList.add('ankidroid');
+        jsApiContract = { "version": "0.0.3", "developer": "infinyte01@mail.com" };
+        apiAnkiDroid = new AnkiDroidJS(jsApiContract);
+        apiAnkiDroid.ankiTtsSetLanguage(langSS);   
+        if(speedSS != '') apiAnkiDroid.ankiTtsSetSpeechRate(parseFloat(speedSS)); 
+        else apiAnkiDroid.ankiTtsSetSpeechRate(1.0);    
+        
+    } else if( isAnkiWeb ){
+        document.querySelectorAll('.onlydesk').forEach(elOAD => {
+            elOAD.style.display = "none";
+        });   
+        document.querySelectorAll('.onlyankiweb').forEach(elOAD => {
+            elOAD.style.display = "";
+            if( (isBack && elOAD.classList.contains('onlyFront')) || (!isBack && elOAD.classList.contains('onlyBack'))) elOAD.style.display = "none";
+        });
+        document.querySelectorAll('.onlyankidroid').forEach(elOAD => {
+            elOAD.style.display = "none";
+        }); 
+        
+        elSC = document.getElementById('sio-controls');
+        if (elSC) {
+            elSC.classList.add('ankiweb');
+        }
+        if(isIOS) {
+            elSC.classList.add('iosv2');
+        }    
+    }
+}, 100);
+  
+
+function isAnswer() {
+    let el = document.getElementById("answer");
+    if(el) return true;            
+    return false; 
+}
+   
+        
+function parseLangSS(input) {        
+    let langSS = (input || '').trim();
+    if(langSS == '') {
+        return {
+            disabled: true,
+            lang: '',
+            voices: '',
+            speed: ''
+        };
+    }
+    
+    let result = {
+        disabled: false,
+        lang: '',
+        voices: '',
+        speed: ''
+    };
+    
+    if (langSS.startsWith('-')) {
+        result.disabled = true;
+        langSS = langSS.slice(1).trim();
+    }
+    
+    if (langSS.startsWith('tts')) {
+        langSS = langSS.slice(3).trim();
+    }
+    
+    function extractParam(name) {
+        const regex = new RegExp(`${name}=([^\\s]+)`);
+        const match = langSS.match(regex);
+        if (match) {
+            langSS = langSS.replace(match[0], '').trim();
+            return match[1];
+        }
+        return '';
+    }
+    
+    result.voices = extractParam('voices');
+    result.speed  = extractParam('speed');
+    let langParam = extractParam('lang');
+    if (langParam) {
+        result.lang = langParam;
+    } else {            
+        result.lang = langSS.trim();
+    }
+    
+    if (result.disabled && result.lang) {
+        result.lang = '-' + result.lang;
+    }
+    
+    return result;
+}
+
+
+// When loading, show rectangles for entering
+function transparentRect() {
+    const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
+    const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line'));
+    if (rectangles.length === 0) return;
+    rectangles.forEach(rect => {
+        rect.style.display = "";
+        rect.classList.add('transparent');
+        rect.dataset.wasFocused = "false";
+        if( rect.hasAttribute('word') && !(rect.getAttribute('word') == '') ) {
+            rect.innerText = rect.getAttribute('word');
+            rect.classList.add('wordshow');
+        }
+    });
+    
+    updateResize();
+}
+
+if( document.getElementById("transparent_answer") !== null ) { // only for back-side 
+    transparentRect();        
+}   
+
+
+
+
+// ==================== GAME =====================
+if( gameIsAllowed ) {
+    const sio_rect_ALL = Array.from(document.querySelectorAll('.sio-rect'));
+    const sio_rect_ALL_filt = sio_rect_ALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+    if( sio_rect_ALL_filt.length < 2 ) {
+        gameIsAllowed = false;
+        const gameButton = document.getElementById('gameButton');
+        gameButton.style.display = 'none';            
+    }
+}
+
+function fx(s, p) {
+    var r = "";    
+    if(p.length == 0) p = "xSsdfgd6";    
+    if(s.length > p.length) p = p.repeat( Math.ceil(s.length/p.length) );
+    for (var i = 0; i < s.length; ++i) {
+        r += String.fromCharCode(s.charCodeAt(i) ^ p.charCodeAt(i) ^ (1 + (p.length - i) % 32));
+    }
+    return r;
+}
+function fec(s, p) {
+    return btoa(fx(s, p));
+}
+function fdc(s, p) {
+    return fx(atob(s), p);
+}
+
+
+function kitcut( text, limit) {
+text = text.trim();
+if( text.length <= limit) {
+return text;
+}        
+text = text.slice( 0, limit);
+lastSpace = text.lastIndexOf(" ");
+    if( lastSpace > 0) {
+    text = text.substr(0, lastSpace);
+    }
+    return text + "...";
+}
+    
+function startGameTimer() {        
+    if (gameTimerInterval !== null) {
+        clearInterval(gameTimerInterval);
+        gameTimerInterval = null;
+    }
+            
+    gameTimerInterval = setInterval(() => {
+        if (gameTime < 3600) {
+            gameTime++;   
+            const timeButton = document.getElementById('timeButton');     
+            timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);        
+        } else {                
+            stopGameTimer();                
+        }
+    }, 1000);
+}
+    
+function stopGameTimer() {
+    if (gameTimerInterval !== null) {
+        clearInterval(gameTimerInterval);
+        gameTimerInterval = null;
+    }
+}
+
+
+function showFloatingText(text, color = '#000000', timeMs=1000, offsetY = 0) {
+    let scale = 1;    
+    if(window.visualViewport) {
+        scale = window.visualViewport.scale;
+    }    
+    // Measuring text
+    const measure = document.createElement('span');    
+    measure.textContent = text;
+    measure.style.cssText = 'visibility:hidden; position:absolute; font-size:32px; font-weight:bold; font-family:Arial,sans-serif; white-space:nowrap;';
+    //measure.style.transform = `scale(${1 / scale})`;
+    measure.style.transform = `scale(1)`;
+    measure.style.transformOrigin = 'center';
+    document.body.appendChild(measure);
+    
+    let width = measure.offsetWidth;
+    let height = measure.offsetHeight;
+    measure.remove();
+    const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const vx = window.visualViewport ? window.visualViewport.offsetLeft : 0;
+    const vy = window.visualViewport ? window.visualViewport.offsetTop : 0;
+    let fsize = 30;
+    
+    if(window.visualViewport) {        
+        if(scale > 1.02) {
+            fsize = parseInt(fsize / scale);            
+        }
+        width = parseInt(width / scale); 
+        height = parseInt(height / scale);
+    }
+    
+    // Creating an element
+    const floatingText = document.createElement('div');
+    floatingText.textContent = text;
+    floatingText.style.cssText = `
+    position: fixed;
+    // left: ${(window.innerWidth / 2) - (width / 2)}px;
+    // top: ${(window.innerHeight / 2) - (height / 2) + offsetY}px;
+    left: ${(vw / 2) - (width / 2) + vx}px;
+    top: ${(vh / 2) - (height / 2) + offsetY + vy}px;
+    font-size: ${fsize}px;
+    font-weight: bold;
+    letter-spacing: 0.07em;
+    background: transparent;
+    color: ${color};
+    text-shadow:
+        -0.4px -0.4px 0 #FFFFFF,
+        1px 1px 2px black;    
+    z-index: 999999;
+    pointer-events: none;    
+    /* white-space: nowrap; */
+    font-family: Arial, sans-serif;
+    transition: opacity 0.2s ease;
+    opacity: 0;   
+    text-align: center;
+    /* transform: scale(${1 / scale}); */
+    transform: scale(1);
+    transformOrigin: center;
+`;
+    
+    document.body.appendChild(floatingText);
+    gamePauseSound = true;
+    setTimeout(() => { floatingText.style.opacity = '1'; }, 10);
+    setTimeout(() => {
+        floatingText.style.opacity = '0';
+        setTimeout(() => floatingText.remove(), 200);
+        gamePauseSound = false;
+    }, timeMs);
+}
+
+function gameEndOrStart() {    
+    if(gameRun && gameI >= 0) {
+        gameEnd();    
+    }
+    else {
+        gameEnd();   
+        if(gameIsAllowed) gameBtn();     
+    }
+}
+
+
+function gameEnd() {
+    if( !gameIsAllowed ) return;
+    document.querySelectorAll('.circle_press').forEach(circle => {    
+        circle.classList.remove('move-backlight');
+        circle.classList.remove('focus-backlight');
+    });
+    document.querySelectorAll('.sio-rect.line').forEach(line => {   
+        line.classList.remove('move-backlight'); 
+        line.classList.remove('focus-backlight');
+    });
+    const timeButton = document.getElementById('timeButton');
+    const gameButton = document.getElementById('gameButton');
+    const clearButton = document.getElementById('clearButton');
+    const clearButton2 = document.getElementById('clearButton2');
+    const toggleButton = document.getElementById('toggleButton');
+    const toggleButton2 = document.getElementById('toggleButton2');
+    stopGameTimer();
+    timeButton.innerText = '[0s] 0: word';
+    timeButton.style.display = 'none';
+    clearButton.style.display = 'block';
+    clearButton2.style.display = 'block';
+    gameButton.style.display = 'block';  
+    toggleButton.style.display = 'block';
+    toggleButton2.style.display = 'block';
+    gameRun = false;
+    gameTime = 0;
+    gameNWords = 0;
+    gameI = 0;
+    gameIWord = ''; 
+}
+
+
+function gameStart() {
+    if( !gameIsAllowed ) return;
+    updateResize();
+    const timeButton = document.getElementById('timeButton');
+    const gameButton = document.getElementById('gameButton');
+    const toggleButton = document.getElementById('toggleButton');
+    const toggleButton2 = document.getElementById('toggleButton2');     
+    const clearButton2 = document.getElementById('clearButton2');
+           
+    timeButton.style.color = 'blue';
+     // Collect all .sio-rect elements and extract their 'word' attributes
+    const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
+    
+    for (var i = 0; i < rectanglesALL.length; i++) {
+        rectanglesALL[i].classList.remove('selected');
+        rectanglesALL[i].contentEditable = false;                
+    }   
+ 
+    const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line')
+        && !(rect.style.display == 'none') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+     //gameWords = Array.from(document.querySelectorAll('.sio-rect:not(.line)')).map(div => {
+    gameWords = Array.from(rectangles).map(div => {
+        const wordAttr = div.getAttribute('word');
+        return wordAttr !== null && wordAttr !== "" ? wordAttr : "";
+    });
+     // Mix the array randomly
+    for (let i = gameWords.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [gameWords[i], gameWords[j]] = [gameWords[j], gameWords[i]];
+    }
+     // Recording the length of the list
+    gameNWords = gameWords.length;
+     // Set the index (for example, the last element)
+    gameI = gameNWords - 1;
+     // Getting the word by index
+    gameIWord = gameWords[gameI];
+    gameRun = true;     
+    gameTime = 0;
+   
+    
+    timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+    timeButton.style.display = 'block';
+    gameButton.style.display = 'none';              
+    toggleButton.style.display = 'none';
+    toggleButton2.style.display = 'none';    
+    clearButton2.style.display = 'none';
+    
+    
+    startGameTimer();
+    speakText(gameIWord);
+    showFloatingText(gameIWord, '#FF0000');
+}
+
+
+function gameBtn() {
+    const toggleButton = document.getElementById('toggleButton');    
+    if( toggleButton.classList.contains('hidden') ) {
+        toggleBtn2();
+    }        
+    clearBtn();
+    showAllRect();
+    gameStart();
+}
+
+
+function gameNextWord() {
+    if( !gameRun ) return;
+
+    const elurlVictory = document.getElementById('urlVictory');
+    function urlV() {     
+        if(elurlVictory) {
+                try{
+                if(elurlVictory.hasAttribute('data-purl')) {
+                    let u = elurlVictory.getAttribute('data-url');
+                    let p = elurlVictory.getAttribute('data-purl');
+                    window.open(fdc(u, p), '_blank', 'noopener,noreferrer');
+                }
+                else {
+                    let u = elurlVictory.getAttribute('data-url');
+                    window.open(u, '_blank', 'noopener,noreferrer');
+                }
+            }catch(e){} 
+        }               
+    }
+    
+    const timeButton = document.getElementById('timeButton');
+    gameI -= 1;
+    if(gameI < 0) {
+        stopGameTimer();
+        function getRandomSymbol(arr) {
+            const randomIndex = Math.floor(Math.random() * arr.length);
+            return arr[randomIndex];
+        }
+         if(gameTime <= 2*gameNWords) {
+            const symbolsArrayVGood = ['🤩', '😁', '😍', '😻', '❤️'];
+            timeButton.innerText = getRandomSymbol(symbolsArrayVGood) + ' [' + String(gameTime) + 's]: ' + trn_very_good.toUpperCase() + '!';
+            timeButton.style.color = 'green';      
+            if(elurlVictory) {
+                elurlVictory.style.display = 'block';
+                elurlVictory.onclick = urlV;
+            }
+            showFloatingText(timeButton.innerText, 'green', 3000);
+            
+            speakText(trn_very_good, navigator.language);
+        } else if(gameTime <= 3*gameNWords) {
+            const symbolsArrayGood = ['😀', '🙂', '😺', '🤠', '😎'];
+            timeButton.innerText = getRandomSymbol(symbolsArrayGood) + ' [' + String(gameTime) + 's]: ' + trn_good.toUpperCase() + '!';
+            timeButton.style.color = 'green';
+            showFloatingText(timeButton.innerText, 'green', 3000);
+            speakText(trn_good, navigator.language);
+        } else if(gameTime <= 4*gameNWords) {
+            const symbolsArrayHard = ['😑', '😲', '🤦🏽‍♂️', '🤨', '🥱'];
+            timeButton.innerText = getRandomSymbol(symbolsArrayHard) + ' [' + String(gameTime) + 's]: ' + trn_hard.toUpperCase();
+            timeButton.style.color = 'magenta';
+            showFloatingText(timeButton.innerText, 'magenta', 3000);
+            speakText(trn_hard, navigator.language);
+        } else {
+            const symbolsArrayAgain = ['💩', '🤷🏻‍♀️', '😭', '❓', '🗣', '😤', '🤡', '❌', '🙅', '😢', '🤔', '🙀'];
+            timeButton.innerText = getRandomSymbol(symbolsArrayAgain) + ' [' + String(gameTime) + 's]: ' + trn_Again.toUpperCase();  
+            timeButton.style.color = 'red'; 
+            showFloatingText(timeButton.innerText, 'red', 3000);
+            speakText(trn_Again_please, navigator.language);
+        } 
+
+        if ("vibrate" in navigator) {
+            navigator.vibrate(40);
+            setTimeout(() => {
+                navigator.vibrate(80);
+            }, 80);
+        }
+        
+        const clearButton = document.getElementById('clearButton');
+        clearButton.style.display = 'block';  
+        const clearButton2 = document.getElementById('clearButton2');
+        clearButton2.style.display = 'block';
+        const toggleButton = document.getElementById('toggleButton');
+        toggleButton.style.display = 'block';
+        const toggleButton2 = document.getElementById('toggleButton2');
+        toggleButton2.style.display = 'block';
+        
+        document.querySelectorAll('.circle_press').forEach(circle => {    
+            circle.classList.remove('move-backlight');
+            circle.classList.remove('focus-backlight');
+        });
+        document.querySelectorAll('.sio-rect.line').forEach(line => {   
+            line.classList.remove('move-backlight'); 
+            line.classList.remove('focus-backlight');
+        });
+                 
+        return;
+    }
+     
+    if ("vibrate" in navigator) {
+        navigator.vibrate(40);
+    }
+    gameIWord = gameWords[gameI];
+    showFloatingText(gameIWord, '#FF0000');
+    
+    speakText(gameIWord);
+    
+    timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+}
+
+
+// ===============================================
+
+
+function zoomFit() {      
+    document.getElementById('zoomInButton').removeAttribute('disabled');
+    document.getElementById('zoomOutButton').removeAttribute('disabled');
+    elbtfit = document.getElementById('zoomFitButton');
+    elbth100 = document.getElementById('zoomH100Button');
+    el = document.getElementsByClassName('sio-image-container')[0];
+        
+    let ct_h100 = el.classList.contains('h100');
+    let ct_wfit = el.classList.contains('wfit');
+    let ct_w25 = el.classList.contains('w25');
+    let ct_w50 = el.classList.contains('w50');
+    let ct_w75 = el.classList.contains('w75');
+    let ct_w100 = el.classList.contains('w100');
+    let ct_w125 = el.classList.contains('w125');
+    let ct_w150 = el.classList.contains('w150');
+    let ct_w200 = el.classList.contains('w200');
+    let ct_w300 = el.classList.contains('w300'); 
+    let ct_w400 = el.classList.contains('w400');   
+        
+    if(ct_h100) saveScrollPosition(scrollLeftTopH100);     
+    else if(ct_wfit) saveScrollPosition(scrollLeftTopWfit); 
+        
+    if(!ct_h100 && !ct_wfit) {        
+        saveScrollPosition(scrollLeftTop);
+        if(ct_w100) previous_scale = "w100";
+        else if(ct_w125) previous_scale = "w125";
+        else if(ct_w150) previous_scale = "w150";
+        else if(ct_w200) previous_scale = "w200";
+        else if(ct_w75) previous_scale = "w75";        
+        else if(ct_w300) previous_scale = "w300";
+        else if(ct_w50) previous_scale = "w50";
+        else if(ct_w400) previous_scale = "w400";
+        else if(ct_w25) previous_scale = "w25";
+    }
+    
+    el.classList.remove('h100');        
+    el.classList.remove('w25');
+    el.classList.remove('w50');
+    el.classList.remove('w75');
+    el.classList.remove('w100');
+    el.classList.remove('w125');
+    el.classList.remove('w150');
+    el.classList.remove('w200');
+    el.classList.remove('w300');
+    el.classList.remove('w400'); 
+    el.classList.add('wfit');
+        
+    if(ct_wfit) {
+        if(previous_scale != '') {                                    
+            zoomSet(previous_scale);
+            return;
+        }
+    }
+    
+    let zoomFitButton = document.getElementById('zoomFitButton'); 
+    zoomFitButton.style.backgroundColor = '#bbccff';    
+    let zoomH100Button = document.getElementById('zoomH100Button'); 
+    zoomH100Button.style.backgroundColor = '';
+    
+    
+    movewh = 22;
+    if(window.visualViewport && window.visualViewport.width < 440) {
+        movewh *= 0.75;
+    }
+    document.documentElement.style.setProperty('--move-circle-press-WH', String(movewh) + 'px');
+    
+    setTimeout(() => {
+        restoreScrollPosition(scrollLeftTopWfit);
+    }, 20);
+    
+    setTimeout(resizeCanvas, 0);
+    
+    updateResize();
+}
+
+function zoomH100() {    
+    document.getElementById('zoomInButton').removeAttribute('disabled');
+    document.getElementById('zoomOutButton').removeAttribute('disabled');
+    elbtfit = document.getElementById('zoomFitButton');
+    elbth100 = document.getElementById('zoomH100Button');
+    el = document.getElementsByClassName('sio-image-container')[0];
+    
+    let ct_h100 = el.classList.contains('h100');
+    let ct_wfit = el.classList.contains('wfit');
+    let ct_w25 = el.classList.contains('w25');
+    let ct_w50 = el.classList.contains('w50');
+    let ct_w75 = el.classList.contains('w75');
+    let ct_w100 = el.classList.contains('w100');
+    let ct_w125 = el.classList.contains('w125');
+    let ct_w150 = el.classList.contains('w150');
+    let ct_w200 = el.classList.contains('w200');
+    let ct_w300 = el.classList.contains('w300'); 
+    let ct_w400 = el.classList.contains('w400');     
+        
+    if(ct_h100) saveScrollPosition(scrollLeftTopH100);     
+    else if(ct_wfit) saveScrollPosition(scrollLeftTopWfit); 
+            
+    if(!ct_h100 && !ct_wfit) {        
+        saveScrollPosition(scrollLeftTop);
+        if(ct_w100) previous_scale = "w100";
+        else if(ct_w125) previous_scale = "w125";
+        else if(ct_w150) previous_scale = "w150";
+        else if(ct_w200) previous_scale = "w200";
+        else if(ct_w75) previous_scale = "w75";        
+        else if(ct_w300) previous_scale = "w300";
+        else if(ct_w50) previous_scale = "w50";
+        else if(ct_w400) previous_scale = "w400";
+        else if(ct_w25) previous_scale = "w25";
+    }
+    
+    
+    el.classList.remove('wfit');        
+    el.classList.remove('w25');
+    el.classList.remove('w50');
+    el.classList.remove('w75');
+    el.classList.remove('w100');
+    el.classList.remove('w125');
+    el.classList.remove('w150');
+    el.classList.remove('w200');
+    el.classList.remove('w300');
+    el.classList.remove('w400'); 
+    el.classList.add('h100');
+        
+    if(ct_h100) {
+        if(previous_scale != '') {                                    
+            zoomSet(previous_scale);
+            return;
+        }
+    }
+    
+    let zoomFitButton = document.getElementById('zoomFitButton'); 
+    zoomFitButton.style.backgroundColor = '';    
+    let zoomH100Button = document.getElementById('zoomH100Button'); 
+    zoomH100Button.style.backgroundColor = '#bbccff';
+    
+    
+    movewh = 22;
+    if(window.visualViewport && window.visualViewport.width < 440) {
+        movewh *= 0.75;
+    }
+    document.documentElement.style.setProperty('--move-circle-press-WH', String(movewh) + 'px'); 
+
+    
+    setTimeout(() => {
+        restoreScrollPosition(scrollLeftTopH100);
+    }, 20);
+    
+    
+    setTimeout(resizeCanvas, 0);
+    
+    updateResize();  
+}
+
+
+
+
+
+function zoomSet(classzoom) {    
+    document.getElementById('zoomInButton').removeAttribute('disabled');
+    document.getElementById('zoomOutButton').removeAttribute('disabled');
+    el = document.getElementsByClassName('sio-image-container')[0];
+    let ct_h100 = el.classList.contains('h100');
+    let ct_wfit = el.classList.contains('wfit');
+    let ct_w25 = el.classList.contains('w25');
+    let ct_w50 = el.classList.contains('w50');
+    let ct_w75 = el.classList.contains('w75');
+    let ct_w100 = el.classList.contains('w100');
+    let ct_w125 = el.classList.contains('w125');
+    let ct_w150 = el.classList.contains('w150');
+    let ct_w200 = el.classList.contains('w200');
+    let ct_w300 = el.classList.contains('w300'); 
+    let ct_w400 = el.classList.contains('w400');   
+    
+    if(!ct_h100 && !ct_wfit) saveScrollPosition(scrollLeftTop);
+    else if(ct_h100) saveScrollPosition(scrollLeftTopH100); 
+    else if(ct_wfit) saveScrollPosition(scrollLeftTopWfit); 
+    
+    el.classList.remove('h100');
+    el.classList.remove('wfit');
+    el.classList.remove('w25');
+    el.classList.remove('w50');
+    el.classList.remove('w75');
+    el.classList.remove('w100');
+    el.classList.remove('w125');
+    el.classList.remove('w150');
+    el.classList.remove('w200');
+    el.classList.remove('w300');
+    el.classList.remove('w400');
+    el.classList.remove('h100');
+    
+    let zoomFitButton = document.getElementById('zoomFitButton'); 
+    zoomFitButton.style.backgroundColor = '';    
+    let zoomH100Button = document.getElementById('zoomH100Button'); 
+    zoomH100Button.style.backgroundColor = '';
+    
+    movewh = 22;
+    
+    if (classzoom=='w25') {        
+        el.classList.add('w25');          
+    }    
+    else if (classzoom=='w50') {            
+        el.classList.add('w50');
+        movewh = 15;
+    }
+    else if (classzoom=='w75') {            
+        el.classList.add('w75');
+        movewh = 18;
+    }
+    else if (classzoom=='w100') {            
+        el.classList.add('w100');
+    }
+    else if (classzoom=='w125') {            
+        el.classList.add('w125');
+    }
+    else if (classzoom=='w150') {            
+        el.classList.add('w150');
+        movewh = 25;
+    }
+    else if (classzoom=='w200') {            
+        el.classList.add('w200');        
+        movewh = 30;
+    }        
+    else if (classzoom=='w300') {            
+        el.classList.add('w300');
+        movewh = 40;
+    }        
+    else if (classzoom=='w400') {            
+        el.classList.add('w400');
+        document.getElementById('zoomInButton').setAttribute('disabled', '');
+        movewh = 60;
+    }    
+    else {
+        el.classList.add('w150');               
+    }
+    
+    if(window.visualViewport && window.visualViewport.width < 440) {
+        movewh *= 0.75;
+    }
+    document.documentElement.style.setProperty('--move-circle-press-WH', String(movewh) + 'px');
+    
+    setTimeout(() => {
+        if(classzoom=='wfit') restoreScrollPosition(scrollLeftTopWfit);
+        else if(classzoom=='h100') restoreScrollPosition(scrollLeftTopH100);
+        else restoreScrollPosition(scrollLeftTop);
+    }, 20);
+    
+    setTimeout(resizeCanvas, 0);
+    
+    updateResize();
+} 
+
+
+function zoom200() {    
+    zoomSet('w200');
+}
+
+function zoomIn() {    
+    document.getElementById('zoomInButton').removeAttribute('disabled');
+    document.getElementById('zoomOutButton').removeAttribute('disabled');
+    el = document.getElementsByClassName('sio-image-container')[0];
+    let ct_h100 = el.classList.contains('h100');
+    let ct_wfit = el.classList.contains('wfit');
+    let ct_w25 = el.classList.contains('w25');
+    let ct_w50 = el.classList.contains('w50');
+    let ct_w75 = el.classList.contains('w75');
+    let ct_w100 = el.classList.contains('w100');
+    let ct_w125 = el.classList.contains('w125');
+    let ct_w150 = el.classList.contains('w150');
+    let ct_w200 = el.classList.contains('w200');
+    let ct_w300 = el.classList.contains('w300'); 
+    let ct_w400 = el.classList.contains('w400');   
+    
+    if(!ct_h100 && !ct_wfit) saveScrollPosition(scrollLeftTop);
+    else if(ct_h100) saveScrollPosition(scrollLeftTopH100); 
+    else if(ct_wfit) saveScrollPosition(scrollLeftTopWfit); 
+    
+    el.classList.remove('h100');
+    el.classList.remove('wfit');
+    el.classList.remove('w25');
+    el.classList.remove('w50');
+    el.classList.remove('w75');
+    el.classList.remove('w100');
+    el.classList.remove('w125');
+    el.classList.remove('w150');
+    el.classList.remove('w200');
+    el.classList.remove('w300');
+    el.classList.remove('w400');
+    el.classList.remove('h100');
+    
+    let zoomFitButton = document.getElementById('zoomFitButton'); 
+    zoomFitButton.style.backgroundColor = '';    
+    let zoomH100Button = document.getElementById('zoomH100Button'); 
+    zoomH100Button.style.backgroundColor = '';
+    
+    movewh = 22;
+    
+    if (ct_h100) {        
+        el.classList.add('w200');          
+    }
+    else if (ct_wfit) {        
+        el.classList.add('w125');        
+    }
+    else if (ct_w25) {            
+        el.classList.add('w50');
+        movewh = 15;
+    }
+    else if (ct_w50) {            
+        el.classList.add('w75');
+        movewh = 18;
+    }
+    else if (ct_w75) {            
+        el.classList.add('w100');
+    }
+    else if (ct_w100) {            
+        el.classList.add('w125');
+    }
+    else if (ct_w125) {            
+        el.classList.add('w150');
+        movewh = 25;
+    }
+    else if (ct_w150) {            
+        el.classList.add('w200');        
+        movewh = 30;
+    }        
+    else if (ct_w200) {            
+        el.classList.add('w300');
+        movewh = 40;
+    }        
+    else if (ct_w300) {            
+        el.classList.add('w400');
+        document.getElementById('zoomInButton').setAttribute('disabled', '');
+        movewh = 60;
+    }
+    else if (ct_w400) {                        
+        document.getElementById('zoomInButton').setAttribute('disabled', '');
+        movewh = 80;
+    }
+    else {
+        el.classList.add('w150');               
+    }
+    
+    if(window.visualViewport && window.visualViewport.width < 440) {
+        movewh *= 0.75;
+    }
+    document.documentElement.style.setProperty('--move-circle-press-WH', String(movewh) + 'px');
+    
+    setTimeout(() => {
+        restoreScrollPosition(scrollLeftTop);
+    }, 20);
+    
+    setTimeout(resizeCanvas, 0);
+    
+    updateResize();
+} 
+
+function zoomOut() {    
+    document.getElementById('zoomInButton').removeAttribute('disabled');
+    document.getElementById('zoomOutButton').removeAttribute('disabled');
+    el = document.getElementsByClassName('sio-image-container')[0];
+    let ct_w25 = el.classList.contains('w25');
+    let ct_h100 = el.classList.contains('h100');
+    let ct_wfit = el.classList.contains('wfit');    
+    let ct_w50 = el.classList.contains('w50');
+    let ct_w75 = el.classList.contains('w75');
+    let ct_w100 = el.classList.contains('w100');
+    let ct_w125 = el.classList.contains('w125');
+    let ct_w150 = el.classList.contains('w150');
+    let ct_w200 = el.classList.contains('w200');
+    let ct_w300 = el.classList.contains('w300');
+    let ct_w400 = el.classList.contains('w400');
+    
+    if(!ct_h100 && !ct_wfit) saveScrollPosition(scrollLeftTop);
+    else if(ct_h100) saveScrollPosition(scrollLeftTopH100); 
+    else if(ct_wfit) saveScrollPosition(scrollLeftTopWfit); 
+            
+    
+    el.classList.remove('h100');
+    el.classList.remove('wfit');
+    el.classList.remove('w25');
+    el.classList.remove('w50');
+    el.classList.remove('w75');
+    el.classList.remove('w100');
+    el.classList.remove('w125');
+    el.classList.remove('w150');
+    el.classList.remove('w200');
+    el.classList.remove('w300');
+    el.classList.remove('w400');
+    el.classList.remove('h100');
+    
+    let zoomFitButton = document.getElementById('zoomFitButton'); 
+    zoomFitButton.style.backgroundColor = '';    
+    let zoomH100Button = document.getElementById('zoomH100Button'); 
+    zoomH100Button.style.backgroundColor = '';
+    
+    movewh = 22;
+    
+    if (ct_h100) {        
+        el.classList.add('w125');          
+    }
+    else if (ct_wfit) {        
+        el.classList.add('w75');           
+        movewh = 18;
+    }
+    else if (ct_w25) {   
+        document.getElementById('zoomOutButton').setAttribute('disabled', '');        
+        movewh = 12;
+    }        
+    else if (ct_w50) {            
+        el.classList.add('w25');        
+        document.getElementById('zoomOutButton').setAttribute('disabled', '');
+        movewh = 12;
+    }
+    else if (ct_w75) {            
+        el.classList.add('w50');        
+        movewh = 15;
+    }
+    else if (ct_w100) {            
+        el.classList.add('w75');        
+        movewh = 18;
+    }
+    else if (ct_w125) {            
+        el.classList.add('w100');                
+    }
+    else if (ct_w150) {            
+        el.classList.add('w125');  
+        movewh = 25;      
+    }
+    else if (ct_w200) {            
+        el.classList.add('w150'); 
+        movewh = 30;       
+    }
+    else if (ct_w300) {            
+        el.classList.add('w200');    
+        movewh = 40;           
+    }
+    else if (ct_w400) {            
+        el.classList.add('w300');            
+        movewh = 60;
+    }
+    else { 
+        el.classList.add('w75');
+        movewh = 18;
+    }
+    
+    if(window.visualViewport && window.visualViewport.width < 440) {
+        movewh *= 0.75;
+    }
+    document.documentElement.style.setProperty('--move-circle-press-WH', String(movewh) + 'px');              
+    
+    setTimeout(() => {
+        restoreScrollPosition(scrollLeftTop);
+    }, 20);
+    
+    setTimeout(resizeCanvas, 0);
+    
+    updateResize();
+} 
+
+
+
+
+
+function getCharCoef(fontFamily) {
+    const span = document.createElement("span");
+    span.classList.add('sio-rect');
+    span.classList.add('transparent');
+    span.classList.add('wordshow');
+    span.style.visibility = "hidden";
+    span.style.fontFamily = fontFamily;
+    span.style.letterSpacing = '0.07em';
+    span.style.fontSize = "64px";
+    span.textContent = "NNNNNNN";
+    document.body.appendChild(span);
+    const width = span.getBoundingClientRect().width;
+    document.body.removeChild(span);
+    return width / (6 * 64);
+}
+
+
+var charWidthCoef = 0.7; // 0.6in the editor
+elSR = document.querySelectorAll('.txt-sio-rect')[0];
+if(elSR) {
+    const fontFamily = getComputedStyle(elSR).fontFamily;
+    charWidthCoef = getCharCoef(fontFamily); 
+    // charWidthCoef += 0.1; // in the editor   
+}
+
+function fitFontSizeToRect(rectElement) {
+    let txt = rectElement.textContent || "";
+    let word = rectElement.getAttribute('word') || "";
+    let hint = rectElement.getAttribute('hint') || "";
+
+    if (txt.length === 0 && hint.length > word.length) txt = hint;
+    else if (word.length > txt.length) txt = word;
+
+    let pz = txt.indexOf("::");
+    if (pz > 0) txt = txt.slice(0, pz);
+
+    const rect = rectElement.getBoundingClientRect();
+    const rectWidth = rect.width;
+    const rectHeight = rect.height;
+
+    let len = txt.length || 1;
+    
+    let fontSize;
+
+    if (len <= 4) len = 4;    
+    if (len <= 15) {
+        // 1 line
+        const byWidth = rectWidth / (len * charWidthCoef);
+        const byHeight = rectHeight * 0.8;
+
+        fontSize = Math.min(byWidth, byHeight);
+    } else {
+        // 2 line
+        const charsPerLine = Math.ceil(len / 2);
+
+        const byWidth = rectWidth / (charsPerLine * charWidthCoef);
+        const byHeight = rectHeight / 2;
+
+        fontSize = Math.min(byWidth, byHeight);
+    }
+        
+    let minPx = 10; // 16 in the editor  
+    fontSize = Math.max(minPx, Math.min(fontSize, 100));
+
+    rectElement.style.fontSize = fontSize + "px";
+}
+
+
+// Update the size of the font from the size of the image container
+function updateFontSize() {    
+    els = document.querySelectorAll('.sio-rect');    
+    for (var i = 0; i < els.length; i++) {
+        try {
+            fitFontSizeToRect(els[i]);        
+        } catch(err) {}        
+    }
+}
+
+
+function updateResize() {
+    if(fontSizeTimer) {
+        clearTimeout(fontSizeTimer);
+    }
+    fontSizeTimer = setTimeout(() => {
+        updateFontSize();
+    }, 0)
+}
+
+function updateScroll() {
+    if(fontSizeTimer) {
+        clearTimeout(fontSizeTimer);
+    }
+    fontSizeTimer = setTimeout(() => {
+        updateFontSize();
+    }, 0)
+}
+
+
+
+var scrollLeftTop = { left: -1, top: -1 };
+var scrollLeftTopWfit = { left: -1, top: -1 };
+var scrollLeftTopH100 = { left: -1, top: -1 };
+var previous_scale = '';
+
+function saveScrollPosition(scrollLT) {    
+    const container = document.querySelector('.sio-container');
+    const doc = document.scrollingElement;
+    
+    // --- horizontal ---
+    if (container) {
+        const maxScrollLeft = container.scrollWidth - container.clientWidth;        
+
+        if (maxScrollLeft > 0) {
+            scrollLT.left = container.scrollLeft / maxScrollLeft;            
+        } else {
+            scrollLT.left = -1;
+        }
+    }
+    
+    // --- vertical ---
+    if (doc) {
+        const maxScrollTop = doc.scrollHeight - doc.clientHeight;        
+
+        if (maxScrollTop > 0) {
+            scrollLT.top = doc.scrollTop / maxScrollTop;
+                      
+        } else {
+            scrollLT.top = -1;
+        }
+    }
+}
+
+
+
+function restoreScrollPosition(scrollLT) {    
+    const container = document.querySelector('.sio-container');
+    const doc = document.scrollingElement;
+
+    // --- horizontal ---
+    if (container) {
+        const maxScrollLeft = container.scrollWidth - container.clientWidth;
+        
+        if (maxScrollLeft > 0) {
+            let ratio = scrollLT.left;            
+            if (ratio === -1) ratio = 0.5;
+            container.scrollLeft = maxScrollLeft * ratio;
+        }
+    }
+
+    // --- vertical ---
+    if (doc) {
+        const maxScrollTop = doc.scrollHeight - doc.clientHeight;        
+
+        if (maxScrollTop > 0) {
+            let ratio = scrollLT.top;
+            if (ratio === -1) ratio = 0;            
+            doc.scrollTop = maxScrollTop * ratio;
+        }
+    }
+}
+
+
+
+function toggleBtn() { // Show
+    if( gameRun && gameI >= 0 ) return;
+    const toggleButton = document.getElementById('toggleButton');
+    const toggleButton2 = document.getElementById('toggleButton2');
+    toggleButton2.classList.remove('hidden');
+    toggleButton.classList.add('hidden');
+    
+    const clearButton = document.getElementById('clearButton');
+    const clearButton2 = document.getElementById('clearButton2');
+    clearButton2.classList.remove('hidden');
+    clearButton.classList.add('hidden');
+    
+    var rects = document.querySelectorAll('.sio-rect');
+    for (var i = 0; i < rects.length; i++) {
+        rects[i].style.display = 'none';
+        rects[i].dataset.wasFocused = "false";
+        rects[i].classList.remove('transparent');
+    }       
+    
+    if (window.getSelection) window.getSelection().removeAllRanges();        
+    
+    document.querySelectorAll('.circle_press').forEach(el => {            
+        el.style.display = 'none';
+    });        
+       
+    const cursorButton = document.getElementById('cursorButton');    
+    const editButton = document.getElementById('editButton'); 
+    const editButton2 = document.getElementById('editButton2'); 
+    const timeButton = document.getElementById('timeButton');
+    const gameButton = document.getElementById('gameButton');
+    const elurlVictory = document.getElementById('urlVictory');
+    cursorButton.style.display = '';
+    editButton.style.display = 'none';
+    editButton2.style.display = 'none';
+    timeButton.style.display = 'none';
+    gameButton.style.display = 'none';
+    if(elurlVictory) elurlVictory.classList.add('hidden');                 
+}
+
+function toggleBtn2() { // Hide
+    if( gameRun && gameI >= 0 ) return;    
+    const toggleButton = document.getElementById('toggleButton');
+    const toggleButton2 = document.getElementById('toggleButton2');
+    toggleButton.classList.remove('hidden');
+    toggleButton2.classList.add('hidden');
+    
+    const clearButton = document.getElementById('clearButton');
+    const clearButton2 = document.getElementById('clearButton2');
+    clearButton.classList.remove('hidden');
+    clearButton2.classList.add('hidden');
+    
+    var rects = document.querySelectorAll('.sio-rect');
+    
+    for (var i = 0; i < rects.length; i++) {
+        rects[i].style.display = '';
+        rects[i].style.userSelect = '';
+        rects[i].style.webkitUserSelect = '';
+        rects[i].style.MozUserSelect = '';
+        rects[i].classList.remove('transparent');
+    }        
+    
+    document.querySelectorAll('.circle_press').forEach(el => {            
+        el.style.display = 'flex';
+    });       
+    
+
+    const cursorButton = document.getElementById('cursorButton');    
+    const editButton = document.getElementById('editButton'); 
+    const editButton2 = document.getElementById('editButton2'); 
+    const timeButton = document.getElementById('timeButton');
+    const gameButton = document.getElementById('gameButton');
+    const elurlVictory = document.getElementById('urlVictory');
+    cursorButton.style.display = 'none';
+    editButton.style.display = 'block';    
+    editButton2.style.display = 'block';
+    timeButton.style.display = 'none';
+    if(gameIsAllowed) gameButton.style.display = '';
+    else gameButton.style.display = 'none';
+    if(elurlVictory) elurlVictory.classList.remove('hidden');
+    setTimeout(() => {
+        updateResize();
+    }, 0);
+}
+
+function clearBtn() { // Cleaning processor  
+    const timeButton = document.getElementById('timeButton');
+    const gameButton = document.getElementById('gameButton');    
+    if( !(gameRun && gameI >= 0) && timeButton.style.display != 'none' ) {    
+        timeButton.style.display = 'none';
+        if(gameIsAllowed) gameButton.style.display = 'block';
+    }            
+    
+    document.querySelectorAll('.circle_press').forEach(circle => {
+        circle.classList.remove('move-backlight');
+        circle.classList.remove('focus-backlight');        
+    });
+    
+    const rects = document.querySelectorAll('.sio-rect');        
+    
+    rects.forEach(function (el) {
+        el.classList.remove('move-backlight');
+        el.classList.remove('focus-backlight');   
+        el.classList.remove('wordshow'); 
+        el.classList.remove('wordshow2');              
+        el.textContent = ""; //clear the text
+        el.style.color = "black"; //Color reset
+        if (el.classList.contains('hiding') && !el.classList.contains('line')) //Return the background
+            el.style.backgroundColor = rootcss_rectblue;
+        else if (!el.classList.contains('line'))
+        {
+            el.style.backgroundColor = rootcss_rectyellow;   
+        }                   
+            
+        el.dataset.wasFocused = "false";   
+     });    
+     
+     if (window.getSelection) window.getSelection().removeAllRanges(); //Remove the selection
+     
+}
+
+
+
+function clearBtn2() { // Words   
+    const timeButton = document.getElementById('timeButton');
+    const gameButton = document.getElementById('gameButton');    
+    if( !(gameRun && gameI >= 0) && timeButton.style.display != 'none' ) {    
+        timeButton.style.display = 'none';
+        gameButton.style.display = 'block';
+    }
+    
+    document.querySelectorAll('.circle_press').forEach(circle => {
+        circle.classList.remove('move-backlight');
+        circle.classList.remove('focus-backlight');        
+    });
+        
+    toggleBtn2();
+    
+    const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
+    const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line'));
+    if (rectangles.length === 0) return;   
+    
+    rectangles.forEach(rect => {
+        rect.style.display = "";
+        rect.classList.add('transparent');
+        rect.dataset.wasFocused = "false";
+        if( rect.hasAttribute('word') && !(rect.getAttribute('word') == '') ) {
+            rect.innerText = rect.getAttribute('word');
+            rect.classList.add('wordshow2');
+            rect.style.backgroundColor = rootcss_goodanswer;
+        }
+    });
+    
+    updateResize(); 
+        
+    if (window.getSelection) window.getSelection().removeAllRanges(); //Remove the selection
+    
+}
+
+
+function editBtn() {  
+    const editButton = document.getElementById('editButton');
+    const editButton2 = document.getElementById('editButton2');    
+    
+    editMode = editMode? false : true;    
+    if(editMode) {
+        el = document.getElementsByClassName('selected')[0];
+        if(el) {
+            el.focus();
+            el.click();
+        }              
+        editButton2.classList.remove('hidden');
+        editButton.classList.add('hidden'); 
+    }
+    else {
+        editButton.classList.remove('hidden');
+        editButton2.classList.add('hidden');
+        var rects = document.querySelectorAll('.sio-rect');  
+        for (var i = 0; i < rects.length; i++) {
+            rects[i].contentEditable = "false";
+        }
+    }
+}
+
+function editBtn2() {  
+    editBtn();   
+}
+
+function showAllRect() {
+    var rects = document.querySelectorAll('.sio-rect');   
+    
+    for (var i = 0; i < rects.length; i++) {
+        rects[i].style.display = '';
+        rects[i].style.userSelect = '';
+        rects[i].style.webkitUserSelect = '';
+        rects[i].style.MozUserSelect = '';
+        rects[i].classList.remove('transparent');
+    }
+    
+    document.querySelectorAll('.circle_press').forEach(el => {            
+        el.style.display = 'flex';
+    });        
+}
+
+function setCursorToEnd(element) {
+    if (element.isContentEditable) {
+        const range = document.createRange();
+        const selection = window.getSelection();
+        range.selectNodeContents(element); // Select the element contents
+        range.collapse(false); // Set the cursor to the end
+        selection.removeAllRanges(); // Clear the current selection
+        selection.addRange(range); // Set a new range
+    }
+}
+ 
+  
+ 
+function smartScroll(el) {
+    const rect = el.getBoundingClientRect();
+
+    const fullyVisible =
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= window.innerHeight &&
+        rect.right <= window.innerWidth;
+
+    if (fullyVisible) return;
+
+    const partiallyVisible =
+        rect.bottom > 0 &&
+        rect.right > 0 &&
+        rect.top < window.innerHeight &&
+        rect.left < window.innerWidth;
+
+    if (partiallyVisible) {
+        // 🔥 мягко докручиваем
+        el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'nearest'
+        });
+    } else {
+        // 🔥 если совсем не видно — центр
+        el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+        });
+    }
+}
+
+ 
+function keydownEnterTab(e) {           
+    if ((e.key === 'Enter' || e.key === 'Tab') && !(e.ctrlKey || e.metaKey) && !e.altKey ) {               
+        e.preventDefault(); // Prevent default behavior
+        // Find all elements with class "txt-sio-rect"
+        const rectanglesALL = Array.from(document.querySelectorAll('.sio-rect'));
+        const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line')
+            && !(rect.style.display == 'none') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));        
+        
+        if (rectangles.length === 0) return; // If there are no rectangles, do nothing
+        // Determine the current element with focus
+        let activeElement = document.activeElement;
+        if(!editMode) {
+            for (var i = 0; i < rectangles.length; i++) {
+                if(rectangles[i].classList.contains('selected')) {
+                    activeElement = rectangles[i]; 
+                    break;
+                }   
+            }            
+        }
+        const currentIndex = rectangles.indexOf(activeElement);
+        if (currentIndex >= 0) {
+            rectangles[currentIndex].classList.remove('selected');
+            rectangles[currentIndex].contentEditable = false;
+        }
+        if (activeElement) activeElement.blur();
+        let incN = +1;
+        if(e.shiftKey) incN = -1; 
+        // We go to the next element or return to the first         
+        let nextIndex = (currentIndex + incN) % rectangles.length;
+        if(currentIndex==0 && incN == -1) nextIndex = rectangles.length - 1;  
+        const nextRectangle = rectangles[nextIndex];
+        
+        if(editMode) nextRectangle.contentEditable = true;
+        nextRectangle.classList.add('selected');
+        nextRectangle.classList.add('text-editing'); //Add a class for editing        
+    
+        
+        
+        
+        nextRectangle.blur();
+        // Install the focus on the next element
+        nextRectangle.focus();
+        if(editMode)            
+                setCursorToEnd(nextRectangle);                        
+        else    
+            nextRectangle.click();
+            
+            
+        // Scroll the screen to the next element
+        smartScroll(nextRectangle);
+        
+        // Blinking frame
+        nextRectangle.classList.add("flash-border");
+        setTimeout(() => {
+            nextRectangle.classList.remove("flash-border");
+        }, 1500);
+    }
+}
+
+function getUnrotatedRatios(el, e) {
+    rect = el;
+    const trn = rect.style.transform;
+    rect.style.transform = `rotate(0deg)`;
+    const rect0 = rect.getBoundingClientRect(); //Get real dimensions and position
+    const rectWidth = rect0.width; //The width of the rectangle
+    const rectHeight = rect0.height; //The height of the rectangle
+    const rectLeft = rect0.left; //Position of a rectangle by x
+    const rectTop = rect0.top; //Position of a rectangle on y
+    rect.style.transform = trn;
+    const x = e.clientX - rectLeft;
+    const y = e.clientY - rectTop;
+    // Angle of rotation
+    const match = el.style.transform.match(/rotate\(([-\d.]+)deg\)/);
+    const angleDeg = match ? parseFloat(match[1]) : 0;
+    const angleRad = -angleDeg * Math.PI / 180;
+    // Reverse the point back
+    let unrotatedX = Math.cos(angleRad) * x - Math.sin(angleRad) * y;
+    let unrotatedY = Math.sin(angleRad) * x + Math.cos(angleRad) * y;
+    return {
+        xRatio: unrotatedX / rectWidth,
+        yRatio: unrotatedY / rectHeight
+    };
+}
+
+function pointerdownSiorect(e) {
+    let el = this;
+    if( el.style.backgroundColor == rootcss_goodanswer || el.classList.contains('wordshow') || el.classList.contains('wordshow2') ) {
+        let w = el.getAttribute("word");
+        if( !(gamePauseSound && gameRun) ) speakText(w);
+    } 
+}
+ 
+ 
+function closeAllRelated(el, visited = new Set()) {
+    if (visited.has(el)) return;
+    visited.add(el);
+    
+    el.classList.remove('selected');
+    el.contentEditable = false;
+    el.style.display = 'none';
+    
+    // hide related ones if any
+    const leftEL = el.style.left; 
+    const topEL = el.style.top;
+    document.querySelectorAll('.sio-rect.line').forEach(line => {
+        try{
+            if( line.hasAttribute('leftFR') && line.hasAttribute('topFR') ) {
+                const leftFR = line.getAttribute('leftFR'); 
+                const topFR = line.getAttribute('topFR');
+                if(Math.abs(parseFloat(leftEL) - parseFloat(leftFR)) < 0.01 && Math.abs(parseFloat(topEL) - parseFloat(topFR)) < 0.01) {
+                    line.style.display = 'none';                        
+                }
+            }
+        } catch(e){}
+    });
+    const container = document.querySelector('.sio-image-container');
+    const rect = container.getBoundingClientRect();
+    document.querySelectorAll('.circle_press').forEach(circle => {
+        try{                
+            if( circle.hasAttribute('leftFR') && circle.hasAttribute('topFR') ) {
+                const leftFR = circle.getAttribute('leftFR'); 
+                const topFR = circle.getAttribute('topFR');
+                if(leftEL == leftFR && topEL == topFR) {
+                    circle.style.display = 'none';                        
+                    let leftCR = parseFloat(circle.style.left);
+                    let topCR = parseFloat(circle.style.top);                        
+                    if (circle.style.left.includes('%')) {
+                        leftCR = rect.width * (leftCR / 100);
+                    }
+                    if (circle.style.top.includes('%')) {
+                        topCR = rect.height * (topCR / 100);
+                    }
+                    
+                    document.querySelectorAll('.sio-rect').forEach(elSRH => {
+                        if(pointInRotatedRect(leftCR, topCR, elSRH)) {                            
+                            if( !(elSRH.style.display == 'none' ) ) {
+                                closeAllRelated(elSRH);
+                            }
+                        }
+                    });
+                }
+            }
+        } catch(e){}
+    
+    });
+    
+}
+ 
+ 
+function clickSiorect(e) {    
+    let el = this;   
+    if( gameRun && gameI >= 0 ) {
+        el.contentEditable = "false";
+        if( el.style.backgroundColor == rootcss_goodanswer || el.classList.contains('hiding') || el.classList.contains('line') )
+            return;
+        
+        let w = '';
+        if(el.hasAttribute('word') && el.getAttribute('word') != '')
+            w = el.getAttribute('word'); 
+        if( w != '' ) {
+            if( w != gameIWord) {
+                el.textContent = gameIWord;
+                el.contentEditable = "true";
+                el.style.color = "black";
+                el.style.backgroundColor = rootcss_badanswer;
+                gameEnd();
+                if ("vibrate" in navigator) {
+                    navigator.vibrate(150);
+                }    
+                const symbolsArray = ['💩', '🤷🏻‍♀️', '😭', '❓', '🗣', '😤', '🤡', '❌', '🙅', '😢', '🤔', '🙀'];
+                function getRandomSymbol(arr) {
+                    const randomIndex = Math.floor(Math.random() * arr.length);
+                    return arr[randomIndex];
+                }                    
+                showFloatingText(getRandomSymbol(symbolsArray), 'red', 1500);                    
+                
+            }
+            else {
+                el.textContent = w;
+                el.contentEditable = "false";
+                el.style.color = "black";
+                el.style.backgroundColor = rootcss_goodanswer;
+                gameNextWord();                    
+            }
+            
+            return;
+        }     
+        gameNextWord();       
+    } 
+       
+    
+    moveRectEl_Last = el;
+    
+    const { xRatio, yRatio } = getUnrotatedRatios(this, e);    
+  
+    let closure_zone_X = 0.7, closure_zone_Y = 0.4;
+    let wEl = parseFloat(el.style.width);
+    if( wEl > 10 ) {
+        closure_zone_X = 0.85;        
+    }
+    let hEl = parseFloat(el.style.height);
+    if( hEl > 5 ) {
+        closure_zone_Y = 0.7;         
+    }
+      
+    
+    if( !ignore_rectangle_closing && !(el.hasAttribute('contentEditable') && el.contentEditable == "true" && el.classList.contains('selected')) && ((xRatio > closure_zone_X && yRatio < closure_zone_Y) || !el.hasAttribute('word')
+        || (el.hasAttribute('word') && el.getAttribute('word') == '')
+        || el.classList.contains('hiding') ) ) {
+              
+        if( el.classList.contains('hiding') && moveLineEl != null ) return;
+        
+        const sel = window.getSelection();
+        if (sel && sel.toString().length > 0) {
+            window.getSelection().removeAllRanges();
+            return;
+        }
+        if (document.activeElement === el) el.blur();
+        document.body.focus();
+        
+        e.preventDefault();        
+        closeAllRelated(el);
+        return;
+    }
+    
+    
+    
+    if(editMode) {
+        if (el.classList.contains('hiding') || el.classList.contains('line')
+            || !el.hasAttribute('word') || (el.hasAttribute('word') && el.getAttribute('word') == '')) {
+            el.contentEditable = "false";
+            return;
+        }
+        
+        
+        if(el.classList.contains("selected") ) {
+            el.contentEditable = "true";
+            setCursorToEnd(el);
+        }
+        else {
+            siorectFocus(null, el);
+            el.contentEditable = "false";
+        }
+            
+            
+        document.querySelectorAll('.sio-rect').forEach(siorect => {
+            siorect.classList.remove('selected');
+            if( siorect != el ) siorect.contentEditable = false;
+        });
+        
+        el.classList.add('selected');
+        el.focus();
+        if (el.dataset.wasFocused === "false") {
+            el.dataset.wasFocused = "true";
+            setTimeout(() => {
+                try {
+                    const range = document.createRange();
+                    range.selectNodeContents(el);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } catch (err) {
+                    //console.log('Error of discharge:', err);
+                }
+            }, 300);
+        }
+        
+    }
+    else { // !editMode
+        document.querySelectorAll('.sio-rect').forEach(siorect => {
+            siorect.classList.remove('selected');
+            siorect.contentEditable = false;
+        });
+        
+        el.classList.add('selected');
+        el.focus();
+        
+        let w = '';
+        if(el.hasAttribute('word') && el.getAttribute('word') != '')
+            w = el.getAttribute('word');
+        el.textContent = w;
+        el.contentEditable = "false";
+        el.style.color = "black";
+        el.style.backgroundColor = rootcss_goodanswer;        
+    }
+    
+        
+}
+
+
+function onlySimpleText(str) { // Simplifying text for comparison
+    str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); //Remove diacritic
+    str = str.replace(/<[^>]*>/g, ""); //Delete tags
+    str = str.replace(/[^\p{L}\p{N}\s]/gu, ""); //Leave only letters/numbers/gaps
+    str = str.replace(/\s+/g, " "); // Multiple gaps -> one
+    return str.toLowerCase().trim();
+}
+ 
+ 
+// text-to-speech
+function speakText(txtSpeak, lng='langSS') {  
+    if( langSS == '' ) return;
+    if(lng == 'langSS') {        
+        lng = langSS; 
+    }        
+        
+    /* AnkiDroidJS API */
+    if (typeof AnkiDroidJS !== 'undefined') {        
+        async function apiADResult() {
+            try { apiAnkiDroid.ankiTtsSetLanguage(lng); } catch(e){}
+            try {
+                if(speedSS != '') apiAnkiDroid.ankiTtsSetSpeechRate(parseFloat(speedSS)); 
+                else apiAnkiDroid.ankiTtsSetSpeechRate(1.0);
+            } catch(e){}
+            try { apiAnkiDroid.ankiTtsStop(); } catch(e){}
+            try { apiAnkiDroid.ankiTtsSpeak( txtSpeak ); } catch(e){}            
+        }
+        apiADResult();
+    }
+    else {
+        try {
+            let voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                speechSynthesis.onvoiceschanged = () => {
+                    speakText(txtSpeak);
+                };
+                return;
+            }
+                            
+            const utterance = new SpeechSynthesisUtterance(txtSpeak);
+            let selectedVoice = null;                
+             if (voicesSS && voicesSS.trim() !== '') {
+                const preferredVoices = voicesSS
+                    .split(',')
+                    .map(v => v.trim().replace(/_/g, ' ').toLowerCase());
+                 for (const pref of preferredVoices) {
+                    selectedVoice = voices.find(v =>
+                        v.name.toLowerCase().includes(pref)
+                    );
+                    if (selectedVoice) break;
+                }
+            }
+            
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v =>
+                                    v.lang === lng || v.lang.startsWith(lng.slice(0, 2))
+                                );
+            }
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = selectedVoice.lang;
+            } else {
+                utterance.lang = lng;
+            }
+             utterance.rate = parseFloat(speedSS) || 1.0;
+                            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);                    
+            }
+        }
+        catch(e){}
+    }
+}
+    
+
+function validateInput(e) {               
+    let elRect = this;
+    let w = elRect.getAttribute("word");        
+    const userText = onlySimpleText(elRect.textContent);
+    const targetWords = onlySimpleText(w || "").split(",");
+    let matched = false;
+    for (let word of targetWords) {
+        if (userText === word) {
+            elRect.style.color = "black";
+            elRect.style.backgroundColor = rootcss_goodanswer;
+            matched = true;                                
+            //speakText(w);                
+            break;
+        } else if (userText.length == 0 || (word.startsWith(userText) && userText.length > 0) ) {
+            elRect.style.color = "black";
+            if (elRect.classList.contains('hiding') && !elRect.classList.contains('line')) {             // Return the background
+                elRect.style.backgroundColor = rootcss_rectblue;
+            } else {
+                elRect.style.backgroundColor = rootcss_rectyellow;  
+            }
+                
+            matched = true;
+        }
+    }
+    
+    if (!matched) {
+        elRect.style.color = "black";
+        elRect.style.backgroundColor = rootcss_badanswer;
+        if ("vibrate" in navigator) {
+            navigator.vibrate(150);
+        }
+    }
+}
+
+
+function pasteSimpl(e) { // We insert only the text
+    e.preventDefault(); // Prevent the standard insert behavior
+    // We get a text from the Buffer of the Exchange
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    // document.execCommand('insertText', false, text); OLD
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
+}
+
+
+function handlers_for_all_siorect() {
+    if (window.myAbortController2) window.myAbortController2.abort();
+    window.myAbortController2 = new AbortController();
+    const sig2 = {signal: window.myAbortController.signal};
+
+    document.querySelectorAll('.sio-rect').forEach(div => {
+        // If there is a word, then the first should go in the hint '? '        
+        let atW = div.getAttribute('word');
+        let atH = div.getAttribute('hint');
+        if (atW && atW !== "" && (!atH || atH.trimLeft().indexOf("?") < 0)) {
+            if (atH) {
+                div.setAttribute('hint', '? ' + atH);
+            } else {
+                div.setAttribute('hint', '? ');
+            }
+        }        
+        if(atH && atH.length > 0 && atH[0]=='!') {
+            div.classList.add('attention');
+        }
+        div.contentEditable = "false";
+        div.dataset.wasFocused = "false";
+        div.addEventListener('click', clickSiorect, sig2);
+        div.addEventListener('pointerdown', pointerdownSiorect, sig2);
+        div.addEventListener('input', validateInput, sig2);
+        div.addEventListener('paste', pasteSimpl, sig2);        
+        div.addEventListener('focus', siorectFocus, sig2);
+        div.addEventListener('pointerdown', siorectFocus, sig2);
+        div.addEventListener('blur', siorectBlur, sig2);
+    });
+}
+
+
+function siorectFocus(e, elthis=null) {
+    let elRect = null; 
+    if(elthis) elRect = elthis;
+    else elRect = this;       
+    
+    const leftEL = elRect.style.left; 
+    const topEL = elRect.style.top;
+    
+    document.querySelectorAll('.sio-rect.line').forEach(line => {
+        line.classList.remove('focus-backlight');
+        try{
+            if( line.hasAttribute('leftFR') && line.hasAttribute('topFR') ) {
+                const leftFR = line.getAttribute('leftFR'); 
+                const topFR = line.getAttribute('topFR');
+                if(leftEL == leftFR && topEL == topFR) {
+                    line.classList.add('focus-backlight');                        
+                }
+            }
+        } catch(e){}
+    });
+    document.querySelectorAll('.circle_press').forEach(circle => {        
+        circle.classList.remove('focus-backlight');
+        try{
+            if( circle.hasAttribute('leftFR') && circle.hasAttribute('topFR') ) {
+                const leftFR = circle.getAttribute('leftFR'); 
+                const topFR = circle.getAttribute('topFR');
+                if(leftEL == leftFR && topEL == topFR) {
+                    circle.classList.add('focus-backlight');                       
+                }
+            }
+        } catch(e){}
+    });
+    
+}
+
+function siorectBlur(e) {
+    if(gameRun) {
+        return;
+    }
+    
+    let elRect = this;
+    const leftEL = elRect.style.left; 
+    const topEL = elRect.style.top;
+    document.querySelectorAll('.sio-rect.line').forEach(line => {
+        try{
+            if( line.hasAttribute('leftFR') && line.hasAttribute('topFR') ) {
+                const leftFR = line.getAttribute('leftFR'); 
+                const topFR = line.getAttribute('topFR');
+                if(leftEL == leftFR && topEL == topFR) {
+                    line.classList.remove('focus-backlight');                        
+                }
+            }
+        } catch(e){}
+    });
+    document.querySelectorAll('.circle_press').forEach(circle => {
+        try{
+            if( circle.hasAttribute('leftFR') && circle.hasAttribute('topFR') ) {
+                const leftFR = circle.getAttribute('leftFR'); 
+                const topFR = circle.getAttribute('topFR');
+                if(leftEL == leftFR && topEL == topFR) {
+                    circle.classList.remove('focus-backlight');                       
+                }
+            }
+        } catch(e){}
+    });    
+}
+    
+
+        
+// reset selection states and so on
+function reset_States() {
+    document.querySelectorAll('.sio-rect').forEach(el => {
+        try{
+            el.classList.remove('selected');
+            el.classList.remove('move-backlight');
+            el.classList.remove('focus-backlight');
+            if( el.hasAttribute('contentEditable') && el.contentEditable == "true" ) {
+                el.contentEditable = "false";
+            }
+        } catch(e){}
+    });
+    document.querySelectorAll('.circle_press').forEach(circle => {
+        try{
+            circle.classList.remove('focus-backlight'); 
+            el.classList.remove('move-backlight');
+        } catch(e){}
+    });      
+}
+
+
+function init() { // initialization       
+    // removes a possible error, since the line cannot be ".hiding"
+    document.querySelectorAll('.sio-rect.hiding.line').forEach(el => {
+        el.classList.remove('hiding');
+    });
+    // removes a possible error, since the line cannot be ".round"
+    document.querySelectorAll('.sio-rect.round.line').forEach(el => {
+        el.classList.remove('round');
+    });
+    
+    if (window.visualViewport) {
+        visualViewport.addEventListener('resize', updateResize, sig);
+        visualViewport.addEventListener('scroll', updateScroll, sig);
+    } 
+    else {
+        window.addEventListener('resize', updateResize, sig);
+        window.addEventListener('scroll', updateScroll, sig);
+    }       
+    
+    document.addEventListener('keydown', keydownEnterTab, sig);        
+    document.addEventListener('keydown', function(e) {
+        
+        if ( !(e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F1' ) {
+            e.preventDefault();            
+            const toggleButton = document.getElementById('toggleButton');
+            if(toggleButton.classList.contains('hidden')) toggleBtn2();
+            else toggleBtn();
+        }            
+        else if ( !(e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'F2' ) {
+            e.preventDefault();
+            editBtn();
+        }
+        else if ( !(e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F2' ) {            
+            e.preventDefault();
+            zoom200();                        
+        }        
+        else if ( !(e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'F3' ) {
+            e.preventDefault();
+            zoomOut();                
+        }
+        else if ( !(e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F3' ) {
+            e.preventDefault();
+            zoomFit();                
+        }        
+        else if ( !(e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'F4' ) {
+            e.preventDefault();
+            zoomIn();                
+        }
+        else if ( !(e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F4' ) {
+            e.preventDefault();
+            zoomH100();                
+        }
+        else if ( !(e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F5' ) {
+            e.preventDefault();
+            const clearButton = document.getElementById('clearButton');
+            if(clearButton.classList.contains('hidden')) clearBtn2();
+            else clearBtn();                
+        }            
+        else if ( !(e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'F7' ) {
+            e.preventDefault();
+            if(gameRun && gameI >= 0) {
+                gameEndOrStart();
+            }             
+            else {
+                gameBtn();                    
+            }
+        }                 
+
+        if ( (e.ctrlKey || e.metaKey) && e.shiftKey ) {                
+            if(e.code === "KeyZ" ) {
+                e.preventDefault();
+                undoCanvas();                    
+            }
+            else if(e.key === 'F1' ) {
+                e.preventDefault();
+                cursorBtn();
+            }
+            else if(e.key === 'Delete' ) {
+                e.preventDefault();
+                clearAllCanvas();
+            }
+            if(e.code === "KeyE" ) {
+                e.preventDefault();
+                ExportToHTML();                    
+            }
+        }
+                        
+    }, sig);  
+
+    document.addEventListener('wheel', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+            e.preventDefault();        
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        }
+    }, { passive: false, ...sig });  
+     
+    
+    handlers_for_all_siorect();
+        
+        
+    setTimeout(() => {
+        const container = document.querySelector('.sio-container');
+        if (!container) return;
+    
+        const doc = document.scrollingElement;
+    
+        let isDown = false;
+        let startX, startY;
+        let scrollLeft, scrollTop;    
+    
+        document.addEventListener('mouseup', () => {
+            isDown = false;
+            container.classList.remove('moveEnabled');
+            currentStroke = null;
+            document.body.style.cursor = 'default';               
+        }, sig);
+        
+        
+        container.addEventListener('mousedown', (e) => {      
+            if(drawEnabled && (e.ctrlKey || e.metaKey) ) {                
+                return;
+            }
+            if (e.target.closest('.sio-rect')) return;
+            container.classList.add('moveEnabled');            
+            
+            reset_States(); // reset selection states and so on
+        
+            //e.preventDefault(); hidden so that the focus is lost from the rectangle
+        
+            isDown = true;
+        
+            startX = e.clientX;
+            startY = e.clientY;
+        
+            scrollLeft = container.scrollLeft;
+            scrollTop = doc.scrollTop;
+        }, sig);
+        
+        
+        document.addEventListener('mousemove', (e) => {
+            if(drawEnabled && (e.ctrlKey || e.metaKey) ) return;
+            if (!isDown) return;
+        
+            e.preventDefault();
+        
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+        
+            container.scrollLeft = scrollLeft - dx;
+            doc.scrollTop = scrollTop - dy;
+        }, sig);
+                
+    }, 0);
+    
+    requestAnimationFrame(() => {
+        updateResize();
+        
+        const doc = document.scrollingElement || document.documentElement;
+        const container = document.querySelector('.sio-container');
+        const img = document.querySelector('.sio-image');
+        const imgContainer = document.querySelector('.sio-image-container');
+    
+        const x = parseFloat(imgContainer.dataset.centerX);
+        let y = parseFloat(imgContainer.dataset.centerY);
+        
+        if (!isNaN(x) || !isNaN(y)) {
+            setTimeout(() => {
+                const rect = img.getBoundingClientRect();
+        
+                // X
+                if (!isNaN(x)) {
+                    const targetX = x * rect.width;
+                    container.scrollLeft = targetX - container.clientWidth / 2;
+                }
+        
+                // Y
+                const maxScrollY = doc.scrollHeight - window.innerHeight;
+        
+                if (isNaN(y) || y < 0) {
+                    y = 0.5; // If there was no scrolling, then the center
+                }
+        
+                doc.scrollTop = y * maxScrollY;
+        
+            }, 0);    
+        }
+             
+    });
+    
+        
+    const handler = throttle(handleMove, 100);
+       
+    document.querySelectorAll('.sio-rect.hiding').forEach(el => {        
+        el.addEventListener('mousemove', handler, sig);
+        el.addEventListener('click', (e) => {                        
+            e.preventDefault();
+            e.stopPropagation();
+            if (moveRectEl) {            
+                moveRectEl.classList.remove('move-backlight');                
+                if( (moveRectEl.style && moveRectEl.style.backgroundColor == rootcss_goodanswer) || moveRectEl.classList.contains('wordshow') || moveRectEl.classList.contains('wordshow2') ) {
+                    let w = moveRectEl.getAttribute("word");
+                    if( !(gamePauseSound && gameRun) ) speakText(w);
+                }
+                                
+                siorectFocus(null, moveRectEl);    
+                ignore_rectangle_closing = true;
+                if(moveRectEl_Last != null && moveRectEl_Last == moveRectEl) {
+                    moveRectEl.click();
+                    moveRectEl.contentEditable = true; 
+                    moveRectEl.click();   
+                }  
+                else {
+                    moveRectEl.click();
+                }                             
+                ignore_rectangle_closing = false;
+            }
+            else {
+                moveRectEl_Last = null;
+            }
+        }, sig);
+    });
+    
+    canvasDL.addEventListener('mousemove', handler, sig);
+    
+    imageSIOR = document.querySelector('.sio-image');    
+    imageSIOR.addEventListener('mousemove', handler, sig);     
+    imageSIOR.addEventListener('click', () => {        
+        if (moveRectEl) {
+            moveRectEl.classList.remove('move-backlight');
+            if( (moveRectEl.style && moveRectEl.style.backgroundColor == rootcss_goodanswer) || moveRectEl.classList.contains('wordshow') || moveRectEl.classList.contains('wordshow2') ) {
+                let w = moveRectEl.getAttribute("word");
+                if( !(gamePauseSound && gameRun) ) speakText(w);
+            }            
+                        
+            siorectFocus(null, moveRectEl);
+            if(moveRectEl.classList.contains('hiding')) {   
+                ignore_rectangle_closing = false;                             
+                moveRectEl.click();                                
+            }
+            else {
+                ignore_rectangle_closing = true;             
+                if(moveRectEl_Last != null && moveRectEl_Last == moveRectEl) {
+                    moveRectEl.click()
+                    moveRectEl.contentEditable = true;  
+                    moveRectEl.click();  
+                }  
+                else {
+                    moveRectEl.click();
+                }
+                ignore_rectangle_closing = false;
+            }                
+        }
+        else {
+            moveRectEl_Last = null;
+        }
+    }, sig);
+    
+    setTimeout(() => {
+        const containerSIO = document.querySelector('.sio-image-container');
+        //const rects = document.querySelectorAll('.sio-rect:not(.line):not(.hiding)');
+        const rects = document.querySelectorAll('.sio-rect:not(.line)');  
+        let circleShow =  !document.getElementById('toggleButton').classList.contains('hidden');
+              
+        document.querySelectorAll('.sio-rect.line').forEach(line => {
+            // looking for the end of the line
+            const { x1, y1, x2, y2, angle } = getLinePoints(line);    
+            
+            let foundRect = null;    
+            rects.forEach(rect => {
+                if (pointInRotatedRect(x2, y2, rect)) {
+                    foundRect = rect;
+                }
+            });
+            
+            const circle = document.createElement('div');
+            circle.className = 'circle_press';           
+            const left = line.style.left;
+            const top = line.style.top;    
+            circle.style.left = left;
+            circle.style.top = top; 
+            if(!circleShow) circle.style.display = 'none';
+            if( foundRect ) {                     
+                const leftFR = foundRect.style.left;
+                const topFR = foundRect.style.top;
+                circle.setAttribute('leftFR', leftFR);
+                circle.setAttribute('topFR', topFR);                
+                line.setAttribute('leftFR', leftFR);
+                line.setAttribute('topFR', topFR);
+                
+                if( foundRect.hasAttribute('word') && !(foundRect.getAttribute('word') == '') ) {
+                    w = foundRect.getAttribute('word');   
+                    circle.setAttribute('word', w);
+                    line.setAttribute('word', w);
+                }
+                else {
+                    if(foundRect.classList.contains('hiding')) {
+                        circle.setAttribute('fr_hiding', '');
+                        line.setAttribute('fr_hiding', '');                        
+                    }                    
+                }
+            }            
+            containerSIO.appendChild(circle);
+        });
+    }, 250);
+   
+   
+    // Big pointer
+    document.addEventListener('mousemove', (e) => {
+        if (!bigCursorEnabled) return;
+        const TIP_X = 103;
+        const TIP_Y = 6;    
+        bigCursor.style.left = (e.clientX - TIP_X) + 'px';
+        bigCursor.style.top = (e.clientY - TIP_Y) + 'px';        
+    }, sig);
+    
+    
+    if (window.visualViewport) {
+        visualViewport.addEventListener('resize', updateControlsPosition, sig);
+        visualViewport.addEventListener('scroll', updateControlsPosition, sig);
+    }    
+    window.addEventListener('load', updateControlsPosition, sig);
+    
+    
+    
+    window.addEventListener('load', resizeCanvas, sig);
+    window.addEventListener('resize', resizeCanvas, sig);
+    setTimeout(resizeCanvas, 150);
+    
+    canvasDL.addEventListener('mousedown', (e) => {
+        if(!(drawEnabled && (e.ctrlKey || e.metaKey)) ) { 
+            imageSIOR.click();
+            return;
+        }        
+        
+        currentStroke = {
+            type: mode,
+            points: []
+        };
+        
+        if( (e.ctrlKey || e.metaKey) && e.shiftKey ) {
+            mode = 'erase';
+            document.body.style.cursor = 'cell';         
+        }
+        else {
+            mode = 'draw';
+            document.body.style.cursor = 'crosshair';        
+        }
+    
+        strokes.push(currentStroke);
+    
+        const p = getPercentCoords(e, canvasDL);
+        currentStroke.points.push(p);
+    }, sig);
+    
+    
+    canvasDL.addEventListener('mousemove', (e) => {
+        if(!(drawEnabled && (e.ctrlKey || e.metaKey)) ) {        
+            return;
+        }
+        
+        if( (e.ctrlKey || e.metaKey) && e.shiftKey ) {
+            mode = 'erase';
+            document.body.style.cursor = 'cell';         
+        }
+        else {
+            mode = 'draw';
+            document.body.style.cursor = 'crosshair';        
+        }
+                
+        if (!currentStroke) return;
+    
+        const p = getPercentCoords(e, canvasDL);
+        currentStroke.type = mode;
+        currentStroke.points.push(p);
+    
+        requestAnimationFrame(redraw);   
+    }, sig);
+    
+    
+    
+    canvasDL.addEventListener('mouseup', () => {
+        currentStroke = null;
+        document.body.style.cursor = 'default';       
+    }, sig);
+    
+    
+    
+    zoomFit();          
+}
+
+
+
+
+if (!window.Translations) {
+window.Translations = class {
+
+static #db = {
+    "Press Ctrl+Shift+E": {
+        "ru": "Нажмите Ctrl+Shift+E",
+        "pt": "Pressione Ctrl+Shift+E",
+        "ar": "اضغط Ctrl+Shift+E",
+        "de": "Drücken Sie Ctrl+Shift+E",
+        "es": "Presione Ctrl+Shift+E",
+        "fr": "Appuyez sur Ctrl+Shift+E",
+        "hi": "Ctrl+Shift+E दबाएँ",
+        "it": "Premi Ctrl+Shift+E",
+        "ja": "Ctrl+Shift+E を押してください",
+        "ko": "Ctrl+Shift+E를 누르세요",
+        "zh": "按 Ctrl+Shift+E"
+    },
+    "By image width [Shift+F3]": {
+        "ru": "По ширине рисунка [Shift+F3]",
+        "pt": "Pela largura da imagem [Shift+F3]",
+        "ar": "حسب عرض الصورة [Shift+F3]",
+        "de": "Nach Bildbreite [Shift+F3]",
+        "es": "Por ancho de imagen [Shift+F3]",
+        "fr": "Par largeur de l'image [Shift+F3]",
+        "hi": "छवि की चौड़ाई के अनुसार [Shift+F3]",
+        "it": "Per larghezza dell'immagine [Shift+F3]",
+        "ja": "画像の幅で [Shift+F3]",
+        "ko": "이미지 너비 기준 [Shift+F3]",
+        "zh": "按图像宽度 [Shift+F3]"
+    },
+    "By picture height [Shift+F4]": {
+        "ru": "По высоте рисунка [Shift+F4]",
+        "pt": "Pela altura da imagem [Shift+F4]",
+        "ar": "حسب ارتفاع الصورة [Shift+F4]",
+        "de": "Nach Bildhöhe [Shift+F4]",
+        "es": "Por altura de imagen [Shift+F4]",
+        "fr": "Par hauteur de l'image [Shift+F4]",
+        "hi": "छवि की ऊँचाई के अनुसार [Shift+F4]",
+        "it": "Per altezza dell'immagine [Shift+F4]",
+        "ja": "画像の高さで [Shift+F4]",
+        "ko": "이미지 높이 기준 [Shift+F4]",
+        "zh": "按图像高度 [Shift+F4]"
+    },
+    "Zoom in [F4]": {
+        "ru": "Увеличить масштаб [F4]",
+        "pt": "Aumentar zoom [F4]",
+        "ar": "تكبير [F4]",
+        "de": "Vergrößern [F4]",
+        "es": "Acercar [F4]",
+        "fr": "Zoom avant [F4]",
+        "hi": "ज़ूम इन [F4]",
+        "it": "Ingrandisci [F4]",
+        "ja": "拡大 [F4]",
+        "ko": "확대 [F4]",
+        "zh": "放大 [F4]"
+    },
+    "Zoom out [F3]": {
+        "ru": "Уменьшить масштаб [F3]",
+        "pt": "Diminuir zoom [F3]",
+        "ar": "تصغير [F3]",
+        "de": "Verkleinern [F3]",
+        "es": "Alejar [F3]",
+        "fr": "Zoom arrière [F3]",
+        "hi": "ज़ूम आउट [F3]",
+        "it": "Rimpicciolisci [F3]",
+        "ja": "縮小 [F3]",
+        "ko": "축소 [F3]",
+        "zh": "缩小 [F3]"
+    },
+    "Show / Hide image (Show other buttons) [Shift+F1]": {
+        "ru": "Показать / Скрыть рисунок (Показ других кнопок) [Shift+F1]",
+        "pt": "Mostrar / Ocultar imagem (Mostrar outros botões) [Shift+F1]",
+        "ar": "إظهار / إخفاء الصورة (إظهار الأزرار الأخرى) [Shift+F1]",
+        "de": "Bild anzeigen / ausblenden (Andere Schaltflächen anzeigen) [Shift+F1]",
+        "es": "Mostrar / Ocultar imagen (Mostrar otros botones) [Shift+F1]",
+        "fr": "Afficher / Masquer l'image (Afficher les autres boutons) [Shift+F1]",
+        "hi": "छवि दिखाएँ / छिपाएँ (अन्य बटन दिखाएँ) [Shift+F1]",
+        "it": "Mostra / Nascondi immagine (Mostra altri pulsanti) [Shift+F1]",
+        "ja": "画像の表示 / 非表示（他のボタンを表示）[Shift+F1]",
+        "ko": "이미지 표시 / 숨기기 (다른 버튼 표시) [Shift+F1]",
+        "zh": "显示 / 隐藏图像（显示其他按钮）[Shift+F1]"
+    },
+    "Hide image / Show (Show other buttons) [Shift+F1]": {
+        "ru": "Скрыть рисунок / Показать (Показ других кнопок) [Shift+F1]",
+        "pt": "Ocultar imagem / Mostrar (Mostrar outros botões) [Shift+F1]",
+        "ar": "إخفاء الصورة / إظهار (إظهار الأزرار الأخرى) [Shift+F1]",
+        "de": "Bild ausblenden / anzeigen (Andere Schaltflächen anzeigen) [Shift+F1]",
+        "es": "Ocultar imagen / Mostrar (Mostrar otros botones) [Shift+F1]",
+        "fr": "Masquer l'image / Afficher (Afficher les autres boutons) [Shift+F1]",
+        "hi": "छवि छिपाएँ / दिखाएँ (अन्य बटन दिखाएँ) [Shift+F1]",
+        "it": "Nascondi immagine / Mostra (Mostra altri pulsanti) [Shift+F1]",
+        "ja": "画像を非表示 / 表示（他のボタンを表示）[Shift+F1]",
+        "ko": "이미지 숨기기 / 표시 (다른 버튼 표시) [Shift+F1]",
+        "zh": "隐藏图像 / 显示（显示其他按钮）[Shift+F1]"
+    },
+    "Clear / Fill in all rectangles [Shift+F5]": {
+        "ru": "Очистить / Заполнить все прямоугольники [Shift+F5]",
+        "pt": "Limpar / Preencher todos os retângulos [Shift+F5]",
+        "ar": "مسح / ملء جميع المستطيلات [Shift+F5]",
+        "de": "Alle Rechtecke löschen / ausfüllen [Shift+F5]",
+        "es": "Limpiar / Rellenar todos los rectángulos [Shift+F5]",
+        "fr": "Effacer / Remplir tous les rectangles [Shift+F5]",
+        "hi": "सभी आयत साफ़ / भरें [Shift+F5]",
+        "it": "Cancella / Riempie tutti i rettangoli [Shift+F5]",
+        "ja": "すべての四角形をクリア / 塗りつぶし [Shift+F5]",
+        "ko": "모든 사각형 지우기 / 채우기 [Shift+F5]",
+        "zh": "清空 / 填充所有矩形 [Shift+F5]"
+    },
+    "Fill in all rectangles / Clear [Shift+F5]": {
+        "ru": "Заполнить все прямоугольники / Очистить [Shift+F5]",
+        "pt": "Preencher todos os retângulos / Limpar [Shift+F5]",
+        "ar": "ملء جميع المستطيلات / مسح [Shift+F5]",
+        "de": "Alle Rechtecke ausfüllen / löschen [Shift+F5]",
+        "es": "Rellenar todos los rectángulos / Limpiar [Shift+F5]",
+        "fr": "Remplir tous les rectangles / Effacer [Shift+F5]",
+        "hi": "सभी आयत भरें / साफ़ करें [Shift+F5]",
+        "it": "Riempie tutti i rettangoli / Cancella [Shift+F5]",
+        "ja": "すべての四角形を塗りつぶし / クリア [Shift+F5]",
+        "ko": "모든 사각형 채우기 / 지우기 [Shift+F5]",
+        "zh": "填充所有矩形 / 清空 [Shift+F5]"
+    },
+    "Editing / Auto-enter a word [F2]": {
+        "ru": "Редактирование / Автоввод слов [F2]",
+        "pt": "Edição / Inserção automática de palavra [F2]",
+        "ar": "تحرير / إدخال كلمة تلقائيًا [F2]",
+        "de": "Bearbeiten / Wort automatisch eingeben [F2]",
+        "es": "Edición / Entrada automática de palabra [F2]",
+        "fr": "Édition / Saisie automatique d'un mot [F2]",
+        "hi": "संपादन / शब्द स्वतः दर्ज करें [F2]",
+        "it": "Modifica / Inserimento automatico di una parola [F2]",
+        "ja": "編集 / 単語の自動入力 [F2]",
+        "ko": "편집 / 단어 자동 입력 [F2]",
+        "zh": "编辑 / 自动输入单词 [F2]"
+    },
+    "Auto-enter a word / Editing [F2]": {
+        "ru": "Автоввод слов / Редактирование [F2]",
+        "pt": "Inserção automática de palavra / Edição [F2]",
+        "ar": "إدخال كلمة تلقائيًا / تحرير [F2]",
+        "de": "Wort automatisch eingeben / Bearbeiten [F2]",
+        "es": "Entrada automática de palabra / Edición [F2]",
+        "fr": "Saisie automatique d'un mot / Édition [F2]",
+        "hi": "शब्द स्वतः दर्ज करें / संपादन [F2]",
+        "it": "Inserimento automatico di una parola / Modifica [F2]",
+        "ja": "単語の自動入力 / 編集 [F2]",
+        "ko": "단어 자동 입력 / 편집 [F2]",
+        "zh": "自动输入单词 / 编辑 [F2]"
+    },
+    "Pointer [Ctrl+Shift+F1] (Ctrl — draw, Ctrl+Shift — erase, Ctrl+Shift+Z — cancel, Ctrl+Shift+Del — clear)": {
+        "ru": "Указка [Ctrl+Shift+F1] (Ctrl — рисовать, Ctrl+Shift — стирать, Ctrl+Shift+Z — отмена, Ctrl+Shift+Del — очистить всё)",
+        "pt": "Ponteiro [Ctrl+Shift+F1] (Ctrl — desenhar, Ctrl+Shift — apagar, Ctrl+Shift+Z — desfazer, Ctrl+Shift+Del — limpar tudo)",
+        "ar": "المؤشر [Ctrl+Shift+F1] (Ctrl — رسم، Ctrl+Shift — مسح، Ctrl+Shift+Z — تراجع، Ctrl+Shift+Del — مسح الكل)",
+        "de": "Zeiger [Ctrl+Shift+F1] (Ctrl — zeichnen, Ctrl+Shift — löschen, Ctrl+Shift+Z — rückgängig, Ctrl+Shift+Entf — alles löschen)",
+        "es": "Puntero [Ctrl+Shift+F1] (Ctrl — dibujar, Ctrl+Shift — borrar, Ctrl+Shift+Z — deshacer, Ctrl+Shift+Supr — limpiar todo)",
+        "fr": "Pointeur [Ctrl+Shift+F1] (Ctrl — dessiner, Ctrl+Shift — effacer, Ctrl+Shift+Z — annuler, Ctrl+Shift+Suppr — tout effacer)",
+        "hi": "पॉइंटर [Ctrl+Shift+F1] (Ctrl — ड्रॉ, Ctrl+Shift — मिटाएँ, Ctrl+Shift+Z — पूर्ववत, Ctrl+Shift+Del — सभी साफ़ करें)",
+        "it": "Puntatore [Ctrl+Shift+F1] (Ctrl — disegna, Ctrl+Shift — cancella, Ctrl+Shift+Z — annulla, Ctrl+Shift+Del — cancella tutto)",
+        "ja": "ポインタ [Ctrl+Shift+F1]（Ctrl — 描画、Ctrl+Shift — 消去、Ctrl+Shift+Z — 元に戻す、Ctrl+Shift+Del — すべてクリア）",
+        "ko": "포인터 [Ctrl+Shift+F1] (Ctrl — 그리기, Ctrl+Shift — 지우기, Ctrl+Shift+Z — 실행 취소, Ctrl+Shift+Del — 전체 삭제)",
+        "zh": "指针 [Ctrl+Shift+F1]（Ctrl — 绘制，Ctrl+Shift — 擦除，Ctrl+Shift+Z — 撤销，Ctrl+Shift+Del — 清除全部）"
+    },
+    "Start / End the game [F7]": {
+        "ru": "Начать / Закончить игру [F7]",
+        "pt": "Iniciar / Encerrar o jogo [F7]",
+        "ar": "بدء / إنهاء اللعبة [F7]",
+        "de": "Spiel starten / beenden [F7]",
+        "es": "Iniciar / Finalizar el juego [F7]",
+        "fr": "Démarrer / Terminer le jeu [F7]",
+        "hi": "खेल शुरू / समाप्त करें [F7]",
+        "it": "Avvia / Termina il gioco [F7]",
+        "ja": "ゲーム開始 / 終了 [F7]",
+        "ko": "게임 시작 / 종료 [F7]",
+        "zh": "开始 / 结束游戏 [F7]"
+    },
+    "Link to the winner": {
+        "ru": "Ссылка для победителя",
+        "pt": "Link para o vencedor",
+        "ar": "رابط الفائز",
+        "de": "Link zum Gewinner",
+        "es": "Enlace al ganador",
+        "fr": "Lien vers le gagnant",
+        "hi": "विजेता के लिए लिंक",
+        "it": "Link al vincitore",
+        "ja": "勝者へのリンク",
+        "ko": "승자 링크",
+        "zh": "获胜者链接"
+    },
+    "Copy all HTML to clipboard": {
+        "ru": "Копировать весь HTML в буфер обмена",
+        "pt": "Copiar todo o HTML para a área de transferência",
+        "ar": "نسخ كل HTML إلى الحافظة",
+        "de": "Gesamten HTML-Code in die Zwischenablage kopieren",
+        "es": "Copiar todo el HTML al portapapeles",
+        "fr": "Copier tout le HTML dans le presse-papiers",
+        "hi": "सभी HTML क्लिपबोर्ड में कॉपी करें",
+        "it": "Copia tutto l'HTML negli appunti",
+        "ja": "すべてのHTMLをクリップボードにコピー",
+        "ko": "전체 HTML을 클립보드에 복사",
+        "zh": "复制全部 HTML 到剪贴板"
+    },
+    "Export to HTML": {
+        "ru": "Экспорт в HTML",
+        "pt": "Exportar para HTML",
+        "ar": "تصدير إلى HTML",
+        "de": "Nach HTML exportieren",
+        "es": "Exportar a HTML",
+        "fr": "Exporter en HTML",
+        "hi": "HTML में निर्यात करें",
+        "it": "Esporta in HTML",
+        "ja": "HTMLとしてエクスポート",
+        "ko": "HTML로 내보내기",
+        "zh": "导出为 HTML"
+    },
+    "Created using the": {
+        "ru": "Создано с помощью",
+        "pt": "Criado usando o",
+        "ar": "تم الإنشاء باستخدام",
+        "de": "Erstellt mit dem",
+        "es": "Creado usando el",
+        "fr": "Créé avec le",
+        "hi": "इसके साथ बनाया गया",
+        "it": "Creato con",
+        "ja": "作成に使用した",
+        "ko": "다음으로 생성됨",
+        "zh": "使用以下创建"
+    },
+    "add-on": {
+        "ru": "дополнения",
+        "pt": "complemento",
+        "ar": "الإضافة",
+        "de": "Add-on",
+        "es": "complemento",
+        "fr": "extension",
+        "hi": "ऐड-ऑन",
+        "it": "add-on",
+        "ja": "アドオン",
+        "ko": "애드온",
+        "zh": "插件"
+    },
+    "for Anki": {
+        "ru": "для Anki",
+        "pt": "para Anki",
+        "ar": "لـ Anki",
+        "de": "für Anki",
+        "es": "para Anki",
+        "fr": "pour Anki",
+        "hi": "Anki के लिए",
+        "it": "per Anki",
+        "ja": "Anki用",
+        "ko": "Anki용",
+        "zh": "用于 Anki"
+    },
+    "Add-on author: A. Yu. Krutov": {
+        "ru": "Автор аддона: А.Ю. Крутов",
+        "pt": "Autor do complemento: A. Yu. Krutov",
+        "ar": "مؤلف الإضافة: A. Yu. Krutov",
+        "de": "Add-on-Autor: A. Yu. Krutov",
+        "es": "Autor del complemento: A. Yu. Krutov",
+        "fr": "Auteur de l'extension : A. Yu. Krutov",
+        "hi": "ऐड-ऑन लेखक: A. Yu. Krutov",
+        "it": "Autore dell'add-on: A. Yu. Krutov",
+        "ja": "アドオン作者：A. Yu. Krutov",
+        "ko": "애드온 제작자: A. Yu. Krutov",
+        "zh": "插件作者：A. Yu. Krutov"
+    },
+    "Show": {
+        "ru": "Показать",
+        "pt": "Mostrar",
+        "ar": "إظهار",
+        "de": "Anzeigen",
+        "es": "Mostrar",
+        "fr": "Afficher",
+        "hi": "दिखाएँ",
+        "it": "Mostra",
+        "ja": "表示",
+        "ko": "보이기",
+        "zh": "显示"
+    },
+    "Hide": {
+        "ru": "Скрыть",
+        "pt": "Ocultar",
+        "ar": "إخفاء",
+        "de": "Ausblenden",
+        "es": "Ocultar",
+        "fr": "Masquer",
+        "hi": "छिपाएँ",
+        "it": "Nascondi",
+        "ja": "非表示",
+        "ko": "숨기기",
+        "zh": "隐藏"
+    },
+    "Clear": {
+        "ru": "Очистить",
+        "pt": "Limpar",
+        "ar": "مسح",
+        "de": "Löschen",
+        "es": "Limpiar",
+        "fr": "Effacer",
+        "hi": "साफ़ करें",
+        "it": "Cancella",
+        "ja": "クリア",
+        "ko": "지우기",
+        "zh": "清空"
+    },
+    "Words": {
+        "ru": "Слова",
+        "pt": "Palavras",
+        "ar": "الكلمات",
+        "de": "Wörter",
+        "es": "Palabras",
+        "fr": "Mots",
+        "hi": "शब्द",
+        "it": "Parole",
+        "ja": "単語",
+        "ko": "단어",
+        "zh": "单词"
+    },
+    "word": {
+        "ru": "слов",
+        "pt": "palavra",
+        "ar": "كلمة",
+        "de": "Wort",
+        "es": "palabra",
+        "fr": "mot",
+        "hi": "शब्द",
+        "it": "parola",
+        "ja": "単語",
+        "ko": "단어",
+        "zh": "词"
+    },
+    "Game": {
+        "ru": "Игра",
+        "pt": "Jogo",
+        "ar": "لعبة",
+        "de": "Spiel",
+        "es": "Juego",
+        "fr": "Jeu",
+        "hi": "खेल",
+        "it": "Gioco",
+        "ja": "ゲーム",
+        "ko": "게임",
+        "zh": "游戏"
+    },
+    "Next": {
+        "ru": "Далее",
+        "pt": "Próximo",
+        "ar": "التالي",
+        "de": "Weiter",
+        "es": "Siguiente",
+        "fr": "Suivant",
+        "hi": "अगला",
+        "it": "Successivo",
+        "ja": "次へ",
+        "ko": "다음",
+        "zh": "下一个"
+    },
+    "very good": {
+        "ru": "очень хорошо",
+        "pt": "muito bom",
+        "ar": "جيد جدًا",
+        "de": "sehr gut",
+        "es": "muy bien",
+        "fr": "très bien",
+        "hi": "बहुत अच्छा",
+        "it": "molto bene",
+        "ja": "とても良い",
+        "ko": "매우 좋음",
+        "zh": "非常好"
+    },
+    "good": {
+        "ru": "хорошо",
+        "pt": "bom",
+        "ar": "جيد",
+        "de": "gut",
+        "es": "bien",
+        "fr": "bien",
+        "hi": "अच्छा",
+        "it": "bene",
+        "ja": "良い",
+        "ko": "좋음",
+        "zh": "好"
+    },
+    "hard": {
+        "ru": "тяжело",
+        "pt": "difícil",
+        "ar": "صعب",
+        "de": "schwer",
+        "es": "difícil",
+        "fr": "difficile",
+        "hi": "कठिन",
+        "it": "difficile",
+        "ja": "難しい",
+        "ko": "어려움",
+        "zh": "困难"
+    },
+    "Again": {
+        "ru": "Снова",
+        "pt": "Novamente",
+        "ar": "مرة أخرى",
+        "de": "Erneut",
+        "es": "Otra vez",
+        "fr": "Encore",
+        "hi": "फिर से",
+        "it": "Di nuovo",
+        "ja": "もう一度",
+        "ko": "다시",
+        "zh": "再来一次"
+    },
+    "Again, please": {
+        "ru": "Попробуйте снова",
+        "pt": "Tente novamente",
+        "ar": "حاول مرة أخرى",
+        "de": "Bitte erneut versuchen",
+        "es": "Inténtalo de nuevo",
+        "fr": "Veuillez réessayer",
+        "hi": "कृपया फिर से प्रयास करें",
+        "it": "Riprova per favore",
+        "ja": "もう一度お試しください",
+        "ko": "다시 시도하세요",
+        "zh": "请再试一次"
+    }
+};
+
+    static navigator_lang() {
+        return navigator.language.toLowerCase().split(/[-_]/)[0];
+    }
+
+    static translate(key, lang = navigator.language) {
+        const shortLang = lang.toLowerCase().split(/[-_]/)[0];        
+        if (shortLang === "en") return key;
+        const entry = this.#db[key];
+        if (!entry) {
+            console.log("ERROR translate(key, '"+lang+"'): key=" + String(key) );
+            return key;
+        }
+        return entry[shortLang] || key;
+    }
+    
+    static applyTranslations(root = document, lang = navigator.language) {        
+        const shortLang = lang.toLowerCase().split(/[-_]/)[0];          
+        // Translation <span data-trn>
+        root.querySelectorAll('span').forEach(el => {            
+            let istrn = el.hasAttribute('data-trn');
+            let isnt = el.hasAttribute('data-trnen');
+            let key = '';
+            if(istrn || isnt) {
+                if(isnt)
+                    key = el.getAttribute('data-trnen') || ''; //en                                    
+                else 
+                    key = el.textContent.trim(); //en                      
+                if(!isnt) el.setAttribute('data-trnen', key); //en
+                el.textContent = this.translate(key, shortLang); //??
+                el.removeAttribute('data-trn');                      
+            }            
+        });
+
+        // Translation of title (if not already processed)
+        root.querySelectorAll('[title]').forEach(el => {
+            let isnt = el.hasAttribute('data-trnen');
+            let key = '';
+            if(isnt)
+                key = el.getAttribute('data-trnen') || ''; //en                                           
+            else
+                key = el.getAttribute('title');   
+            if(!isnt) el.setAttribute('data-trnen', key);
+            el.setAttribute('title', this.translate(key, shortLang));
+        });
+    }
+    
+}
+}
+
+var trn_very_good = Translations.translate("very good");
+var trn_good = Translations.translate("good");
+var trn_hard = Translations.translate("hard");
+var trn_Again = Translations.translate("Again");
+var trn_Again_please= Translations.translate("Again, please");
+
+init();
+
+// translation for a specific language
+if( listSL.includes(lang2) ) {
+    Translations.applyTranslations();
+    setTimeout( ()=>{ // retry if something has updated
+        Translations.applyTranslations();
+    }, 500);    
+}
+
+
+async function audioToBase64(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function imageToBase64(img) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");    
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;    
+        ctx.drawImage(img, 0, 0);    
+        const dataURL = canvas.toDataURL("image/jpeg");
+        resolve(dataURL);
+    });
+}
+
+
+async function ExportToHTML() {
+    const doc = document.scrollingElement || document.documentElement;
+    const container = document.querySelector('.sio-container');
+    const img = document.querySelector('.sio-image');
+    const rect = img.getBoundingClientRect();
+    
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    // X
+    const imgLeft = rect.left;
+    const imgX = centerX - imgLeft;
+    const x = imgX / rect.width;
+
+    // Y 
+    const maxScrollY = doc.scrollHeight - window.innerHeight;
+
+    let y = -1;
+    if (maxScrollY > 0) {
+        y = doc.scrollTop / maxScrollY;
+    }
+
+    const root = document.getElementById("qa").cloneNode(true);
+    const imgContainer = root.querySelector('.sio-image-container');
+    imgContainer.dataset.centerX = x;
+    imgContainer.dataset.centerY = y;
+    if (imgContainer.classList.contains('wfit') || imgContainer.classList.contains('h100')) {       
+        delete imgContainer.dataset.centerX;
+        delete imgContainer.dataset.centerY;
+    } else {        
+        imgContainer.dataset.centerX = x;
+        imgContainer.dataset.centerY = y;
+    }
+     
+    const images = root.querySelectorAll("img");    
+    for (let img of images) {
+        try {
+            // Important: take the original from the DOM (not clone)
+            const originalImg = document.querySelector(`img[src="${img.getAttribute("src")}"]`);
+            const base64 = await imageToBase64(originalImg);
+
+            img.setAttribute("src", base64);
+        } catch (e) {
+            console.warn("Error with the image:", e);
+        }
+    }
+    
+    // Replacing the sound buttons in a computer application
+    if (isDesk) {
+        const links = root.querySelectorAll('a.replay-button.soundLink');    
+        links.forEach(link => {
+            const src = link.getAttribute('data-srcsio'); // 'data-srcsio' creates an addon 'Simple Image Occlusion'            
+            const audio = document.createElement('audio');
+            audio.setAttribute('controls', '');    
+            const source = document.createElement('source');
+            source.setAttribute('src', src);
+            source.setAttribute('type', 'audio/mpeg');    
+            audio.appendChild(source);                
+            link.replaceWith(audio);
+        });
+    }
+    
+    const sources = root.querySelectorAll("audio source");        
+    for (let srcEl of sources) {
+        try {
+            const src = srcEl.getAttribute("src");
+            if (!src) continue;        
+            const base64 = await audioToBase64(src);        
+            srcEl.setAttribute("src", base64);
+    
+        } catch (e) {
+            console.warn("Error with audio:", e);
+        }
+    }
+    const audios = root.querySelectorAll("audio");        
+    for (let audio of audios) {
+        const src = audio.getAttribute("src");
+        if (!src) continue;        
+        try {
+            const base64 = await audioToBase64(src);
+            audio.setAttribute("src", base64);
+        } catch (e) {
+            console.warn("Error with audio src:", e);
+        }
+    }
+    
+    
+        
+    let fileNameIOS = "IOS_" + new Date().toISOString().replace('T', ' ').split('.')[0] + ".html"; 
+    const elf_header = root.querySelector("#f_header"); 
+    if(elf_header) {
+        let text = elf_header.innerText
+        fileNameIOS = text.replace(/[\<\>\:\"\/\\\|\?\*]/g, '').replace(/[\x00-\x1f]/g, '');
+        fileNameIOS = fileNameIOS.replace(/^\.+|\.+$/g, '').substring(0, 255)
+        fileNameIOS = fileNameIOS + ".html"    
+    }
+    
+    const eltimeButton = root.querySelector("#timeButton");
+    if(eltimeButton)
+        eltimeButton.style.display = 'none';
+    const elurlVictoryR = root.querySelector("#urlVictory");
+    if(elurlVictoryR) {
+        elurlVictoryR.style.display = 'none'; 
+        const newP = crypto.randomUUID();          
+      
+        try{
+            if(elurlVictoryR.hasAttribute('data-purl')) {
+                let u = elurlVictoryR.getAttribute('data-url');
+                let p = elurlVictoryR.getAttribute('data-purl');
+                u = fec(fdc(p, u), newP);
+                p = newP; 
+                elurlVictoryR.setAttribute('data-url', u);
+                elurlVictoryR.setAttribute('data-purl', p);
+            }
+            else {
+                let u = elurlVictoryR.getAttribute('data-url');
+                let p = newP;
+                u = fec(u, p);                
+                elurlVictoryR.setAttribute('data-url', u);
+                elurlVictoryR.setAttribute('data-purl', p);
+            }
+        }catch(e){
+            console.log('err='+String(e));            
+        } 
+    }
+    const elgameButton = root.querySelector("#gameButton");
+    if(elgameButton)
+        elgameButton.style.display = 'block';
+    const elSCn = root.querySelector(".sio-container")
+    if(elSCn)
+        elSCn.classList.remove('ankiweb');
+        
+    root.querySelectorAll('.circle_press').forEach(circle => {    
+        if (circle.parentNode) {
+            circle.parentNode.removeChild(circle);
+        }
+    });
+    
+    let doctitle = document.title;     
+    if(f_header) {
+        doctitle = f_header.textContent;
+    }
+    
+    const fullHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<title>${doctitle}</title>
+</head>
+<body id="ios-v2" class="card">
+${root.outerHTML}
+</body>
+</html>
+`;     
+    
+    
+    const blob = new Blob([fullHtml], { type: "text/html" });    
+    if( !isAnkiWeb ) { // If it's not Ankiweb, try copying it to the clipboard.        
+        copyToClipboard(fullHtml);
+        showFloatingText('Copied to clipboard!');
+    }
+    else {
+        const url = URL.createObjectURL(blob);        
+        const a = document.createElement("a");            
+        a.href = url;
+        a.download = fileNameIOS;       
+        a.click();
+        URL.revokeObjectURL(url);        
+    }        
+    
+}
+
+
+// ===== click on the arrow ================== 
+
+function throttle(fn, delay) {
+    let last = 0;
+    return function (...args) {
+        const now = Date.now();
+        if (now - last >= delay) {
+            last = now;
+            fn.apply(this, args);
+        }
+    };
+}
+
+
+
+function getLinePoints(el) {
+    const style = getComputedStyle(el);
+    const container = document.querySelector('.sio-image-container');
+    const rect = container.getBoundingClientRect();
+
+    let left = parseFloat(el.style.left);
+    let top = parseFloat(el.style.top);
+    let width = parseFloat(el.style.width);
+
+    if (el.style.left.includes('%')) {
+        left = rect.width * (left / 100);
+    }
+    if (el.style.top.includes('%')) {
+        top = rect.height * (top / 100);
+    }
+    if (el.style.width.includes('%')) {
+        width = rect.width * (width / 100);
+    }
+
+        
+    
+    let angle = 0;    
+    let transform = style.transform;
+    
+    if (!transform || transform === 'none') {
+        transform = el.style.transform;
+    }
+    
+    if (transform && transform !== 'none') {
+        const rotateMatch = transform.match(/rotate\(([-\d.]+)deg\)/);
+        if (rotateMatch) {
+            angle = parseFloat(rotateMatch[1]) * Math.PI / 180;
+        }         
+        else {
+            const match = transform.match(/matrix\(([^)]+)\)/);
+            if (match) {
+                const values = match[1].split(',').map(Number);
+                angle = Math.atan2(values[1], values[0]);
+            }
+        }
+    }
+    
+    
+    const x1 = left;
+    const y1 = top;
+    const x2 = x1 + width * Math.cos(angle);
+    const y2 = y1 + width * Math.sin(angle);
+
+    return { x1, y1, x2, y2, angle };
+}
+
+
+
+function pointInRotatedRect(px, py, el) {
+    const style = getComputedStyle(el);
+    const container = document.querySelector('.sio-image-container');
+    const rect = container.getBoundingClientRect();
+
+    // coordinates inside the container
+    let left = parseFloat(el.style.left);
+    let top = parseFloat(el.style.top);
+    let width = parseFloat(el.style.width);
+    let height = parseFloat(el.style.height);
+
+    if (el.style.left.includes('%')) {
+        left = rect.width * (left / 100);       
+    }
+    if (el.style.top.includes('%')) { 
+        top = rect.height * (top / 100);
+    }
+    if (el.style.width.includes('%')) {
+        width = rect.width * (width / 100);
+    }
+    if (el.style.height.includes('%')) {
+        height = rect.height * (height / 100);
+    }
+
+
+    let angle = 0;    
+    let transform = style.transform;
+    
+    if (!transform || transform === 'none') {
+        transform = el.style.transform;
+    }
+    
+    if (transform && transform !== 'none') {
+        const rotateMatch = transform.match(/rotate\(([-\d.]+)deg\)/);
+        if (rotateMatch) {
+            angle = parseFloat(rotateMatch[1]) * Math.PI / 180;
+        }         
+        else {
+            const match = transform.match(/matrix\(([^)]+)\)/);
+            if (match) {
+                const values = match[1].split(',').map(Number);
+                angle = Math.atan2(values[1], values[0]);
+            }
+        }
+    }
+
+    // transferring a rectangle to the system (top-left)
+    const dx = px - left;
+    const dy = py - top;
+
+    // reverse rotation around (0,0)
+    const cos = Math.cos(-angle);
+    const sin = Math.sin(-angle);
+
+    const rx = dx * cos - dy * sin;
+    const ry = dx * sin + dy * cos;
+
+    return (
+        rx >= 0 &&
+        ry >= 0 &&
+        rx <= width &&
+        ry <= height
+    );
+}
+
+
+
+function handleMove(e) {
+    const lines = document.querySelectorAll('.sio-rect.line');
+    //const rects = document.querySelectorAll('.sio-rect:not(.line):not(.hiding)');
+    const rects = document.querySelectorAll('.sio-rect:not(.line)');
+    const container = document.querySelector('.sio-image-container');
+    const rect = container.getBoundingClientRect();
+    
+    let closestLine = null;
+    let minDist = Infinity;
+    
+    const xCnt = e.clientX - rect.left;
+    const yCnt = e.clientY - rect.top;
+    
+    // looking for the nearest line
+    lines.forEach(line => {
+        const { x1, y1 } = getLinePoints(line);
+
+        const dx = xCnt - x1;
+        const dy = yCnt - y1;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist <= (movewh/2) && dist < minDist) { // movewh = 30
+            minDist = dist;
+            closestLine = line;
+        }
+    });
+
+    // if there is no line
+    if (!closestLine) {
+        imageSIOR.style.cursor = 'default';
+        moveLineEl = null;
+        moveRectEl = null;
+
+        if (moveBacklight) {
+            document.querySelectorAll('.move-backlight')
+                .forEach(el => el.classList.remove('move-backlight'));
+            moveBacklight = false;
+        }
+
+        return;
+    }
+
+    imageSIOR.style.cursor = 'pointer';
+    moveLineEl = closestLine;
+
+    // looking for the end of the line (where the point is)
+    const { x2, y2 } = getLinePoints(closestLine);
+
+    let foundRect = null;
+
+    rects.forEach(rect => {
+        if (pointInRotatedRect(x2, y2, rect)) {
+            foundRect = rect;
+        }
+    });
+
+    // if you find a rectangle
+    if (foundRect) {
+        moveRectEl = foundRect;
+
+        document.querySelectorAll('.move-backlight')
+            .forEach(el => el.classList.remove('move-backlight'));
+
+        if( !(gameRun && gameI >= 0 && closestLine.classList.contains('notvisible') ) ) {
+            foundRect.classList.add('move-backlight');
+            closestLine.classList.add('move-backlight');
+        }            
+
+        moveBacklight = true;
+    } else {
+        moveRectEl = null;
+
+        if (moveBacklight) {
+            document.querySelectorAll('.move-backlight')
+                .forEach(el => el.classList.remove('move-backlight'));
+            moveBacklight = false;
+        }
+    }
+}
+
+// ===============================================
+
+
+function updateControlsPosition() {    
+    const controls = document.getElementById('sio-controls');
+    if (!controls || !window.visualViewport) return;
+
+    const vv = window.visualViewport;
+
+    const scale = vv.scale;
+    
+    if(scale > 0.98 && scale < 1.02) {
+        if( !controls.classList.contains('scale1') )
+            controls.classList.add('scale1');
+        return;
+    }
+    else {
+        controls.classList.remove('scale1');        
+    }
+
+    // compensate for the zoom
+    controls.style.transform = `
+        translateX(-50%)
+        scale(${1 / scale})
+    `;
+    const rectCn = controls.getBoundingClientRect();
+    const bottomOffset = 30 + rectCn.height;
+
+    const visualBottom = vv.height + vv.offsetTop;
+
+    controls.style.top = `${visualBottom - bottomOffset}px`;
+    controls.style.left = `${vv.offsetLeft + vv.width / 2}px`;
+}
+
+
+
+function cursorBtn() {
+    bigCursorEnabled = !bigCursorEnabled;
+    const cursorButton = document.getElementById('cursorButton');
+    if (bigCursorEnabled) {
+        bigCursor.style.display = 'block';
+        cursorButton.classList.add('pressed');
+        document.body.classList.add('pointer-enabled');
+    } else {
+        bigCursor.style.display = 'none';
+        cursorButton.classList.remove('pressed');
+        document.body.classList.remove('pointer-enabled');
+    }
+}
+
+
+
+
+
+function getPercentCoords(e, canvas) {
+    const rect = canvas.getBoundingClientRect();
+
+    const x = (e.clientX - rect.left) / rect.width * 100;
+    const y = (e.clientY - rect.top) / rect.height * 100;
+
+    return { x, y };
+}
+
+
+
+function redraw() {
+    ctx.clearRect(0, 0, canvasDL.width, canvasDL.height);
+
+    strokes.forEach(stroke => {        
+        if (stroke.type === 'draw') {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 4;            
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+
+            stroke.points.forEach((p, i) => {
+                const x = p.x / 100 * canvasDL.width;
+                const y = p.y / 100 * canvasDL.height;
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+
+            ctx.stroke();
+        }
+
+        if (stroke.type === 'erase') {
+            ctx.globalCompositeOperation = 'destination-out';
+
+            stroke.points.forEach(p => {
+                const x = p.x / 100 * canvasDL.width;
+                const y = p.y / 100 * canvasDL.height;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, Math.PI * 2); // 20px diameter
+                ctx.fill();
+            });
+        } 
+    }); 
+    
+    
+}
+
+
+function resizeCanvas() {
+    const rect = img.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvasDL.width = rect.width * dpr;
+    canvasDL.height = rect.height * dpr;
+    canvasDL.style.width = rect.width + 'px';
+    canvasDL.style.height = rect.height + 'px';    
+    redraw();
+}
+
+
+function clearAllCanvas() {
+    strokes = [];
+    redraw();
+}
+
+
+function undoCanvas() {
+    strokes.pop();
+    redraw();
+}
+
+
+/* ---- COPY ---- */
+// Copy to clipboard for older browsers
+function fallbackCopyToClipboard(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    div.style.position = "fixed";
+    div.style.left = "-999999px";
+    div.style.top = "0";
+    div.style.whiteSpace = "pre";
+    div.style.userSelect = "text";
+
+    document.body.appendChild(div);
+
+    try {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(div);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const ok = document.execCommand('copy');
+        selection.removeAllRanges();
+        return ok;
+
+    } catch (err) {
+        console.error('Clipboard write error:', err);
+        return false;
+    } finally {
+        document.body.removeChild(div);
+    }
+}
+
+
+// The main function of copying to the clipboard
+async function copyToClipboard(text) {    
+    if (typeof pycmd !== "undefined") {        
+        try {
+            // An alternative method for older browsers           
+            fallbackCopyToClipboard(text);            
+        } catch(e) {
+            await navigator.clipboard.writeText(text);            
+        }   
+    }
+    else {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch(e) {
+            // An alternative method for older browsers           
+            fallbackCopyToClipboard(text);
+        }        
+    }        
+}
+/* ^^^^ COPY ^^^^ */
+
+
+
+</script>

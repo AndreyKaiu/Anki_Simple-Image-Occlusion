@@ -1,0 +1,629 @@
+:root {
+    --rectyellow: rgba(255, 235, 162, 1); /* color of the main rectangles */
+    --rectyellowtransparent: rgba(255, 235, 162, 0); /* as above, but 0 at the end */
+    --rectblue: rgba(1, 78, 140, 1); /* color of additional rectangles */
+    --goodanswer: rgb(10, 240, 10); /* the color of the rectangle for the correct answer */
+    --badanswer: #fb8c8c; /* the color of the rectangle if the answer is incorrect */
+    --line-color: #aa007f; /* The color of the line and border rect */
+    --move-line-color: #ff0000; /* Line color when hovering over an arrow */       
+    --transparency-answer: rgba(255, 235, 162, 0.95); /* Set the transparency when displaying the answer */
+    /* changes only from code: */
+    --move-circle-press-WH: 22px; /* circle size to click */ 
+}
+.pointer-enabled * {
+    cursor: none !important;
+}
+body {
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+}
+    
+.card {
+    font-family: arial;
+    font-size: 20px;
+    line-height: 1.5;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.sio-container {
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;      
+    margin 0px;
+    padding 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 3;
+}
+.sio-container.moveEnabled:active {       
+   cursor: move;
+}
+
+.sio-image-container {
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    max-height: none !important;
+    max-width: none !important;       
+    display: inline-block;    
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none; 
+    z-index: 3;
+    line-height: 0;        
+    border-width: 1px;
+    border-color: gray;
+    border-style: solid;
+    margin: 0;
+    padding: 0;    
+}
+
+
+.sio-image-container .sio-image {    
+    max-height: none !important;
+    max-width: none !important;
+    border-width: 0;    
+    margin: 0;    
+    width: 100vw;
+    object-fit: cover;
+    -webkit-user-drag: none !important;   
+    pointer-events: auto !important;
+    line-height: 0;
+    cursor: default;
+}
+
+
+.sio-rect {
+  position: absolute;
+  background-color: var(--rectyellow);
+  border: 2px solid var(--line-color); /* The color of the line and border rect */
+  cursor: default;
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+  transform-origin: 0 0; /* The point of rotation */
+  z-index: 10;    
+  color: black;
+  display: flex;
+  justify-content: center;      
+  align-items: center;          
+  text-align: center;           
+  white-space: normal;          
+  word-break: break-word;         
+  /* font-size: 10px;   */
+  letter-spacing: 0.07em;
+  line-height: 1;        
+  user-select: none;          
+  -webkit-touch-callout: none;
+  -webkit-user-select: none; 
+  opacity: 1.0;
+}  
+
+.sio-rect.attention {
+    border: 2px solid #FF0000;
+}
+
+.sio-rect.round {
+    border-radius: 50%;
+}
+.sio-rect.hiding {
+  background-color: var(--rectblue);
+  border: 1.5px solid blue;
+    user-select: none;          
+    -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  z-index: 5;
+}
+.sio-rect.transparent {
+  background-color: var(--rectyellowtransparent);
+}
+
+
+.w25 .sio-rect {
+    border: 1px solid var(--line-color);
+}
+.w50 .sio-rect {   
+    border: 1.5px solid var(--line-color); 
+}
+.w75 .sio-rect, .w100 .sio-rect, .w125 .sio-rect, .w150 .sio-rect, .w200 .sio-rect {
+    border: 2px solid var(--line-color);
+}
+.w300 .sio-rect, .w400 .sio-rect  {
+    border: 3px solid var(--line-color);
+}
+
+
+@media (max-width: 720px) {
+    .w25 .sio-rect, .w50 .sio-rect {  
+        border: 1px solid var(--line-color); /* The color of the line and border rect */
+    }    
+    .w75 .sio-rect {  
+        border: 1.5px solid var(--line-color); /* The color of the line and border rect */
+    }    
+}
+
+
+.sio-rect.line {
+  position: absolute;
+  background-color: var(--line-color); /* The color of the line and border rect */
+  transform-origin: 0 0; /* The point of rotation */
+  pointer-events: none; /* Click passes through the line */
+  border-width: 0px;    
+  z-index: 20;
+}
+
+.sio-rect.line {
+    height: 2px !important;
+    border: 0px;
+}
+.w25 .sio-rect.line, .w50 .sio-rect.line {
+    height: 1px !important;
+    border: 0px;
+}
+.w75 .sio-rect.line  {
+    height: 1.5px !important;
+    border: 0px;
+}
+.w100 .sio-rect.line, .w125 .sio-rect.line, .w150 .sio-rect.line {
+    height: 2px !important;
+    border: 0px;
+}
+.w200 .sio-rect.line, .w300 .sio-rect.line, .w400 .sio-rect.line  {
+    height: 3px !important;
+    border: 0px;
+}
+
+
+@media (max-width: 400px) {    
+    .w25 .sio-rect.line, .w50 .sio-rect.line, .w75 .sio-rect.line, .w100 .sio-rect.line, .w125 .sio-rect.line, .wfit .sio-rect.line {
+        height: 1px !important;
+        border: 0px;
+    }
+    .w150 .sio-rect.line, .w200 .sio-rect.line, .h100 .sio-rect.line {
+        height: 1.5px !important;
+        border: 0px;
+    }    
+    .w300 .sio-rect.line, .w400 .sio-rect.line {
+        height: 2px !important;
+        border: 0px;
+    }
+}
+
+
+.sio-rect.line::before {
+    content: "";
+    position: absolute;
+    right: 0; 
+    top: 50%;
+    transform: translate(50%, -50%);
+    width: 4px;
+    height: 4px;
+    background-color: var(--line-color);
+    border-radius: 50%;
+}
+
+.w25 .sio-rect.line::before, .w50 .sio-rect.line::before {    
+    width: 2px;
+    height: 2px;
+}
+.w75 .sio-rect.line::before {    
+    width: 3px;
+    height: 3px;
+}
+.w125 .sio-rect.line::before {    
+    width: 5px;
+    height: 5px;
+} 
+.w150 .sio-rect.line::before {    
+    width: 5px;
+    height: 5px;
+} 
+.w200 .sio-rect.line::before {    
+    width: 7px;
+    height: 7px;
+} 
+.w300 .sio-rect.line::before {    
+    width: 8px;
+    height: 8px;
+} 
+.w400 .sio-rect.line::before {    
+    width: 9px;
+    height: 9px;
+}
+
+
+@media (max-width: 400px) {    
+    .w25 .sio-rect.line::before, .w50 .sio-rect.line::before, .w75 .sio-rect.line::before, .w100 .sio-rect.line::before, .wfit .sio-rect.line::before, .w125 .sio-rect.line::before {    
+        width: 2px;
+        height: 2px;
+    }
+    .w150 .sio-rect.line::before, .w200 .sio-rect.line::before, .h100 .sio-rect.line::before {    
+        width: 3px;
+        height: 3px;
+    }    
+    .w300 .sio-rect.line::before, .w400 .sio-rect.line::before {    
+        width: 4px;
+        height: 4px;
+    }
+}
+
+
+
+.sio-rect.line::after {
+    content: "";
+    position: absolute;
+    left: 0; /* beginning of the line */
+    /* right: 0;  end of the line */
+    top: 50%;
+    transform: translate(-50%, -50%); /* 50%, -50% end of the line */
+    width: 0;
+    height: 0;        
+}
+
+.sio-rect.line::after {    
+    border-right: 6px solid red; /* The color of the line and border rect */    
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;        
+}
+    
+.w25 .sio-rect.line::after {    
+    border-right: 4px solid red; /* The color of the line and border rect */    
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+}
+
+.w125 .sio-rect.line::after, .w150 .sio-rect.line::after, .w200 .sio-rect.line::after {    
+    border-right: 8px solid red; /* The color of the line */ 
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+} 
+.w300 .sio-rect.line::after, .w400 .sio-rect.line::after {    
+    border-right: 10px solid red; /* The color of the line */ 
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+} 
+
+
+@media (max-width: 400px) {
+    .w25 .sio-rect.line::after, .w50 .sio-rect.line::after, .w75 .sio-rect.line::after, .w100 .sio-rect.line::after, .wfit .sio-rect.line::after, .w125 .sio-rect.line::after {    
+        border-right: 4px solid red; /* The color of the line and border rect */    
+        border-top: 2px solid transparent;
+        border-bottom: 2px solid transparent;
+    }
+    .w150 .sio-rect.line::after, .w200 .sio-rect.line::after, .h100 .sio-rect.line::after {    
+        border-right: 6px solid red; /* The color of the line and border rect */    
+        border-top: 3px solid transparent;
+        border-bottom: 3px solid transparent;
+    }
+    .w300 .sio-rect.line::after, .w400 .sio-rect.line::after {    
+        border-right: 8px solid red; /* The color of the line and border rect */    
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+    }
+}
+
+
+.sio-rect[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.sio-rect:empty:before {
+  content: attr(hint); 
+  color: gray;
+  pointer-events: none;
+  display: block;
+}
+.sio-rect.attention:empty:before {
+    color: red;    
+}
+.sio-rect.line:empty:before, .sio-rect.hiding:empty:before,
+.sio-rect.transparent::before {
+    content: '';
+}
+
+.sio-rect::after {
+  content: '✖';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  font-size: 10px;
+  color: #a00;
+  cursor: pointer;
+  user-select: none;
+  z-index: 200;
+}
+.sio-rect.selected[contenteditable="true"]::after {
+    content: '';    
+}
+.sio-rect.line::after {
+  content: '';
+}
+.sio-rect.selected {
+  border-color: #FF0000;
+  outline-color: #FF0000;    
+}
+.sio-rect.selected:focus {
+  cursor: default;
+  border-width: 1px;
+  /* border-style: dashed; */
+  border-color: #ff00ff;
+  outline-color: #ff00ff;        
+}
+
+
+
+.sio-rect.move-backlight.selected:focus {
+    border-color: var(--move-line-color);
+    outline-color: var(--move-line-color);
+    background-color: #ffff7f !important;    
+}
+.sio-rect.move-backlight {
+    border-color: var(--move-line-color);
+    background-color: #ffff7f !important;    
+}
+.sio-rect.hiding.move-backlight.selected:focus {
+    border-color: var(--move-line-color);
+    outline-color: var(--move-line-color);
+    background-color: #0099ff !important;    
+}
+.sio-rect.hiding.move-backlight {
+    border-color: var(--move-line-color);
+    background-color: #0099ff !important;    
+}
+.sio-rect.line.move-backlight {
+    background-color: var(--move-line-color) !important;
+}
+
+
+.sio-rect.focus-backlight.selected:focus {
+    border-color: var(--move-line-color);
+    outline-color: var(--move-line-color);
+    background-color: #ffff7f !important;    
+}
+.sio-rect.focus-backlight {
+    border-color: var(--move-line-color);
+    background-color: #ffff7f !important;    
+}
+.sio-rect.hiding.focus-backlight.selected:focus {
+    border-color: var(--move-line-color);
+    outline-color: var(--move-line-color);
+    background-color: #0099ff !important;    
+}
+.sio-rect.hiding.focus-backlight {
+    border-color: var(--move-line-color);
+    background-color: #0099ff !important;    
+}
+.sio-rect.line.focus-backlight {
+    background-color: var(--move-line-color) !important;
+}
+
+
+.circle_press {
+    position: absolute;
+    width: var(--move-circle-press-WH);
+    height: var(--move-circle-press-WH);
+    border: 1px solid #FF000099;
+    border-radius: 50%;
+    background-color: transparent;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: flex;
+    z-index: 20;
+}
+
+.circle_press.focus-backlight {
+    border: 2px solid #FF0000;
+    background-color: #FF000033;
+}
+
+.circle_press[fr_hiding]:not([word]) {
+    width: 8px;
+    height: 8px;    
+    border: 0.3px solid #0000ff;
+}
+
+
+
+
+
+.sio-rect.flash-border {
+  animation: flashBorder 0.5s ease-in-out 3;
+}
+@keyframes flashBorder {
+  0%, 100% {
+    border-color: transparent;
+    outline-color: transparent;
+  }
+  50% {
+    border-color: rgb(255, 0, 0);
+    outline-color: rgb(255, 0, 0);
+  }
+}
+
+#timeButton {
+    display: none;
+    color: blue;
+}
+
+.sio-rect.transparent.wordshow {    
+    /* text-shadow:
+        -0.4px -0.4px 0 #FFFFFF,
+        1px 1px 2px black;  */    
+    background-color: var(--transparency-answer);    
+}
+
+
+.sio-rect.transparent.wordshow2 {    
+    font-weight: 400;  
+    background-color: var(--goodanswer);    
+}
+
+
+.wfit, .wfit .sio-image {
+    width: 90vw;
+}
+.h100, .h100 .sio-image {    
+    height: 90vh;
+    width: auto;
+}
+.w25, .w25 .sio-image {
+    width: 25vw;
+}
+.w50, .w50 .sio-image {
+    width: 50vw;
+}
+.w75, .w75 .sio-image {
+    width: 75vw;
+}
+.w100, .w100 .sio-image {
+    width: 90vw;
+}
+.w125, .w125 .sio-image {
+    width: 125vw;
+}
+.w150, .w150 .sio-image {
+    width: 150vw;
+}
+.w200, .w200 .sio-image {
+    width: 200vw;
+}
+.w300, .w300 .sio-image {
+    width: 300vw;
+}
+.w400, .w400 .sio-image {
+    width: 400vw;
+}
+
+
+#sio-controls {
+    position: fixed;
+    transform: translateX(-50%);    
+    z-index: 10000;    
+    pointer-events: auto;    
+    margin: 0px auto;
+    padding: 0px;    
+    display: flex;    
+    width: 100%;  
+    justify-content: center;     
+    min-height: 25px;   
+    font-size: 12px;    
+    line-height: 1;
+    flex-wrap: wrap;
+}
+
+#sio-controls.scale1 {
+    bottom: 10px;
+    left: 50%;
+}
+#sio-controls.ankiweb.scale1 {    
+    bottom: 95px;
+}
+#sio-controls.iosv2.scale1 {
+    bottom: 10px;
+}
+
+
+#sio-controls button, #sio-controls.ankiweb button {
+    padding: 3px 3px 3px 3px;
+    margin: 0px 5px 5px 5px;
+    cursor:pointer;
+    z-index: 11000;
+    background-color: #cccccc;
+    max-height: 25px;
+    height: 25px;
+    white-space: nowrap; /* prevents line breaks */
+    overflow: hidden; /* hides output text */
+    /* text-overflow: ellipsis; adds ellipsis if it doesn't fit */
+    max-width: 100%; /* doesn't go beyond the container */
+    box-sizing: border-box; /* takes padding into account in the width */
+    min-width: 30px;
+    border-radius: 5px;
+    border-width: 0.5px;   
+    box-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    user-select: none;
+
+}
+#sio-controls.ankidroid button {
+    padding: 1px 3px 3px 3px; 
+    margin: 0px 5px 5px 5px;
+    cursor:pointer;
+    z-index: 11000;
+    background-color: #cccccc;
+    max-height: 25px !important; 
+    height: 25px !important;
+    white-space: nowrap; /* prevents line breaks */
+    overflow: hidden; /* hides output text */
+    /* text-overflow: ellipsis; adds ellipsis if it doesn't fit */
+    max-width: 100%; /* doesn't go beyond the container */
+    box-sizing: border-box; /* takes padding into account in the width */
+    font-size: 0.6rem;
+    min-width: 30px;
+    border-radius: 5px;
+    border-width: 0.5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    user-select: none;
+}
+
+button:active, #sio-controls button:active, #sio-controls.ankiweb button:active, #sio-controls.ankidroid button:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 rgba(0,0,0,0.9);
+}
+
+
+#_mark {
+    left: 1px !important;
+    z-index: 5 !important; 
+}
+
+#_flag {
+    right: 1px !important;
+    z-index: 5 !important; 
+}
+
+.stattxt {
+    font-size: 30px !important; 
+}
+
+
+.sio-rect.line.notvisible:not(.focus-backlight):not(.move-backlight), .sio-rect.line.notvisible:not(.focus-backlight):not(.move-backlight)::before, .sio-rect.line.notvisible:not(.focus-backlight):not(.move-backlight)::after {
+    background-color: transparent;   
+    border-width: 0px;     
+}
+
+
+#bigCursor {
+    pointer-events: none;
+    position: fixed;
+    z-index: 99999 !important;
+}
+
+#bigCursor svg {
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.4));
+}
+
+#sio-controls #cursorButton.pressed {
+    background-color: #a8a8a8;    
+}
+
+.draw-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: auto;
+    z-index: 4;
+}
+
+audio {
+    vertical-align: middle;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#f_header a {
+    text-decoration: none;
+}
