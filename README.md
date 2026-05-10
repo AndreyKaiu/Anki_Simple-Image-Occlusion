@@ -151,7 +151,7 @@ List of hotkeys:
 
 The program already contains so much functionality that I can't even notice it all... and since there are limitations, sometimes I even have an error. This version was developed and modified over the past month and a half, so if any errors are discovered and reported, I'll try to find time by the end of the week to fix them.
 
-Don't be afraid to write and ask questions—it's at least a sign of interest in the program.
+[Don't be afraid to write and ask questions](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307)—it's at least a sign of interest in the program.
 
 
 **HELP AND SUPPORT**
