@@ -64,6 +64,19 @@ If a card is being shown to many people in the audience and something needs to b
 
 To clarify the action of a key, you need to hover the mouse pointer over it and wait for the tooltip to appear.
 
+List of hotkeys:
+
+* Export to HTML / Copy all HTML to clipboard — [Ctrl+Shift+E]
+* By image width — [Shift+F3]
+* By picture height — [Shift+F4]
+* - — Zoom out [F3]
+* + — Zoom in [F4]
+* Show / Hide image (Show other buttons) — [Shift+F1]
+* Clear / Fill in all rectangles — [Shift+F5]
+* Editing / Auto-enter a word — [F2]
+* Pointer — [Ctrl+Shift+F1] (Ctrl — draw, Ctrl+Shift — erase, Ctrl+Shift+Z — cancel, Ctrl+Shift+Del — clear)
+* Start / End the game — [F7]
+
 The "Export to HTML" button is available to the user, either in the HTML file itself or only on the ankiuser.net website. If only certain words are difficult for you, you can hide others and leave only the difficult ones. Then, by clicking "Export to HTML," you'll get a file that, when uploaded, will immediately show you what you need to pay attention to when memorizing.
 
 Anki only allows you to copy the HTML code for such a file; you must create a blank file with UTF8 encoding yourself. Currently, there are difficulties creating a file from Anki when embedding a large audio file (over 2 megabytes). However, since this functionality (exporting to HTML) is rarely needed and is primarily for teachers, most users will not experience any issues.
