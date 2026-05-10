@@ -58,6 +58,8 @@ The interface may be displayed in the language configured in your browser. If yo
 
 The example above shows a card with a complex fill-in task, not a simple hiding task. However, this type of filling allows you to both pronounce the words (depending on your system's TTS) and play a speed game, since only instant recall demonstrates your excellent memorization. As a reward for excellent performance, you might be shown a link that could lead to a higher level or somewhere else, even to a website where you might relax (you can set this yourself, or your teacher can send you ready-made cards for viewing outside of Anki).
 
+**Important!** If you clicked the rectangle for the first time and were shown the text, **there is no voiceover, and this is not an error.** This is done intentionally to increase speed and to help you remember the pronunciation of the word. Perhaps you could say the word and then click it again to compare it with the actual pronunciation.
+
 If a card is being shown to many people in the audience and something needs to be explained, demonstrated, or emphasized, then you can turn on the pointer mode (you can enter all the words at once if this information is needed).
 
 <img width="838" height="730" alt="Seas 6_2" src="https://github.com/user-attachments/assets/16f0ccfb-4cfe-4b83-81a8-1180a78d179a" />
@@ -134,6 +136,22 @@ List of hotkeys:
 * □↦ ⬌ ○⇢ — "Change shape (or arrow type) [F6]"
 * 🟨 &#8596; 🟦 — "Change type [F4]"
 * 200% — "Double the scale [F1]"
+
+
+**Some tips for creating (studying) flashcards:**
+
+* The drawing shouldn't be overly complex; it should only depict what's relevant to the topic. Extraneous information shouldn't distract.
+* If you have a lot of rectangles, more than 10-15, it's worth breaking the drawing into sections and studying them individually, as it's ideal to memorize no more than 8-10 at a time. But everyone is different, so decide for yourself what's most convenient for you.
+* For Anki, it can often be more convenient to split the entire card into a set for each rectangle, then the algorithm will accurately take into account what you forget more often and offer you this word or concept again.
+* It would be a good idea to write the necessary information on the cards, as it can be spoken, played as a game, and, importantly, you can type the word to check, as people often fail to spell it correctly, which can be very important. Unfortunately, I see that no one likes to type because it takes a long time, so I even hid this algorithm and called it up using a button with a pencil drawing.
+* If you've read this far, don't think everyone is like this. Most people don't read long instructions; they just want to be shown everything, and they don't want to learn Anki either. Check out this article, ["Seven Years of Spaced Repetition Software in the Classroom"](https://www.lesswrong.com/posts/F6ZTtBXn2cFLmWPdM/seven-years-of-spaced-repetition-software-in-the-classroom-1)
+* We have similar students in both middle and high school. So, if you're a teacher preparing flashcards, it makes sense to organize the work like this: prepare 5-10 flashcards for 1-2 weeks and send them to students to study. They study these flashcards for the entire duration, and on the day of the assessment, 5-10 students are randomly selected and must demonstrate their knowledge in front of the entire class. Perhaps it's against your school's policy to not display a child's knowledge (or rather, not knowledge), in which case this might not be appropriate for you and you'll have to assess each student individually. To give students an idea of ​​what they'll experience during the assessment, it makes sense to send them a complete, prepared catalog with the ["Wheel-of-Fortune"](https://github.com/AndreyKaiu/Wheel-of-Fortune) program, which is specifically designed for randomly selecting either a student or any other item from the list. Links can also be randomly selected (for a local file, simply enter the file name, for example, 'abc.html').
+
+**Sorry for any errors.** They exist, and I keep finding and finding things that can and should be fixed.
+
+The program already contains so much functionality that I can't even notice it all... and since there are limitations, sometimes I even have an error. This version was developed and modified over the past month and a half, so if any errors are discovered and reported, I'll try to find time by the end of the week to fix them.
+
+Don't be afraid to write and ask questions—it's at least a sign of interest in the program.
 
 
 **HELP AND SUPPORT**
