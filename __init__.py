@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 2.0, date: 2026-05-09
+# Version 2.0, date: 2026-05-12
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -1217,7 +1217,7 @@ def create_note_type_if_not_exists():
     models = col.models    
     name = "Image Occlusion Simple (v2)"
 
-    Attention_Addon_Key = 'attention_Addon_675107747_20260509_20'
+    Attention_Addon_Key = 'attention_Addon_675107747_20260512_22'
     try:        
         attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
     except:
@@ -1238,7 +1238,7 @@ Do not show this window again?""",
             pass
 
 
-    update_Addon_Key = 'update_Addon_675107747_20260509_20'
+    update_Addon_Key = 'update_Addon_675107747_20260512_22'
     existing = models.by_name(name)
     if existing:
         # We will prompt the user to update the template if he has not updated it yet.
@@ -1295,11 +1295,42 @@ Do not show this window again?""",
 
     model = models.new(name)
     model["type"] = MODEL_STD
-    model["sortf"] = 0  # set sortfield to question
+    model["sortf"] = 1  # set sortfield to question
     model["css"] = styling
 
-    models.add_field(model, models.new_field("Front"))
-    models.add_field(model, models.new_field("Back"))
+    fld = models.new_field("Front")
+    fld["description"] = "Paste an image from the clipboard. Edit it with the addon."
+    models.add_field(model, fld)    
+    fld = models.new_field("Header")
+    fld["description"] = "Enter the book title and topic. (auto: page# from the URL)"  
+    models.add_field(model, fld)
+    fld = models.new_field("HeaderURL_filepdf#page=")
+    fld["description"] = "Link to PDF file. Add #page=11 to go to page 11."
+    models.add_field(model, fld)
+    fld = models.new_field("Words")
+    fld["description"] = "Do not fill in! The words that are suggested for input"
+    models.add_field(model, fld)
+    fld = models.new_field("LngTag")
+    fld["description"] = "For non-English (-before disables pronunciation). Tag BCP 47, example: ru_RU, en_US"
+    models.add_field(model, fld)
+    fld = models.new_field("AudioFile")
+    fld["description"] = "Possible sound file for the front side of the card"
+    models.add_field(model, fld)
+    fld = models.new_field("Front Extra")
+    fld["description"] = "Information for the front side of the card"
+    models.add_field(model, fld)
+    fld = models.new_field("Back")
+    fld["description"] = "Information for the back of the card"
+    models.add_field(model, fld)
+    fld = models.new_field("Back Extra")
+    fld["description"] = "Additional information for the back of the card"
+    models.add_field(model, fld)
+    fld = models.new_field("Comments")
+    fld["description"] = "Comments are written during the study process."
+    models.add_field(model, fld)
+    fld = models.new_field("URLVictory")
+    fld["description"] = "Possible link for the winner of the game (method of reward)"
+    models.add_field(model, fld)    
 
     # Add template
     template = models.new_template("Card 1")
