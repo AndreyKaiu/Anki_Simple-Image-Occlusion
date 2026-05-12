@@ -531,7 +531,7 @@ body {
     margin: 0px 5px 5px 5px;
     cursor:pointer;
     z-index: 11000;
-    background-color: #cccccc;
+    /* background-color: #cccccc; */
     max-height: 25px;
     height: 25px;
     white-space: nowrap; /* prevents line breaks */
@@ -551,7 +551,7 @@ body {
     margin: 0px 5px 5px 5px;
     cursor:pointer;
     z-index: 11000;
-    background-color: #cccccc;
+    /* background-color: #cccccc; */
     max-height: 25px !important; 
     height: 25px !important;
     white-space: nowrap; /* prevents line breaks */
