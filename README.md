@@ -137,6 +137,28 @@ List of hotkeys:
 * 🟨 &#8596; 🟦 — "Change type [F4]"
 * 200% — "Double the scale [F1]"
 
+=============================================
+
+**Version 2.1 2026**
+
+The font size calculation algorithm has been slightly modified; the active rectangle will be taller than all other rectangles for easier work. The editing mode is now remembered, so you don't have to switch it on every card. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1").
+
+<img width="1163" height="754" alt="2026_08_14_SIO_1" src="https://github.com/user-attachments/assets/21aa4225-5c90-40e9-a393-885acee0d040" />
+
+Changes in the special editor:
+You can now set two different algorithms for tab positions, or disable them to set a custom order. You can change the rectangle difficulty ("hard -1 or +1") using hotkeys.
+In the "Front" field, the image will be displayed with a simplified rectangle layout (The "CSS Injector" add-on has been implemented, as many people find it difficult to do this themselves.).
+
+<img width="412" height="392" alt="2026_08_14_SIO_2" src="https://github.com/user-attachments/assets/2fd692b7-bc26-4795-a871-2f8fa6837153" />
+
+It's now possible to convert the "Image Occlusion" note type to "Image Occlusion Simple (v2)." As with other note types, in the "Browse" window, select "Notes -> Change Note Type...." However, you'll still need to manually open the note and change it to the "Image Occlusion Simple (v2)" format. Polygons are converted to rectangles whenever possible, just like text—this should save you at least half the time.
+
+The list of hotkeys has been changed for:
+* □↦ ⬌ ○⇢ — "Change shape (or arrow type) [F6] ( Ctrl+,→Hard(-1); Ctrl+.→Hard(+1) )"
+* 🟨 &#8596; 🟦 — "Change type [F4] (TAB: Ctrl+[ or ]→down/up; Ctrl+Shift+[ or ]→bottom/top; Ctrl+N→Input N; Ctrl+Shift+N→Start/End Auto N)""
+
+
+
 
 **Some tips for creating (studying) flashcards:**
 
@@ -161,6 +183,7 @@ The program already contains so much functionality that I can't even notice it a
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
+- 2.1, date: 2026-08-14. 
 - 2.0, date: 2026-05-12. Fixed an error creating a new note type. As usual, users don't report anything :( In the dark theme, the buttons are dark by default.
 - 2.0, date: 2026-05-09. There are many changes in the "Image Occlusion Simple (v2)" version. Many fields have been added to make it easier to transfer data from the standard "Image Occlusion" type. The add-on code has been modified to allow creation of both the old and new "Image Occlusion Simple" types.
 - 1.1.2, date: 2025-12-27. The note type version hasn't changed. Added a "Save and Close" button. Renamed the Create button to "Create New." Notes of the "Image Occlusion Simple (v1.1)" type are now always created. Fixed a bug with adding a new note and immediately creating it using the addon. Some design changes have been made to rectangles that have not yet been created but are indicated by a border. 
