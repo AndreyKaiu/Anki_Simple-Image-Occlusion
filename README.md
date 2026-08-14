@@ -145,6 +145,8 @@ The font size calculation algorithm has been slightly modified; the active recta
 
 <img width="1163" height="754" alt="2026_08_14_SIO_1" src="https://github.com/user-attachments/assets/21aa4225-5c90-40e9-a393-885acee0d040" />
 
+If a rectangle is less complex (hard="-1"), it has a green border, gray font, and is usually shorter than standard rectangles. If a rectangle is more complex (hard="+1"), it has a blue border, blue font, and is usually taller than standard rectangles.
+
 Changes in the special editor:
 You can now set two different algorithms for tab positions, or disable them to set a custom order. You can change the rectangle difficulty ("hard -1 or +1") using hotkeys.
 In the "Front" field, the image will be displayed with a simplified rectangle layout (The "CSS Injector" add-on has been implemented, as many people find it difficult to do this themselves.).
@@ -155,8 +157,7 @@ It's now possible to convert the "Image Occlusion" note type to "Image Occlusion
 
 The list of hotkeys has been changed for:
 * □↦ ⬌ ○⇢ — "Change shape (or arrow type) [F6] ( Ctrl+,→Hard(-1); Ctrl+.→Hard(+1) )"
-* 🟨 &#8596; 🟦 — "Change type [F4] (TAB: Ctrl+[ or ]→down/up; Ctrl+Shift+[ or ]→bottom/top; Ctrl+N→Input N; Ctrl+Shift+N→Start/End Auto N)""
-
+* 🟨 &#8596; 🟦 — "Change type [F4] (TAB: Ctrl+[ or ]→down/up; Ctrl+Shift+[ or ]→bottom/top; Ctrl+N→Input N; Ctrl+Shift+N→Start/End Auto N)"
 
 
 
