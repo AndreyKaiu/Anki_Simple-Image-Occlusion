@@ -139,7 +139,7 @@ List of hotkeys:
 
 =============================================
 
-**Version 2.1 2026**
+**Version 2.1, date: 2026-08-14**
 
 The font size calculation algorithm has been slightly modified; the active rectangle will be taller than all other rectangles for easier work. The editing mode is now remembered, so you don't have to switch it on every card. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1").
 
@@ -177,13 +177,12 @@ The program already contains so much functionality that I can't even notice it a
 
 
 **HELP AND SUPPORT**
-
 **Please do not use reviews for bug reports or support requests.**<br>
 **And be sure to like,** as your support is always needed. Thank you.
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
-- 2.1, date: 2026-08-14. 
+- 2.1, date: 2026-08-14. The font size calculation algorithm has been slightly modified. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1"). Two different algorithms for tab positions, or disable them to set a custom order. In the "Front" field, the image will be displayed with a simplified rectangle layout. 
 - 2.0, date: 2026-05-12. Fixed an error creating a new note type. As usual, users don't report anything :( In the dark theme, the buttons are dark by default.
 - 2.0, date: 2026-05-09. There are many changes in the "Image Occlusion Simple (v2)" version. Many fields have been added to make it easier to transfer data from the standard "Image Occlusion" type. The add-on code has been modified to allow creation of both the old and new "Image Occlusion Simple" types.
 - 1.1.2, date: 2025-12-27. The note type version hasn't changed. Added a "Save and Close" button. Renamed the Create button to "Create New." Notes of the "Image Occlusion Simple (v1.1)" type are now always created. Fixed a bug with adding a new note and immediately creating it using the addon. Some design changes have been made to rectangles that have not yet been created but are indicated by a border. 
