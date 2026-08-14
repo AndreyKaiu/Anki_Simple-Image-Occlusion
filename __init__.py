@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 2.0, date: 2026-05-12
+# Version 2.1, date: 2026-08-14
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -23,8 +23,10 @@ from bs4 import BeautifulSoup
 # from aqt.gui_hooks import collection_did_load
 from aqt.gui_hooks import profile_did_open
 
+
 from anki.consts import MODEL_STD
 
+from . import CSS_Injector
 
 
 
@@ -106,6 +108,7 @@ ExistsIOS1 = False
 ExistsIOS2 = False
 CreateTypeIOS = 'v2'
 v2_radio = None
+next_right = None
 next_down = None
 
 
@@ -174,7 +177,7 @@ def user_consent(text, title):
 
 
 def show_image_dialog(self):
-    global single_card_radio, next_down, editorD 
+    global single_card_radio, next_right, next_down, editorD 
     global idxcurrentField, close_avtosave
     global dialog, words_field_val, audiofile_field_val, Header_field_val, HeaderURL_filepdfpage_field_val, FrontExtra_field_val, Back_field_val, BackExtra_field_val, Comments_field_val, URLVictory_field_val, lngtag_field_val, ExistsIOS1, ExistsIOS2, CreateTypeIOS, v2_radio
     words_field_val = None # if the 'Words' field is found
@@ -205,6 +208,146 @@ def show_image_dialog(self):
     if "Front" not in field_names:
         showInfo("ERROR. Field 'Front' not found.")
         return
+        
+        
+    # ------------------------------------------------------------
+    # CHECKING FIELDS FOR CONVERSION FROM STANDARD IMAGE HIDING
+    # ------------------------------------------------------------
+    content_cloze = []          #  {{cX::image-occlusion:...}}
+    content_img_tag = None      #  <img>
+    fields_to_clear = []        
+
+    for fname in field_names:
+        val = self.note[fname]
+        if not val:
+            continue
+        
+        if '::image-occlusion:' in val:            
+            matches = re.findall(r'{{c\d+::image-occlusion:[^}]+}}', val)
+            if matches:
+                content_cloze.extend(matches)                
+                self.note[fname] = ""
+                fields_to_clear.append(fname)
+                continue    
+
+
+    if content_cloze:
+        
+        for fname in field_names:
+            val = self.note[fname]
+            if not val:
+                continue
+                    
+            stripped = val.strip()
+            img_match = re.match(r'^<img[^>]*>$', stripped)
+            if img_match:
+                content_img_tag = stripped
+                self.note[fname] = ""
+                fields_to_clear.append(fname)
+                continue
+
+
+        # Now let's transform each cloze line into a div
+        divs = []
+        for cloze in content_cloze:
+            inner = re.search(r'{{c\d+::image-occlusion:([^}]+)}}', cloze)
+            if not inner:
+                continue
+            inner_str = inner.group(1)
+            # Let's analyze the parameters
+            parts = inner_str.split(':')
+            if not parts:
+                continue
+            typ = parts[0]  # rect, ellipse, polygon, text
+            params = {}
+            for p in parts[1:]:
+                if '=' in p:
+                    k, v = p.split('=', 1)
+                    params[k] = v
+
+            left = top = width = height = None
+            text = ""
+
+            if typ == 'rect':
+                left = float(params.get('left', 0))
+                top = float(params.get('top', 0))
+                width = float(params.get('width', 0))
+                height = float(params.get('height', 0))
+            elif typ == 'ellipse':
+                left = float(params.get('left', 0))
+                top = float(params.get('top', 0))
+                rx = float(params.get('rx', 0))
+                ry = float(params.get('ry', 0))
+                width = 2 * rx
+                height = 2 * ry    
+            elif typ == 'polygon':
+                # Extracting points
+                points_str = params.get('points', '')
+                if points_str:
+                    point_pairs = points_str.split()
+                    points = []
+                    for pair in point_pairs:
+                        if ',' in pair:
+                            x, y = pair.split(',')
+                            points.append((float(x), float(y)))
+                    if points:
+                        xs = [p[0] for p in points]
+                        ys = [p[1] for p in points]
+                        left = min(xs)
+                        top = min(ys)
+                        width = max(xs) - left
+                        height = max(ys) - top
+            elif typ == 'text':
+                left = float(params.get('left', 0))
+                top = float(params.get('top', 0))
+                scale = float(params.get('scale', 1.0))
+                fs = float(params.get('fs', 0.01))
+                text = params.get('text', '')            
+                width = scale * fs * len(text)            
+                height = 1.2 * scale * fs
+            else:
+                # Unknown type - skip
+                continue
+
+            # If any parameter is not defined, skip it.
+            if left is None or top is None or width is None or height is None:
+                continue
+
+            # Convert fractions to percentages (multiply by 100)
+            left_pct = left * 100
+            top_pct = top * 100
+            width_pct = width * 100
+            height_pct = height * 100
+
+            # Forming a style (with 5 decimal places)
+            style = f"left: {left_pct:.5f}%; top: {top_pct:.5f}%; width: {width_pct:.5f}%; height: {height_pct:.5f}%;"
+
+            cls = "sio-rect"
+            if typ == 'ellipse':
+                cls += " round"
+            
+
+            div_html = f'<div class="{cls}" style="{style}" word="{text}" hint=""></div>'
+            divs.append(div_html)
+
+
+        # Now let's prepare the image
+        img_src = None
+        if content_img_tag:
+            src_match = re.search(r'src=["\'](.*?)["\']', content_img_tag)
+            if src_match:
+                img_src = src_match.group(1)
+                # Create a new img tag with a class
+                content_img_tag = f'<img src="{img_src}" class="sio-image">'
+        
+        
+        # Assembling the final HTML for the Front field
+        if content_img_tag:
+            final_front = content_img_tag + ''.join(divs)
+            self.note['Front'] = final_front
+        
+    # ------------------------------------------------------------
+    
     
     idx = field_names.index("Front")
     # Set the current field index
@@ -367,12 +510,42 @@ def show_image_dialog(self):
     
     tab_label = QLabel("Tab:")
     card_option_layout.addWidget(tab_label)
-    next_down = QCheckBox('⤓')    
-    if 'data-tab-down=' in html_field: 
+    
+    next_right = QCheckBox('⇥ ;')
+    card_option_layout.addWidget(next_right)
+    
+    next_down = QCheckBox('⤓')
+    card_option_layout.addWidget(next_down)
+    
+    if 'data-tab-down="true"' in html_field:
+        next_right.setChecked(False)
         next_down.setChecked(True)
+    elif 'data-tab-down="false"' in html_field: 
+        next_down.setChecked(False)
+        next_right.setChecked(True)
     else:
         next_down.setChecked(False)
-    card_option_layout.addWidget(next_down)
+        next_right.setChecked(False)
+        
+        
+        
+    def next_right_click():
+        if not next_right.isChecked():
+            next_right.setChecked(False)
+        else:
+            next_right.setChecked(True)
+            next_down.setChecked(False)
+        
+    next_right.clicked.connect(lambda: next_right_click())
+    
+    def next_down_click():
+        if not next_down.isChecked():
+            next_down.setChecked(False)
+        else:
+            next_right.setChecked(False)
+            next_down.setChecked(True)
+        
+    next_down.clicked.connect(lambda: next_down_click())
 
     locF = localizationF("Version", "Version")
     card_option_label2 = QLabel(locF+":")
@@ -511,6 +684,13 @@ def transform_html(html_field):
         # Extracting word, hint and data-hiding attributes
         word = rect.get('word', '')
         hint = rect.get('hint', '')
+        hard = rect.get('hard', '')
+        if hard != '':
+            if hard == "0":
+                hard = ""
+            else:
+                hard = f' hard="{hard}"'
+        
         
         line = ' line' if 'line' in rect.get('class', []) else ''
         round = ' round' if 'round' in rect.get('class', []) else ''
@@ -527,7 +707,7 @@ def transform_html(html_field):
 
         # Forming div class="sio-rect"
         rectangle_html = f'''
-<div class="sio-rect{hiding}{round}{line}{notvisible} cursor-move" style="{filtered_style}" >
+<div class="sio-rect{hiding}{round}{line}{notvisible} cursor-move" style="{filtered_style}"{hard}>
     <div class="txt-sio-rect" contenteditable="false">{txt_content}</div>
     <div class="resize-handle nw"></div>
     <div class="resize-handle ne"></div>
@@ -543,7 +723,7 @@ def transform_html(html_field):
 
 
 def process_html(html_content):
-    global next_down
+    global next_down, next_right
     """Parses HTML and returns minified HTML and list of words"""
     soup = BeautifulSoup(html_content, 'html.parser')
     # We extract <img>
@@ -613,15 +793,25 @@ def process_html(html_content):
                 word, hint = text.split('::', 1)
             else:
                 word = text
+                
+        word = word.replace("\"", "'")
+        hint = hint.replace("\"", "'")        
         
         # Add a word to the list if it meets the filtering criteria
         if include_in_words and word and word.strip():
             words_list.append(word.strip())
         
-        line = ' line' if 'line' in rect.get('class', []) else ''        
+        line = ' line' if 'line' in rect.get('class', []) else ''
         round = ' round' if 'round' in rect.get('class', []) else ''
         notvisible = ' notvisible' if 'notvisible' in rect.get('class', []) else ''
         hiding = ' hiding' if 'hiding' in rect.get('class', []) else ''
+        hard = rect.get('hard', '')
+        if hard != '':
+            if hard == "0":
+                hard = ""
+            else:
+                hard = f' hard="{hard}"'
+        
         contenteditable = 'contenteditable="false"' if hiding else 'contenteditable="true"'
         if line != '':
             hiding = ''
@@ -631,10 +821,11 @@ def process_html(html_content):
         if line!='' or hiding != '':
             left = 100
             top = 100  
-
+        
+            
         # Append rectangle data with position for sorting
         rectangles.append({
-            'html': f'<div class="sio-rect{hiding}{round}{line}{notvisible}" style="{filtered_style}" word="{word}" hint="{hint}"></div>',
+            'html': f'<div class="sio-rect{hiding}{round}{line}{notvisible}" style="{filtered_style}" word="{word}" hint="{hint}"{hard}></div>',
             'left': left,
             'top': top,
             'width': width,
@@ -713,7 +904,7 @@ def process_html(html_content):
         normalize_left(rectangles)       
         # Sort rectangles by left, then by top        
         rectangles.sort(key=lambda r: (r['left'], r['top']))
-    else:  
+    elif next_right.isChecked():
         normalize_left(rectangles)
         normalize_top(rectangles)
         # Sort rectangles by top, then by left
@@ -728,6 +919,8 @@ def process_html(html_content):
     rects_html = ''.join(rect['html'] for rect in rectangles)    
     if next_down.isChecked():
         final_html = f'<img src="{img_src}" class="sio-image" data-tab-down="true">{rects_html}'
+    elif next_right.isChecked():
+        final_html = f'<img src="{img_src}" class="sio-image" data-tab-down="false">{rects_html}'
     else:        
         final_html = f'<img src="{img_src}" class="sio-image">{rects_html}'
     
@@ -1217,7 +1410,7 @@ def create_note_type_if_not_exists():
     models = col.models    
     name = "Image Occlusion Simple (v2)"
 
-    Attention_Addon_Key = 'attention_Addon_675107747_20260512_22'
+    Attention_Addon_Key = 'attention_Addon_675107747_20260812_23'
     try:        
         attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
     except:
@@ -1226,9 +1419,12 @@ def create_note_type_if_not_exists():
         try:
 
             if askUser(text="""PLEASE READ the "Simple Image Occlusion" add-on page!
-A new note type, "Image Occlusion Simple (v2)," has been added!
-It's been made more complex to accommodate a variety of use cases: simple opening, text input, voiceover, and testing your knowledge in game mode.
-Working with the addon has also become slightly more complicated, as it now requires support for two types of 'Image Occlusion Simple', and different algorithms have been added.
+https://ankiweb.net/shared/info/675107747
+Small changes have been made to the "Image Occlusion Simple (v2)" note type:
+The font size calculation algorithm has been slightly modified; the active rectangle will be taller than all other rectangles for easier work. The editing mode is now remembered, so you don't have to switch it on every card. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1").
+Changes in the special editor:
+You can now set two different algorithms for tab positions, or disable them to set a custom order. You can change the rectangle difficulty ("hard -1 or +1") using hotkeys.
+In the "Front" field, the image will be displayed with a simplified rectangle layout.
 Do not show this window again?""",                     
                         msgfunc=QMessageBox.information,
                         defaultno=False,
@@ -1238,7 +1434,7 @@ Do not show this window again?""",
             pass
 
 
-    update_Addon_Key = 'update_Addon_675107747_20260512_22'
+    update_Addon_Key = 'update_Addon_675107747_20260812_23'
     existing = models.by_name(name)
     if existing:
         # We will prompt the user to update the template if he has not updated it yet.
@@ -1286,6 +1482,7 @@ Do not show this window again?""",
             mw.pm.profile[update_Addon_Key] = 'True'
         return
     
+    mw.pm.profile[update_Addon_Key] = 'True'
     
     # Loading HTML and CSS
     base_path = Path(__file__).parent / "note_type"

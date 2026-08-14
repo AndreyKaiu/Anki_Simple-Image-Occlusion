@@ -1,7 +1,7 @@
 <!-- -*- coding: utf-8 -*- -->
 <!-- add-on for anki program "Simple Image Occlusion" -->
 <!-- https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion -->
-<!-- Version 2.0, date: 2026-05-09 -->
+<!-- Version 2.1, date: 2026-08-14 -->
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -84,19 +84,20 @@
         .txt-sio-rect {
             width: 100%;
             height: 100%;
-            overflow: hidden;                       
-            box-sizing: border-box;            
-            display: flex;                                    
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;    
-            justify-content: center;      
-            align-items: center;          
-            text-align: center;           
-            white-space: normal;          
-            word-break: break-word;       
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            white-space: normal;
+            word-break: break-word;
             padding: 0px;   
             /* font-size: 1rem;   */
-	        line-height: 1;   
-            z-index: 15;           
+            font-size: 8px;
+            line-height: 1;
+            z-index: 150;
         }
         
         .resize-handle {
@@ -104,7 +105,7 @@
             width: 8px;
             height: 8px;
             background: #000;
-            z-index: 50;
+            z-index: 500;
             display: none;
         }
         
@@ -165,7 +166,7 @@
         .buttons {
             position: fixed;
             bottom: 5px;            
-            z-index: 100;
+            z-index: 1000;
         }
 
         .button-container {
@@ -174,7 +175,8 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            z-index: 100;
+			user-select: none;
+            z-index: 1000;
         }
         
         button {
@@ -207,7 +209,7 @@
             transform-origin: 0 0; /* The point of rotation */
             /*pointer-events: none; /* Click passes through the line */
             border-width: 0px;
-            z-index: 20;
+            z-index: 200;
         }     
 
         .sio-rect.selectedRect {
@@ -233,6 +235,28 @@
             background-color: #aa007f;
             border-radius: 50%;
         }
+
+        .sio-rect:not(.line):not(.transparent)::before {
+            content: attr(data-tab);
+            position: absolute;
+            top: -2px;
+            /* left: 4px; */
+            left: 50%;
+            transform: translateX(-50%);
+            line-height: 1;
+            text-align: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: black;
+            opacity: 0.7;
+            pointer-events: none;
+            font-family: monospace;
+            background: rgb(255, 255, 255, 0.65);
+            padding: 1px 1px;
+            border-radius: 0px;
+            z-index: 9999;
+        }
+       
         
         .sio-rect.line::after {
             content: "";
@@ -272,7 +296,21 @@
         .cursor-copy {
 			cursor: copy;
 		}
-        
+
+        .sio-rect:not(.attention):not(.line)[hard="-1"] {
+			z-index: 9;
+			color: #565656 !important;
+			border-color: rgb(32 119 0);
+		}
+		 .sio-rect:not(.attention):not(.line)[hard="1"], .sio-rect:not(.attention):not(.line)[hard="+1"] {
+			z-index: 11;
+			color: rgb(0 13 255) !important;
+			border-color: rgb(0 13 255) !important;
+		}
+
+        .sio-rect.selected:not(.line):not(.hiding) {
+            z-index: 110;
+        }        
 
 
     </style>
@@ -287,8 +325,8 @@
             <button id="addBtn" onclick="addRectangle(1)" title="Add rect [F7] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+🟨</button>
             <button id="add2Btn" onclick="addRectangle(2)" title="Add hiding rect [F8] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+🟦</button>
             <button id="addLine" onclick="addRectangle(3)" title="Add line [F9] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+⬅️</button>
-            <button id="roundBtn" onclick="rectangleToRound()" title="Change shape (or arrow type) [F6]">□↦ ⬌ ○⇢</button>
-            <button id="exchangeBtn" onclick="exchangeRectangle()" title="Change type [F4]">🟨 &#8596; 🟦</button>
+            <button id="roundBtn" onclick="rectangleToRound()" title="Change shape (or arrow type) [F6] ( Ctrl+,→Hard(-1); Ctrl+.→Hard(+1) )">□↦ ⬌ ○⇢</button>
+            <button id="exchangeBtn" onclick="exchangeRectangle()" title="Change type [F4] (TAB: Ctrl+[ or ]→down/up; Ctrl+Shift+[ or ]→bottom/top; Ctrl+N→Input N; Ctrl+Shift+N→Start/End Auto N)">🟨 &#8596; 🟦</button>
             <button id="scale200Btn" onclick="scale200()" title="Double the scale [F1]">&nbsp;200%&nbsp;</button>
         </div>
     </div>

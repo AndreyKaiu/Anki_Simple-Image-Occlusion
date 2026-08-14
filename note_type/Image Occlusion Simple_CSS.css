@@ -93,7 +93,7 @@ body {
   text-align: center;           
   white-space: normal;          
   word-break: break-word;         
-  /* font-size: 10px;   */
+  font-size: 8px;
   letter-spacing: 0.07em;
   line-height: 1;        
   user-select: none;          
@@ -102,8 +102,26 @@ body {
   opacity: 1.0;
 }  
 
+
+.sio-rect.selected:not(.line):not(.hiding) {
+  z-index: 110;
+}
+
+.sio-rect:not(.selected):not(.attention):not(.line)[hard="-1"] {
+    z-index: 9;
+    color: #565656 !important;
+    border-color: rgb(32 119 0);
+}
+ .sio-rect:not(.selected):not(.attention):not(.line)[hard="1"], .sio-rect:not(.selected):not(.attention):not(.line)[hard="+1"] {
+    z-index: 11;
+    color: rgb(0 13 255) !important;
+    border-color: rgb(0 13 255) !important;
+}
+
+
 .sio-rect.attention {
-    border: 2px solid #FF0000;
+    border: 2px solid #ca0101;
+    color: #ca0101 !important;
 }
 
 .sio-rect.round {
@@ -152,7 +170,7 @@ body {
   transform-origin: 0 0; /* The point of rotation */
   pointer-events: none; /* Click passes through the line */
   border-width: 0px;    
-  z-index: 20;
+  z-index: 200;
 }
 
 .sio-rect.line {
@@ -333,7 +351,7 @@ body {
   color: #a00;
   cursor: pointer;
   user-select: none;
-  z-index: 200;
+  z-index: 2000;
 }
 .sio-rect.selected[contenteditable="true"]::after {
     content: '';    
@@ -343,14 +361,15 @@ body {
 }
 .sio-rect.selected {
   border-color: #FF0000;
-  outline-color: #FF0000;    
+  outline-color: #FF0000;      
 }
+
 .sio-rect.selected:focus {
   cursor: default;
   border-width: 1px;
   /* border-style: dashed; */
   border-color: #ff00ff;
-  outline-color: #ff00ff;        
+  outline-color: #ff00ff;          
 }
 
 
@@ -411,7 +430,7 @@ body {
     pointer-events: none;
     transform: translate(-50%, -50%);
     display: flex;
-    z-index: 20;
+    z-index: 200;
 }
 
 .circle_press.focus-backlight {
@@ -627,3 +646,4 @@ audio {
 #f_header a {
     text-decoration: none;
 }
+

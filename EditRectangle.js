@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 // add-on for anki program "Simple Image Occlusion" 
 // https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-// Version 2.0, date: 2026-05-09
+// Version 2.1, date: 2026-08-14
 var creation_mode = 0; // rectangle creation mode
 var disable_context_menu = false;
 const containerImg = document.getElementsByClassName('sio-image-container')[0];
@@ -112,7 +112,9 @@ document.addEventListener('keydown', function (e) {
 		nextRectangle.contentEditable = true;
 		nextRectangle.classList.add('text-editable');
 		selectedRect = nextRectangle.parentElement;		
-		selectedRect.classList.add('selected');		
+		selectedRect.classList.add('selected');
+		
+		
 		document.querySelectorAll('.sio-rect').forEach(rect => {
 			rect.classList.remove('selectedRect');
 		});
@@ -391,8 +393,8 @@ containerImg.onmouseup = function (e) {
 				tempRect.appendChild(handle);
 			});
 
-			tempRect.setAttribute('data-word', '');
-			tempRect.setAttribute('data-hint', '');
+			tempRect.setAttribute('word', '');
+			tempRect.setAttribute('hint', '');
 			if (creation_mode === 1) {
 				if(formn1==1) tempRect.classList.add('round');
 			}
@@ -577,6 +579,8 @@ containerImg.onmouseup = function (e) {
 					rect.classList.remove('selectedRect');
 				});
 				selectedRect.classList.add('selectedRect');
+				
+				updateTabs();
 			}, 50); //delay of 50 ms
 
 			// Add handlers for a new rectangle
@@ -610,11 +614,14 @@ function cloneRectangle() {
         let newTop = top + step;
 		clone.style.left = newLeft + '%';
         clone.style.top = newTop + '%';		
+		clone.classList.remove("selected");
         rect.parentNode.appendChild(clone);
 		makeDraggable(clone);
 		makeResizable(clone);
 		addClickHandlers(clone);
 	});
+	
+	setTimeout( ()=>{updateTabs()}, 50);
 }
 
 
@@ -641,7 +648,9 @@ function removeRectangle() {
 			rect.classList.remove('selectedRect');
 		});
 		if(selectedRect != null) selectedRect.classList.add('selectedRect');
-	}
+	}	
+	
+	setTimeout( ()=>{updateTabs()}, 50);
 }
 
 
@@ -654,6 +663,8 @@ function removeAllRectangle() {
 		rect.classList.remove('selectedRect');
 	});
 	if(selectedRect != null) selectedRect.classList.add('selectedRect');
+	
+	setTimeout( ()=>{updateTabs()}, 50);
 }
 
 
@@ -674,7 +685,25 @@ document.addEventListener('keydown', function (e) {
 		}	
 		return;
 	}
+
+	if( (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey ) {
+		if  (e.code === "Comma" ) {
+			e.preventDefault();
+			e.stopPropagation();
+			document.querySelectorAll('.sio-rect.selected').forEach(rect => {
+				hardDown(rect);
+			});
+		}
+		if  (e.code === "Period" ) {
+			e.preventDefault();
+			e.stopPropagation();
+			document.querySelectorAll('.sio-rect.selected').forEach(rect => {
+				hardUp(rect);
+			});
+		}
+	}
 	
+		
 	if ( e.code === "KeyA" && (e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -688,7 +717,7 @@ document.addEventListener('keydown', function (e) {
 	if( e.code === "KeyD" && (e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey ) {			
 		e.preventDefault();
 		e.stopPropagation();		
-		cloneRectangle();
+		cloneRectangle();		
 		return;		
 	}
 
@@ -699,11 +728,70 @@ document.addEventListener('keydown', function (e) {
 		e.stopPropagation();
 		if(!e.shiftKey) undo();
 		else redo();
+		setTimeout( ()=>{updateTabs()}, 50);
 		return;	
 	}
 
+	if( (e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey ) {
+		if  (e.code === "BracketLeft" ) {
+			e.preventDefault();
+			e.stopPropagation();
+			document.querySelectorAll('.sio-rect.selected').forEach(rect => {
+				moveToBackSIO(rect);
+			});			
+		}
+		if  (e.code === "BracketRight" ) {
+			e.preventDefault();
+			e.stopPropagation();
+			document.querySelectorAll('.sio-rect.selected').forEach(rect => {
+				moveToFrontSIO(rect);
+			});
+		}
+	}
 
-	if( (e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey ) {		
+	if( (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey ) {
+		if  (e.code === "BracketLeft" ) {
+			e.preventDefault();
+			e.stopPropagation();			
+			document.querySelectorAll('.sio-rect.selected').forEach(rect => {
+				moveDownSIO(rect);
+			});			
+		}
+		if  (e.code === "BracketRight" ) {
+			e.preventDefault();
+			e.stopPropagation();			
+			document.querySelectorAll('.sio-rect.selected').forEach(rect => {
+				moveUpSIO(rect);
+			});
+		}
+	}
+
+	
+
+	if( (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey ) {
+		if  (e.code === "KeyN" ) {
+			moveSelectedToPosition();
+		}
+	}
+	
+	if( (e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey ) {
+		if  (e.code === "KeyN" ) {
+			e.preventDefault();
+			e.stopPropagation();
+			if(autoMoveToPosition < 0) {
+				autoMoveToPosition = 0;
+				autoMoveOldElement = undefined;
+				alert("START autoMoveToPosition. Click on the rectangles.");
+			}
+			else {
+				autoMoveToPosition = -1;
+				autoMoveOldElement = undefined;
+				alert("END autoMoveToPosition!");				
+			}
+		}
+	}
+
+	if( (e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey ) {
 
 		if  (e.code === "KeyL" ) {
 			e.preventDefault();
@@ -1657,6 +1745,16 @@ function addClickHandlers(element) {
 			return;
 		}
 		
+		if(autoMoveToPosition > -1) {
+			setTimeout( ()=>{
+				if( !(autoMoveOldElement === element) ) {					
+					moveToPosition(element, autoMoveToPosition);
+					autoMoveToPosition += 1;
+				}
+				autoMoveOldElement = element;
+			}, 50);
+		}
+		
 		const textDiv = element.querySelector('.txt-sio-rect');
 		let issel = element.classList.contains('selected');
 		if (textDiv.isContentEditable) {
@@ -1772,6 +1870,8 @@ function showhideAllRectangle() {
 	else {
 		showAllRectangle();
 	}
+	
+	setTimeout( ()=>{updateTabs()}, 50);
 }
 
 
@@ -2030,6 +2130,8 @@ function initializeRectangles() {
 		makeResizable(rect);
 		addClickHandlers(rect);
 	});	
+	
+	setTimeout( ()=>{updateTabs()}, 50);
 }
 
 // disable context menu
@@ -2053,15 +2155,15 @@ function getCharCoef(fontFamily) {
     span.style.visibility = "hidden";
     span.style.fontFamily = fontFamily;
     span.style.letterSpacing = '0.07em';
-    span.style.fontSize = "64px";
-    span.textContent = "NNNNNNN";
+    span.style.fontSize = "20px";
+    span.textContent = "WWWWWW";
     document.body.appendChild(span);
     const width = span.getBoundingClientRect().width;
     document.body.removeChild(span);
-    return width / (6 * 64);
+    return (0.6*width) / (7.0 * 20);
 }
 
-var charWidthCoef = 0.7; // 0.6 not in the editor
+var charWidthCoef = 0.6; // 0.8 not in the editor
 elSR = document.querySelectorAll('.txt-sio-rect')[0];
 if(elSR) {
     const fontFamily = getComputedStyle(elSR).fontFamily;
@@ -2087,27 +2189,28 @@ function fitFontSizeToRect(rectElement) {
 
     let len = txt.length || 1;
     
-    let fontSize;
+    let fontSize = 0;
 
 	if (len <= 4) len = 4;	
    	if (len <= 15) {
         // 1 line
         const byWidth = rectWidth / (len * charWidthCoef);
-        const byHeight = rectHeight * 0.8;
+        const byHeight = rectHeight * 0.7;
 
         fontSize = Math.min(byWidth, byHeight);
+		//fontSize = byHeight;
     } else {
         // 2 line
         const charsPerLine = Math.ceil(len / 2);
 
         const byWidth = rectWidth / (charsPerLine * charWidthCoef);
-        const byHeight = rectHeight / 2;
+        const byHeight = (rectHeight / 2)*0.8;
 
         fontSize = Math.min(byWidth, byHeight);
     }
     	
-    let minPx = 16; // 10 not in the editor
-	fontSize = Math.max(minPx, Math.min(fontSize, 100));
+    let minPx = 8; // 6 not in the editor
+	fontSize = Math.max(minPx, Math.min(fontSize, 36)); // 36 or 100 not in the editor
 
     rectElement.style.fontSize = fontSize + "px";
 }
@@ -2117,7 +2220,7 @@ function updateFontSize() {
     els = document.querySelectorAll('.txt-sio-rect');
     for (var i = 0; i < els.length; i++) {
         try {
-            fitFontSizeToRect(els[i]);        
+            fitFontSizeToRect(els[i]);
         } catch(err) {}        
     }
 }
@@ -2352,4 +2455,154 @@ function restoreRects(container, html) {
 
 function reinit() {	
 	initializeRectangles();	
+}
+
+
+
+/* CHANGE THE ORDER OF ELEMENTS IN THE DOM */
+
+// We get the parent container and all sio-rect blocks
+const containerSIO = document.querySelector('.sio-image-container');
+
+// Helper function -get all rect elements as an array
+function getRects() {
+    return Array.from(containerSIO.querySelectorAll('.sio-rect'));
+}
+
+// Move the block to the very BOTTOM (back, after img)
+function moveToBackSIO(element) {
+    const rects = getRects();
+    if (rects.length < 2 || rects[0] === element) return; // already downstairs
+    // Insert before the first rect block (i.e. immediately after img)
+    containerSIO.insertBefore(element, rects[0]);
+	
+	setTimeout( ()=>{updateTabs()}, 10);
+}
+
+// Move the block to the very TOP (forward)
+function moveToFrontSIO(element) {
+    const rects = getRects();
+    if (rects.length < 2 || rects[rects.length - 1] === element) return; // already at the top
+    // Insert after the last rect block
+    containerSIO.appendChild(element); // appendChild automatically moves the element to the end
+	
+	setTimeout( ()=>{updateTabs()}, 10);
+}
+
+// Swap places with PREVIOUS block (move back 1 step)
+function moveDownSIO(element) { // conditionally “down” – closer to the beginning (further from the user)
+    const rects = getRects();
+    const index = rects.indexOf(element);
+    if (index <= 0) return; // already the first
+    const prev = rects[index - 1];
+    // Swap: insert the current one before the previous one
+    containerSIO.insertBefore(element, prev);
+	
+	setTimeout( ()=>{updateTabs()}, 10);
+}
+
+// Swap places with the NEXT block (move forward 1 step)
+function moveUpSIO(element) { // “up” – closer to the end (closer to the user)
+    const rects = getRects();
+    const index = rects.indexOf(element);
+    if (index === -1 || index >= rects.length - 1) return; // already the last one
+    const next = rects[index + 1];
+    // Insert the current one after the next one (i.e. move it forward)
+    containerSIO.insertBefore(next, element); // next insert before element, which raises element higher
+    // Alternative: containerSIO.insertBefore(element, next.nextSibling);
+    // But it’s easier: swap places through insertBefore
+	
+	setTimeout( ()=>{updateTabs()}, 10);
+}
+
+function hardDown(element) {
+	let hard = element.getAttribute("hard");
+	if (!hard || hard=="") hard = "0";
+	if (hard==="0") {
+		element.setAttribute("hard", "-1");
+	}
+	else if (hard==="1" || hard==="+1") {
+		element.setAttribute("hard", "0");
+	}
+}
+
+function hardUp(element) {
+	let hard = element.getAttribute("hard");
+	if (!hard || hard=="") hard = "0";
+	if (hard==="-1") {
+		element.setAttribute("hard", "0");
+	}
+	else if (hard==="0") {
+		element.setAttribute("hard", "+1");
+	}
+}
+
+let updateTabs_isThrottled = false;
+function updateTabs() {
+	if( updateTabs_isThrottled ) return;
+	updateTabs_isThrottled = true;	
+	setTimeout( ()=>{
+		updateTabs_isThrottled = false;
+		const container = document.querySelector('.sio-image-container');
+		const rects = container.querySelectorAll('.sio-rect:not(.line):not(.hiding)');
+		rects.forEach((rect, index) => {
+			rect.dataset.tab = index; // install data-tab
+		});
+	}, 20);	
+}
+
+var autoMoveOldElement = undefined;
+var autoMoveToPosition = -1;
+
+function moveSelectedToPosition() {
+    const selected = document.querySelector('.sio-rect.selected:not(.line):not(.hiding)');
+    if (!selected) {
+        alert('Error: nothing is selected!');
+        return;
+    }
+    const container = selected.closest('.sio-image-container');
+    const rects = Array.from(container.querySelectorAll('.sio-rect:not(.line):not(.hiding)'));
+    const currentIndex = rects.indexOf(selected); // 0-based
+    const total = rects.length;
+	strInp = `Insert before (position number): enter a new position (from 0 to ${total})`;
+    // Show current position (1-based) and total quantity  
+    const input = prompt(strInp, currentIndex);
+	
+    if (input === null) return; // cancellation
+    const newPos = parseInt(input, 10);
+    if (isNaN(newPos)) {
+        alert(`Error: Enter a number between 0 and ${total}`);
+        return;
+    }
+    
+		
+    if (newPos === currentIndex) {		
+		return; // don't change anything
+	}
+	
+	if (newPos > currentIndex) {
+		moveToPosition(selected, newPos-1);	
+	}
+	else {
+		moveToPosition(selected, newPos);			
+	}
+}
+
+function moveToPosition(element, newIndex) {
+    const container = element.closest('.sio-image-container');
+    const rects = Array.from(container.querySelectorAll('.sio-rect:not(.line):not(.hiding)'));
+    const currentIndex = rects.indexOf(element);
+    if (currentIndex === newIndex) return;
+	
+	const parent = container;
+    element.remove();
+    const updatedRects = Array.from(parent.querySelectorAll('.sio-rect:not(.line):not(.hiding)'));
+	
+	if (newIndex >= updatedRects.length) {
+		parent.appendChild(element);
+	} else {
+		parent.insertBefore(element, updatedRects[newIndex]);
+	}
+	
+	setTimeout( ()=>{updateTabs()}, 50);
 }

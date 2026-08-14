@@ -1,4 +1,4 @@
-<!-- Version 1.2, date: 2026-05-09 -->
+<!-- Version 2.1, date: 2026-08-14 -->
 {{#Header}}<div id="f_header">{{#HeaderURL_filepdf#page=}}<a href="{{text:HeaderURL_filepdf#page=}}" target="_blank">{{/HeaderURL_filepdf#page=}}{{Header}}{{#HeaderURL_filepdf#page=}}<span id="pagePdf"></span></a>{{/HeaderURL_filepdf#page=}}</div>{{/Header}}
 <div class="sio-container">    
     <div class="sio-image-container wfit">        
@@ -194,11 +194,20 @@ var drawEnabled = true;
 ]
 canvasDL.style.pointerEvents = 'auto';
 
+
 function initEditMode() {
     const editButton = document.getElementById('editButton');
     editMode = editButton.classList.contains('hidden');    
 }
 initEditMode();        
+
+
+var mode_edit = localStorage.getItem("anki_SIO2_mode_edit");
+setTimeout( ()=>{        
+    if(mode_edit === "1") {
+        editBtn();
+    }     
+}, 50);    
     
 
 function headerURLSetPage() {
@@ -707,7 +716,7 @@ function gameNextWord() {
 // ===============================================
 
 
-function zoomFit() {      
+function zoomFit() {         
     document.getElementById('zoomInButton').removeAttribute('disabled');
     document.getElementById('zoomOutButton').removeAttribute('disabled');
     elbtfit = document.getElementById('zoomFitButton');
@@ -782,7 +791,7 @@ function zoomFit() {
     updateResize();
 }
 
-function zoomH100() {    
+function zoomH100() {        
     document.getElementById('zoomInButton').removeAttribute('disabled');
     document.getElementById('zoomOutButton').removeAttribute('disabled');
     elbtfit = document.getElementById('zoomFitButton');
@@ -1168,7 +1177,6 @@ function zoomOut() {
 
 
 
-
 function getCharCoef(fontFamily) {
     const span = document.createElement("span");
     span.classList.add('sio-rect');
@@ -1177,16 +1185,16 @@ function getCharCoef(fontFamily) {
     span.style.visibility = "hidden";
     span.style.fontFamily = fontFamily;
     span.style.letterSpacing = '0.07em';
-    span.style.fontSize = "64px";
-    span.textContent = "NNNNNNN";
+    span.style.fontSize = "20px";
+    span.textContent = "WWWWWW";
     document.body.appendChild(span);
     const width = span.getBoundingClientRect().width;
     document.body.removeChild(span);
-    return width / (6 * 64);
+    return (0.6*width) / (7.0 * 20);
 }
 
 
-var charWidthCoef = 0.7; // 0.6in the editor
+var charWidthCoef = 0.8; // 0.6in the editor
 elSR = document.querySelectorAll('.txt-sio-rect')[0];
 if(elSR) {
     const fontFamily = getComputedStyle(elSR).fontFamily;
@@ -1211,13 +1219,13 @@ function fitFontSizeToRect(rectElement) {
 
     let len = txt.length || 1;
     
-    let fontSize;
+    let fontSize = 0;
 
     if (len <= 4) len = 4;    
     if (len <= 15) {
         // 1 line
         const byWidth = rectWidth / (len * charWidthCoef);
-        const byHeight = rectHeight * 0.8;
+        const byHeight = rectHeight * 0.6;
 
         fontSize = Math.min(byWidth, byHeight);
     } else {
@@ -1225,12 +1233,12 @@ function fitFontSizeToRect(rectElement) {
         const charsPerLine = Math.ceil(len / 2);
 
         const byWidth = rectWidth / (charsPerLine * charWidthCoef);
-        const byHeight = rectHeight / 2;
+        const byHeight = (rectHeight / 2)*0.8;
 
         fontSize = Math.min(byWidth, byHeight);
     }
         
-    let minPx = 10; // 16 in the editor  
+    let minPx = 6; // 8 in the editor  
     fontSize = Math.max(minPx, Math.min(fontSize, 100));
 
     rectElement.style.fontSize = fontSize + "px";
@@ -1492,6 +1500,7 @@ function clearBtn2() { // Words
 
 
 function editBtn() {  
+    localStorage.setItem("anki_SIO2_mode_edit", "1");
     const editButton = document.getElementById('editButton');
     const editButton2 = document.getElementById('editButton2');    
     
@@ -1515,8 +1524,11 @@ function editBtn() {
     }
 }
 
-function editBtn2() {  
+function editBtn2() {       
     editBtn();   
+    setTimeout( ()=>{        
+        localStorage.setItem("anki_SIO2_mode_edit", "");    
+    }, 20);
 }
 
 function showAllRect() {
@@ -1566,14 +1578,14 @@ function smartScroll(el) {
         rect.left < window.innerWidth;
 
     if (partiallyVisible) {
-        // 🔥 мягко докручиваем
+        // gently tighten
         el.scrollIntoView({
             behavior: 'smooth',
             block: 'nearest',
             inline: 'nearest'
         });
     } else {
-        // 🔥 если совсем не видно — центр
+        // if you can’t see it at all, the center
         el.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
@@ -2037,7 +2049,7 @@ function siorectFocus(e, elthis=null) {
     
     const leftEL = elRect.style.left; 
     const topEL = elRect.style.top;
-    
+
     document.querySelectorAll('.sio-rect.line').forEach(line => {
         line.classList.remove('focus-backlight');
         try{
@@ -2066,13 +2078,14 @@ function siorectFocus(e, elthis=null) {
 }
 
 function siorectBlur(e) {
-    if(gameRun) {
-        return;
-    }
-    
     let elRect = this;
     const leftEL = elRect.style.left; 
     const topEL = elRect.style.top;
+
+    if(gameRun) {
+        return;
+    }
+
     document.querySelectorAll('.sio-rect.line').forEach(line => {
         try{
             if( line.hasAttribute('leftFR') && line.hasAttribute('topFR') ) {
@@ -3172,8 +3185,7 @@ async function ExportToHTML() {
         doctitle = f_header.textContent;
     }
     
-    const fullHtml = `
-<!DOCTYPE html>
+    const fullHtml = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">

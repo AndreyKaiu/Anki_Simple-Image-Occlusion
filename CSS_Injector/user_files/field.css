@@ -1,0 +1,118 @@
+anki-editable:has(.sio-image) {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 3;
+
+    width: fit-content;
+    height: fit-content;
+    max-height: none !important;
+    max-width: none !important;       
+    display: inline-block;    
+    -webkit-touch-callout: none;
+    line-height: 0;
+    border-width: 1px;
+    border-color: gray;
+    border-style: solid;
+    margin: 0;
+    padding: 0;
+
+
+    .sio-image {
+        margin: 0;
+        object-fit: cover;
+        -webkit-user-drag: none !important;   
+        pointer-events: auto !important;
+        line-height: 0;
+        cursor: default;
+
+        border: 1px;
+        border-style: solid;
+        border-color: red;
+    }
+
+    .sio-rect {
+        position: absolute;
+        background-color: rgba(255, 235, 162, 0.5);
+        border: 1px solid #aa007f; /* The color of the line and border rect */
+        cursor: default;
+        box-sizing: border-box;
+        margin: 0px;
+        padding: 0px;
+        transform-origin: 0 0; /* The point of rotation */
+        z-index: 10;    
+        color: black;
+        display: flex;
+        justify-content: center;      
+        align-items: center;          
+        text-align: center;           
+        white-space: normal;          
+        word-break: break-word;                 
+        letter-spacing: 0.07em;
+        line-height: 1;        
+        user-select: none;          
+        -webkit-touch-callout: none;
+        -webkit-user-select: none; 
+        opacity: 1.0;
+    } 
+
+
+    .sio-rect.attention {
+        border: 1px solid #FF0000;
+    }
+
+    .sio-rect.round {
+        border-radius: 50%;
+    }
+
+    .sio-rect.line {
+        height: 0.5px !important;
+        border-width: 0px !important;
+        background-color: #aa007f;
+    }
+
+    .sio-rect.hiding {
+        background-color: rgba(1, 78, 140, 1);
+        border: 1px solid blue;
+        user-select: none;          
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        z-index: 5;
+    }    
+
+    .sio-rect[word]:not([word=""]):not(.hiding) {
+        background-color: rgba(169, 251, 3, 0.5);
+    }
+	
+	.sio-rect:not(.selected):not(.attention):not(.line)[hard="-1"] {
+		z-index: 9;
+		color: #565656 !important;
+		border-color: rgb(32 119 0);
+	}
+	 .sio-rect:not(.selected):not(.attention):not(.line)[hard="1"], .sio-rect:not(.selected):not(.attention):not(.line)[hard="+1"] {
+		z-index: 11;
+		color: rgb(0 13 255) !important;
+		border-color: rgb(0 13 255) !important;
+	}
+
+
+	.sio-rect.attention {
+		border: 2px solid #ca0101;
+		color: #ca0101 !important;
+	}
+
+}
+
+
+
+
+
+    
+
+ 
+
+
+
