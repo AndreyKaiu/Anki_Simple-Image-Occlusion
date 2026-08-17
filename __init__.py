@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 2.1, date: 2026-08-14
+# Version 2.2, date: 2026-08-17
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -1410,7 +1410,7 @@ def create_note_type_if_not_exists():
     models = col.models    
     name = "Image Occlusion Simple (v2)"
 
-    Attention_Addon_Key = 'attention_Addon_675107747_20260812_23'
+    Attention_Addon_Key = 'attention_Addon_675107747_20260817_20'
     try:        
         attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
     except:
@@ -1421,6 +1421,7 @@ def create_note_type_if_not_exists():
             if askUser(text="""PLEASE READ the "Simple Image Occlusion" add-on page!
 https://ankiweb.net/shared/info/675107747
 Small changes have been made to the "Image Occlusion Simple (v2)" note type:
+Now, instead of a word or sentence, you can enter a list of words (separated by the | sign).
 The font size calculation algorithm has been slightly modified; the active rectangle will be taller than all other rectangles for easier work. The editing mode is now remembered, so you don't have to switch it on every card. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1").
 Changes in the special editor:
 You can now set two different algorithms for tab positions, or disable them to set a custom order. You can change the rectangle difficulty ("hard -1 or +1") using hotkeys.
@@ -1428,13 +1429,13 @@ In the "Front" field, the image will be displayed with a simplified rectangle la
 Do not show this window again?""",                     
                         msgfunc=QMessageBox.information,
                         defaultno=False,
-                        title="Add-on 'Image Occlusion Simple' version 2. Attention!"):
+                        title="Add-on 'Image Occlusion Simple' version 2.2. Attention!"):
                 mw.pm.profile[Attention_Addon_Key] = 'True'
         except:
             pass
 
 
-    update_Addon_Key = 'update_Addon_675107747_20260812_23'
+    update_Addon_Key = 'update_Addon_675107747_20260817_20'
     existing = models.by_name(name)
     if existing:
         # We will prompt the user to update the template if he has not updated it yet.

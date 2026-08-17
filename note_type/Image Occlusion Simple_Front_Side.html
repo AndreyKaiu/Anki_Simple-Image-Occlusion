@@ -1,4 +1,4 @@
-<!-- Version 2.1, date: 2026-08-14 -->
+<!-- Version 2.2, date: 2026-08-17 -->
 {{#Header}}<div id="f_header">{{#HeaderURL_filepdf#page=}}<a href="{{text:HeaderURL_filepdf#page=}}" target="_blank">{{/HeaderURL_filepdf#page=}}{{Header}}{{#HeaderURL_filepdf#page=}}<span id="pagePdf"></span></a>{{/HeaderURL_filepdf#page=}}</div>{{/Header}}
 <div class="sio-container">    
     <div class="sio-image-container wfit">        
@@ -1964,34 +1964,89 @@ function speakText(txtSpeak, lng='langSS') {
 
 function validateInput(e) {               
     let elRect = this;
-    let w = elRect.getAttribute("word");        
-    const userText = onlySimpleText(elRect.textContent);
-    const targetWords = onlySimpleText(w || "").split(",");
-    let matched = false;
-    for (let word of targetWords) {
-        if (userText === word) {
-            elRect.style.color = "black";
-            elRect.style.backgroundColor = rootcss_goodanswer;
-            matched = true;                                
-            //speakText(w);                
-            break;
-        } else if (userText.length == 0 || (word.startsWith(userText) && userText.length > 0) ) {
-            elRect.style.color = "black";
-            if (elRect.classList.contains('hiding') && !elRect.classList.contains('line')) {             // Return the background
-                elRect.style.backgroundColor = rootcss_rectblue;
-            } else {
-                elRect.style.backgroundColor = rootcss_rectyellow;  
+    let w = elRect.getAttribute("word");
+    
+    const userWords = (elRect.textContent || "")
+        .split("|")
+        .map(s => onlySimpleText(s.trim()))
+        .filter(s => s.length > 0);
+    
+    const targetWords = (w || "")
+        .split("|")
+        .map(s => onlySimpleText(s.trim()))
+        .filter(s => s.length > 0);
+    
+    const targetSet = new Set(targetWords);
+    const userSet = new Set(userWords);
+    
+    if (targetSet.size === 0 || userSet.size === 0) {
+        elRect.style.color = "black";
+        if (elRect.classList.contains('hiding') && !elRect.classList.contains('line')) {
+            elRect.style.backgroundColor = rootcss_rectblue;
+        } else {
+            elRect.style.backgroundColor = rootcss_rectyellow;
+        }
+        return;
+    }
+    
+    const common = [...targetSet].filter(word => userSet.has(word));
+    const allTargetsMatched = common.length === targetSet.size;
+    
+    if (allTargetsMatched) {
+        elRect.style.color = "black";
+        elRect.style.backgroundColor = rootcss_goodanswer;
+        return;
+    }
+    
+    let allUserWordsValid = true;
+    for (let userWord of userSet) {
+        let isValid = false;
+        for (let targetWord of targetSet) {
+            if (userWord === targetWord || targetWord.startsWith(userWord)) {
+                isValid = true;
+                break;
             }
-                
-            matched = true;
+        }
+        if (!isValid) {
+            allUserWordsValid = false;
+            break;
         }
     }
     
-    if (!matched) {
+    if (allUserWordsValid) {
+        elRect.style.color = "black";
+        if (elRect.classList.contains('hiding') && !elRect.classList.contains('line')) {
+            elRect.style.backgroundColor = rootcss_rectblue;
+        } else {
+            elRect.style.backgroundColor = rootcss_rectyellow;
+        }
+    } else {
         elRect.style.color = "black";
         elRect.style.backgroundColor = rootcss_badanswer;
         if ("vibrate" in navigator) {
             navigator.vibrate(150);
+        }
+    }
+    
+    // add |
+    if (allUserWordsValid && !allTargetsMatched && userWords.length > 0) {
+        let lastWord = userWords[userWords.length - 1];
+        if (lastWord && targetSet.has(lastWord)) {
+            let currentText = elRect.textContent;
+            if (!currentText.trim().endsWith("|")) {
+                elRect.textContent = currentText + " | ";
+                let len = elRect.textContent.length;
+                //elRect.setSelectionRange(len, len);                
+                setTimeout( ()=>{
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+                    range.selectNodeContents(elRect); // Select the element contents
+                    range.collapse(false); // Set the cursor to the end
+                    selection.removeAllRanges(); // Clear the current selection
+                    selection.addRange(range); // Set a new range
+}, 0);
+                /* setCursorToEnd(elRect); */
+            }
         }
     }
 }
