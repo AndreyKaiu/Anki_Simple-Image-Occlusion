@@ -160,6 +160,13 @@ The list of hotkeys has been changed for:
 * 🟨 &#8596; 🟦 — "Change type [F4] (TAB: Ctrl+[ or ]→down/up; Ctrl+Shift+[ or ]→bottom/top; Ctrl+N→Input N; Ctrl+Shift+N→Start/End Auto N)"
 
 
+=============================================
+
+**Version 2.2, date: 2026-08-17**
+
+Now, instead of a word or sentence, you can enter a list of words (separated by the | sign). Words from the list are checked in any order.
+
+This verification algorithm is necessary in the case where the order of the list elements is not so important, and the user remembered all the words in a different order and this is not an error.
 
 **Some tips for creating (studying) flashcards:**
 
@@ -183,6 +190,7 @@ The program already contains so much functionality that I can't even notice it a
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
+- 2.2, date: 2026-08-17. Now, instead of a word or sentence, you can enter a list of words (separated by the | sign). Words from the list are checked in any order.
 - 2.1, date: 2026-08-14. The font size calculation algorithm has been slightly modified. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1"). Two different algorithms for tab positions, or disable them to set a custom order. In the "Front" field, the image will be displayed with a simplified rectangle layout. 
 - 2.0, date: 2026-05-12. Fixed an error creating a new note type. As usual, users don't report anything :( In the dark theme, the buttons are dark by default.
 - 2.0, date: 2026-05-09. There are many changes in the "Image Occlusion Simple (v2)" version. Many fields have been added to make it easier to transfer data from the standard "Image Occlusion" type. The add-on code has been modified to allow creation of both the old and new "Image Occlusion Simple" types.
