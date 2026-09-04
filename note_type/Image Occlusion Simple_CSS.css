@@ -3,6 +3,7 @@
     --rectyellowtransparent: rgba(255, 235, 162, 0); /* as above, but 0 at the end */
     --rectblue: rgba(1, 78, 140, 1); /* color of additional rectangles */
     --goodanswer: rgb(10, 240, 10); /* the color of the rectangle for the correct answer */
+    --diactricnotequal: #0913c1; /* font color if diacritical marks are not equal */
     --badanswer: #fb8c8c; /* the color of the rectangle if the answer is incorrect */
     --line-color: #aa007f; /* The color of the line and border rect */
     --move-line-color: #ff0000; /* Line color when hovering over an arrow */       
@@ -353,6 +354,18 @@ body {
   user-select: none;
   z-index: 2000;
 }
+.sio-rect[sound]:not(.line)::after {
+  content: '♪✖';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  font-size: 10px;
+  color: #a00;
+  cursor: pointer;
+  user-select: none;
+  z-index: 2000;
+}
+
 .sio-rect.selected[contenteditable="true"]::after {
     content: '';    
 }

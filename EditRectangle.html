@@ -1,10 +1,31 @@
 <!-- -*- coding: utf-8 -*- -->
 <!-- add-on for anki program "Simple Image Occlusion" -->
 <!-- https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion -->
-<!-- Version 2.2, date: 2026-08-17 -->
+<!-- Version 2.3, date: 2026-09-04 -->
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
+	<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+	<script>            
+		let backend;
+		window.onload = function() {
+			if (typeof QWebChannel !== 'undefined') {
+				new QWebChannel(qt.webChannelTransport, function (channel) {                    
+					backend = channel.objects.pyBridge;
+					console.log("The bridge has been successfully initialized!");
+				});
+			} else {
+				console.error("QWebChannel not found");
+			}
+		};
+		
+		function pyaddon_cmd(command) {
+			if (backend) {                    
+				backend.cmd(command);
+			}
+		}
+    </script>
+		
     <meta charset="UTF-8">
     <title>Editable rectangles</title>
     <style>
@@ -310,16 +331,28 @@
 
         .sio-rect.selected:not(.line):not(.hiding) {
             z-index: 110;
-        }        
+        }    
+
+		.sio-rect[sound]::after {
+			content: "🎵";
+			position: absolute;
+			top: 2px;
+			left: 2px;
+			font-size: 10px;
+			cursor: pointer;
+			opacity: 1;
+			z-index: 10000;
+		}
 
 
     </style>
 </head>
+
 <body>
     <div class="button-container">
         <div class="buttons">
             <button id="removeBtn" onclick="removeRectangle()" title="Press the keys [(Ctrl or Shift)+Del] (for All: Ctrl+Shift+Del; Ctrl+Z→undo; Ctrl+Shift+Z→redo)">❌ delete</button>
-            <button id="editTextBtn" onclick="editText()" title="Edit 'word::hint' or 'word1 | word2::hint' [F2] (ESC→off) Enter '::!' - main attention">✏️ "word::hint"</button>
+            <button id="editTextBtn" onclick="editText()" title="Edit 'word::hint' or 'word1 | word2::hint' [F2] (ESC→off; Ctrl+;→insert ' | ') Enter '::!' - main attention">✏️ "word::hint"</button>
             <button id="showhideAllBtn" onclick="showhideAllRectangle()" title="Show / Hide all — [F5] or [Shift+F1] (for selected — F3 or Ctrl+LMouse)">👁️ Show</button>                                    
             <button id="selBtn" onclick="addRectangle(4)" title="Selection area (ESC→off/on; Shift→+; Alt→-; Ctrl+Shift+A→all; Ctrl+Shift+Alt+L,T,W,H,R→align)">⬚</button>            
             <button id="addBtn" onclick="addRectangle(1)" title="Add rect [F7] (Ctrl+Shift+Alt+D→clone; Ctrl→move; ESC→off)">+🟨</button>
@@ -328,6 +361,7 @@
             <button id="roundBtn" onclick="rectangleToRound()" title="Change shape (or arrow type) [F6] ( Ctrl+,→Hard(-1); Ctrl+.→Hard(+1) )">□↦ ⬌ ○⇢</button>
             <button id="exchangeBtn" onclick="exchangeRectangle()" title="Change type [F4] (TAB: Ctrl+[ or ]→down/up; Ctrl+Shift+[ or ]→bottom/top; Ctrl+N→Input N; Ctrl+Shift+N→Start/End Auto N)">🟨 &#8596; 🟦</button>
             <button id="scale200Btn" onclick="scale200()" title="Double the scale [F1]">&nbsp;200%&nbsp;</button>
+			<button id="editSound" onclick="editSound()" title="Edit sound [Shift+F2] (Shift+F3→Select; Shift+F5→Record)">&nbsp;🎵&nbsp;</button>
         </div>
     </div>
 	<div class="sio-container">
@@ -338,4 +372,5 @@
     <div>&nbsp;</div>
     <script src="EditRectangle.js"></script>
 </body>
+
 </html>

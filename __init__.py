@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 2.2, date: 2026-08-17
+# Version 2.3, date: 2026-09-04
+import aqt
 from aqt.qt import *
 from aqt.editor import Editor
 from aqt.browser.browser import Browser
@@ -15,10 +16,14 @@ import shutil
 import time
 import inspect
 from aqt.addcards import AddCards
+from aqt.webview import AnkiWebView
+from aqt.mediasrv import PageContext
+
+import itertools
 
 from aqt import mw
 import anki.lang
-from aqt.utils import (showText, showInfo, tooltip) 
+from aqt.utils import (showText, showInfo, tooltip, tr, getFile) 
 from bs4 import BeautifulSoup
 # from aqt.gui_hooks import collection_did_load
 from aqt.gui_hooks import profile_did_open
@@ -86,6 +91,143 @@ def localizationF(par1, default=""):
         print("logError: ", e)
         return default  
 # =============================================================================
+
+class WebBridge(QObject):
+    def __init__(self, web_view, parent=None):
+        super().__init__(parent)
+        self.web_view = web_view
+
+    @pyqtSlot(str)
+    def cmd(self, command: str) -> str:
+        # print("WebBridge.cmd:", command)
+        if command == "addSoundMedia":            
+            def accept(file):
+                if not file:
+                    return  
+                try:
+                    sound_filename = mw.col.media.add_file(file)
+                except Exception as e:
+                    from aqt.utils import showInfo
+                    showInfo(f"Error adding media: {e}")
+                    return
+                # Passing the file name back to JavaScript
+                self.web_view.page().runJavaScript(f"window.soundAdded('{sound_filename}');")
+
+            # Extension filter
+            extension_filter = " ".join(f"*.{ext}" for ext in sorted(itertools.chain(pics, audio)))
+            filter_str = f"{tr.editing_media()} ({extension_filter})"
+
+            # Parent window - dialog
+            parent = self.web_view.parent()
+            getFile(
+                parent=parent,
+                title=tr.editing_add_media(),
+                cb=accept,
+                filter=filter_str,
+                key="media"
+            )
+            parent.activateWindow()
+        
+        elif command == "recordSound":
+            self.record_sound()
+
+        return ""    
+    
+        
+        
+    def record_sound(self):
+        """Records audio from the microphone and passes the file name to JS."""
+        from aqt import sound, mw
+        from aqt.utils import showInfo
+
+        parent = self.parent()
+
+        def on_recorded(file_path):
+            if not file_path:       
+                return
+            try:
+                # Add a file to the collection and get its name
+                sound_filename = mw.col.media.add_file(file_path)
+            except Exception as e:
+                showInfo(f"Error adding sound: {e}")
+                return
+            # Passing the name back to JavaScript
+            self.web_view.page().runJavaScript(f"window.soundAdded('{sound_filename}');")
+
+        # Open the recording dialog
+        aqt.sound.record_audio(
+            parent,
+            mw,
+            True,
+            on_recorded,
+        )        
+        parent.activateWindow()
+        
+
+
+pics = (
+    "jpg",
+    "JPG",
+    "jpeg",
+    "JPEG",
+    "png",
+    "PNG",
+    "gif",
+    "GIF",
+    "svg",
+    "SVG",
+    "webp",
+    "WEBP",
+    "ico",
+    "ICO",
+    "avif",
+    "AVIF",
+)
+audio = (
+    "3gp",
+    "3GP",
+    "aac",
+    "AAC",
+    "avi",
+    "AVI",
+    "flac",
+    "FLAC",
+    "flv",
+    "FLV",
+    "m4a",
+    "M4A",
+    "mkv",
+    "MKV",
+    "mov",
+    "MOV",
+    "mp3",
+    "MP3",
+    "mp4",
+    "MP4",
+    "mpeg",
+    "MPEG",
+    "mpg",
+    "MPG",
+    "oga",
+    "OGA",
+    "ogg",
+    "OGG",
+    "ogv",
+    "OGV",
+    "ogx",
+    "OGX",
+    "opus",
+    "OPUS",
+    "spx",
+    "SPX",
+    "swf",
+    "SWF",
+    "wav",
+    "WAV",
+    "webm",
+    "WEBM",
+)
+
 
 
 dialog = None
@@ -459,7 +601,7 @@ def show_image_dialog(self):
     )
    
     html_field = self.note[img_field] # get HTML in the field    
-    rectangles_html = transform_html(html_field)
+    rectangles_html = transform_html(html_field, words_field_val)
     if rectangles_html:
         html_content = html_content.replace(
             f'<img src="{img_path}" class="sio-image">',
@@ -493,14 +635,34 @@ def show_image_dialog(self):
     else:
         dialog.setWindowFlag(Qt.WindowMaximizeButtonHint)
     dialog.setMinimumSize(800, 600)  # Set the minimum window size
+
+   
+    web_view = QWebEngineView(dialog) 
     
-    web_view = QWebEngineView() 
+    # We create a channel and register our bridge in it.
+    channel = QWebChannel(web_view)
+    # bridge = WebBridge(dialog)
+    bridge = WebBridge(web_view, dialog)
+    # We call the object 'pyBridge' - under this name it will be available in JS
+    channel.registerObject("pyBridge", bridge)    
+    # Link a channel to a web page
+    web_view.page().setWebChannel(channel)
+    
     media_path = os.path.join(mw.pm.profileFolder(), "collection.media") + "/"
-    media_url = QUrl.fromLocalFile(media_path)        
-    web_view.setHtml(html_content, media_url ) 
+    media_url = QUrl.fromLocalFile(media_path) 
+    web_view.setHtml(html_content, media_url)
+    
     layout = QVBoxLayout()
     layout.addWidget(web_view)
     
+    def on_dialog_finished(result):
+        web_view.page().runJavaScript("""
+            if(window.audio1) {
+                window.audio1.pause();
+                window.audio1.currentTime = 0; 
+            }
+        """)
+    dialog.finished.connect(on_dialog_finished)
 
     # Option to choose between single card or multiple cards
     card_option_layout = QHBoxLayout()
@@ -663,8 +825,34 @@ def setup_image_button(buttons, editor):
     return buttons
 
 
+def parse_words_val(words_val):
+    """
+    Parses a string words_val of the form:
+        "Hard(+1); Hard(-1)=[sound:ANGL_150_FRAZ_002_2_EN2.mp3]"
+    Returns a dictionary of {word: audio_file_name or None}
+    """
+    if not words_val:
+        return {}
+    items = [item.strip() for item in words_val.split(';') if item.strip()]
+    result = {}
+    for item in items:
+        if '=[sound:' in item:            
+            parts = item.split('=[sound:', 1)
+            word = parts[0].strip()            
+            sound_part = parts[1] if len(parts) > 1 else ''
+            end_idx = sound_part.find(']')
+            if end_idx != -1:
+                sound_file = sound_part[:end_idx].strip()
+            else:
+                sound_file = sound_part.strip()  # in case ']' is missing
+            result[word] = sound_file
+        else:
+            result[item] = None
+    return result
 
-def transform_html(html_field):
+
+
+def transform_html(html_field, words_val ):
     """Converts HTML for further editing"""
     soup = BeautifulSoup(html_field, 'html.parser')
 
@@ -673,6 +861,8 @@ def transform_html(html_field):
     if not sio_rects:
         return ''  # If there are no such divs, return an empty string
 
+    word_sound_map = parse_words_val(words_val)
+    
     rectangles_html = []
 
     for rect in sio_rects:
@@ -690,6 +880,20 @@ def transform_html(html_field):
                 hard = ""
             else:
                 hard = f' hard="{hard}"'
+                
+                
+        original_sound = rect.get('sound', '')
+        
+        if word != "" and word in word_sound_map:
+            new_sound = word_sound_map[word]
+            if new_sound is not None:
+                sound = new_sound
+            else:
+                sound = ''
+        else:
+            sound = original_sound
+        
+        sound_attr = f' sound="{sound}"' if sound else ''
         
         
         line = ' line' if 'line' in rect.get('class', []) else ''
@@ -707,7 +911,7 @@ def transform_html(html_field):
 
         # Forming div class="sio-rect"
         rectangle_html = f'''
-<div class="sio-rect{hiding}{round}{line}{notvisible} cursor-move" style="{filtered_style}"{hard}>
+<div class="sio-rect{hiding}{round}{line}{notvisible} cursor-move" style="{filtered_style}"{hard}{sound_attr}>
     <div class="txt-sio-rect" contenteditable="false">{txt_content}</div>
     <div class="resize-handle nw"></div>
     <div class="resize-handle ne"></div>
@@ -795,11 +999,21 @@ def process_html(html_content):
                 word = text
                 
         word = word.replace("\"", "'")
-        hint = hint.replace("\"", "'")        
+        hint = hint.replace("\"", "'")   
+
+        sound = rect.get('sound', '')
+        word_sound = word.strip()        
+        if sound != '':  
+            if word.strip()=="":                
+                word_sound = f"￭=[sound:{sound}]"
+            else:
+                word_sound = f"{word.strip()}=[sound:{sound}]"
+            sound = 'sound="{}"'.format(sound)
         
         # Add a word to the list if it meets the filtering criteria
-        if include_in_words and word and word.strip():
-            words_list.append(word.strip())
+        # if include_in_words and word and word.strip():            
+        if include_in_words:
+            words_list.append(word_sound)
         
         line = ' line' if 'line' in rect.get('class', []) else ''
         round = ' round' if 'round' in rect.get('class', []) else ''
@@ -811,6 +1025,8 @@ def process_html(html_content):
                 hard = ""
             else:
                 hard = f' hard="{hard}"'
+                
+        
         
         contenteditable = 'contenteditable="false"' if hiding else 'contenteditable="true"'
         if line != '':
@@ -825,7 +1041,7 @@ def process_html(html_content):
             
         # Append rectangle data with position for sorting
         rectangles.append({
-            'html': f'<div class="sio-rect{hiding}{round}{line}{notvisible}" style="{filtered_style}" word="{word}" hint="{hint}"{hard}></div>',
+            'html': f'<div class="sio-rect{hiding}{round}{line}{notvisible}" style="{filtered_style}" word="{word}" hint="{hint}"{hard}{sound}></div>',
             'left': left,
             'top': top,
             'width': width,
@@ -1208,6 +1424,10 @@ def create(editor, web_view, img_field):
                 # Get the word for the current rectangle
                 current_word = current_rect.get('word', '')
                 
+                current_sound = current_rect.get('sound', '')
+                if current_sound != "":
+                    current_word = f"{current_word.strip()}=[sound:{current_sound}]"
+                
                 # Processing all rects in a new copy
                 for rect in new_soup.find_all('div', class_='sio-rect'):
                     if rect != current_rect:
@@ -1410,32 +1630,29 @@ def create_note_type_if_not_exists():
     models = col.models    
     name = "Image Occlusion Simple (v2)"
 
-    Attention_Addon_Key = 'attention_Addon_675107747_20260817_20'
+    Attention_Addon_Key = 'attention_Addon_675107747_20260904_20'
     try:        
         attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
     except:
         attention_Addon = ''
     if attention_Addon == '':
         try:
-
             if askUser(text="""PLEASE READ the "Simple Image Occlusion" add-on page!
 https://ankiweb.net/shared/info/675107747
 Small changes have been made to the "Image Occlusion Simple (v2)" note type:
-Now, instead of a word or sentence, you can enter a list of words (separated by the | sign).
-The font size calculation algorithm has been slightly modified; the active rectangle will be taller than all other rectangles for easier work. The editing mode is now remembered, so you don't have to switch it on every card. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1").
-Changes in the special editor:
-You can now set two different algorithms for tab positions, or disable them to set a custom order. You can change the rectangle difficulty ("hard -1 or +1") using hotkeys.
-In the "Front" field, the image will be displayed with a simplified rectangle layout.
+An answer is considered correct even if you don't enter diacritics. However, to still distinguish missing diacritics, the text in such a field will be blue (you can change the "--diactricnotequal" CSS variable).
+For a rectangle, you can specify a sound to play instead of speech synthesis (since speech synthesis is not available for all languages ​​or its quality is low).
+Now, instead of a word or sentence, you can enter a list of words (separated by the "|" character). To simplify entering the "|" characters, you can press the hotkey "Ctrl+;"
 Do not show this window again?""",                     
                         msgfunc=QMessageBox.information,
                         defaultno=False,
-                        title="Add-on 'Image Occlusion Simple' version 2.2. Attention!"):
+                        title="Add-on 'Image Occlusion Simple' version 2.3. Attention!"):
                 mw.pm.profile[Attention_Addon_Key] = 'True'
         except:
             pass
 
 
-    update_Addon_Key = 'update_Addon_675107747_20260817_20'
+    update_Addon_Key = 'update_Addon_675107747_20260904_20'
     existing = models.by_name(name)
     if existing:
         # We will prompt the user to update the template if he has not updated it yet.

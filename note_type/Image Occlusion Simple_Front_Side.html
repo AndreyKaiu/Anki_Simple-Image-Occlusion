@@ -1,4 +1,4 @@
-<!-- Version 2.2, date: 2026-08-17 -->
+<!-- Version 2.3, date: 2026-09-04 -->
 {{#Header}}<div id="f_header">{{#HeaderURL_filepdf#page=}}<a href="{{text:HeaderURL_filepdf#page=}}" target="_blank">{{/HeaderURL_filepdf#page=}}{{Header}}{{#HeaderURL_filepdf#page=}}<span id="pagePdf"></span></a>{{/HeaderURL_filepdf#page=}}</div>{{/Header}}
 <div class="sio-container">    
     <div class="sio-image-container wfit">        
@@ -111,6 +111,7 @@ if (window.myAbortController) window.myAbortController.abort();
 window.myAbortController = new AbortController();
 var sig = {signal: window.myAbortController.signal};
 
+
 // translation for a specific language
 var listSL = ['ar', 'de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'pt', 'ru', 'zh'];
 // If you don't want to translate, write below: var lang2 = '--';
@@ -132,15 +133,17 @@ var stylesCSS = getComputedStyle(rootCSS);
 var rootcss_rectyellow = stylesCSS.getPropertyValue('--rectyellow').trim(); // rgba(255, 235, 162, 1)
 var rootcss_rectblue = stylesCSS.getPropertyValue('--rectblue').trim(); // rgba(1, 78, 140, 1)
 var rootcss_goodanswer = stylesCSS.getPropertyValue('--goodanswer').trim(); // rgb(10, 240, 10)
+var rootcss_diactricnotequal = stylesCSS.getPropertyValue('--diactricnotequal').trim(); // #0913c1;
 var rootcss_badanswer = stylesCSS.getPropertyValue('--badanswer').trim(); // #fb8c8c
 
 var gameIsAllowed = true; // here you can disable the game button (or it will be prohibited if there are no words)
 var gameRun = false;
 var gameTime = 0; // game time in seconds
-var gameWords = ""; // list
+var gameWordsSounds = ""; // list
 var gameNWords = 0; // list length
 var gameI = 0; // current index of the list element
 var gameIWord = ""; // current value
+var gameISound = "";
 var gameTimerInterval = null;
 var gamePauseSound = false;
 
@@ -373,7 +376,10 @@ if( document.getElementById("transparent_answer") !== null ) { // only for back-
 // ==================== GAME =====================
 if( gameIsAllowed ) {
     const sio_rect_ALL = Array.from(document.querySelectorAll('.sio-rect'));
-    const sio_rect_ALL_filt = sio_rect_ALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+    //const sio_rect_ALL_filt = sio_rect_ALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+    const sio_rect_ALL_filt = sio_rect_ALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line') 
+      && ( ( rect.hasAttribute('word') && !(rect.getAttribute('word') == '') ) || ( rect.hasAttribute('sound') && !(rect.getAttribute('sound') == '') ) ) );
+      
     if( sio_rect_ALL_filt.length < 2 ) {
         gameIsAllowed = false;
         const gameButton = document.getElementById('gameButton');
@@ -546,6 +552,7 @@ function gameEnd() {
     gameNWords = 0;
     gameI = 0;
     gameIWord = ''; 
+    gameISound = '';
 }
 
 
@@ -567,29 +574,45 @@ function gameStart() {
         rectanglesALL[i].contentEditable = false;                
     }   
  
-    const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line')
-        && !(rect.style.display == 'none') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+    //const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line')
+    //    && !(rect.style.display == 'none') && rect.hasAttribute('word') && !(rect.getAttribute('word') == ''));
+    
+    const rectangles = rectanglesALL.filter(rect => !rect.classList.contains('hiding') && !rect.classList.contains('line') && !(rect.style.display == 'none')
+      && ( ( rect.hasAttribute('word') && !(rect.getAttribute('word') == '') ) || ( rect.hasAttribute('sound') && !(rect.getAttribute('sound') == '') )  ) );    
+    
      //gameWords = Array.from(document.querySelectorAll('.sio-rect:not(.line)')).map(div => {
-    gameWords = Array.from(rectangles).map(div => {
-        const wordAttr = div.getAttribute('word');
+    gameWordsSounds = Array.from(rectangles).map(div => {
+        let wordAttr = div.getAttribute('word');
+        if( !(wordAttr !== null) ) {
+            wordAttr = "";
+        }
+        let soundAttr = div.getAttribute('sound');
+        if( soundAttr !== null ) {
+            wordAttr = wordAttr + "::" + soundAttr; 
+        }
+        else {
+            wordAttr = wordAttr + "::";            
+        }
         return wordAttr !== null && wordAttr !== "" ? wordAttr : "";
     });
      // Mix the array randomly
-    for (let i = gameWords.length - 1; i > 0; i--) {
+    for (let i = gameWordsSounds.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [gameWords[i], gameWords[j]] = [gameWords[j], gameWords[i]];
+        [gameWordsSounds[i], gameWordsSounds[j]] = [gameWordsSounds[j], gameWordsSounds[i]];
     }
      // Recording the length of the list
-    gameNWords = gameWords.length;
+    gameNWords = gameWordsSounds.length;
      // Set the index (for example, the last element)
     gameI = gameNWords - 1;
      // Getting the word by index
-    gameIWord = gameWords[gameI];
+    const [gw, gs] = gameWordsSounds[gameI].split(/\s*::\s*/);   
+    gameIWord = gw; 
+    gameISound = gs; 
     gameRun = true;     
     gameTime = 0;
    
     
-    timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+    
     timeButton.style.display = 'block';
     gameButton.style.display = 'none';              
     toggleButton.style.display = 'none';
@@ -598,8 +621,24 @@ function gameStart() {
     
     
     startGameTimer();
-    speakText(gameIWord);
-    showFloatingText(gameIWord, '#FF0000');
+    
+    if( gameISound != "" ) {                
+        if( gameIWord != "" ) {
+            showFloatingText(gameIWord, '#FF0000');
+            timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+        }
+        else {
+            showFloatingText(String(gameI+1)+' 🔊', '#FF0000');
+            timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut("", 40);
+        }
+        playSound(gameISound);
+    } 
+    else if( gameIWord != "" ) {
+        showFloatingText(gameIWord, '#FF0000');    
+        speakText(gameIWord);    
+        timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+    }
+        
 }
 
 
@@ -704,12 +743,29 @@ function gameNextWord() {
     if ("vibrate" in navigator) {
         navigator.vibrate(40);
     }
-    gameIWord = gameWords[gameI];
-    showFloatingText(gameIWord, '#FF0000');
+        
+    const [gw, gs] = gameWordsSounds[gameI].split(/\s*::\s*/);   
+    gameIWord = gw; 
+    gameISound = gs;
+     
     
-    speakText(gameIWord);
+    if( gameISound != "" ) {                
+        if( gameIWord != "" ) {
+            showFloatingText(gameIWord, '#FF0000');
+            timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+        }
+        else {
+            showFloatingText(String(gameI+1)+' 🔊', '#FF0000');
+            timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut("", 40);
+        }
+        playSound(gameISound);
+    } 
+    else if( gameIWord != "" ) {
+        showFloatingText(gameIWord, '#FF0000');    
+        speakText(gameIWord);    
+        timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
+    }
     
-    timeButton.innerText = '[' + String(gameTime) + 's] ' + String(gameI+1) + ': ' + kitcut(String(gameIWord), 40);
 }
 
 
@@ -1194,7 +1250,7 @@ function getCharCoef(fontFamily) {
 }
 
 
-var charWidthCoef = 0.8; // 0.6in the editor
+var charWidthCoef = 0.7; // 0.6in the editor
 elSR = document.querySelectorAll('.txt-sio-rect')[0];
 if(elSR) {
     const fontFamily = getComputedStyle(elSR).fontFamily;
@@ -1222,19 +1278,16 @@ function fitFontSizeToRect(rectElement) {
     let fontSize = 0;
 
     if (len <= 4) len = 4;    
-    if (len <= 15) {
-        // 1 line
-        const byWidth = rectWidth / (len * charWidthCoef);
-        const byHeight = rectHeight * 0.6;
-
-        fontSize = Math.min(byWidth, byHeight);
-    } else {
+    let byWidth = rectWidth / (len * charWidthCoef);
+    let byHeight = rectHeight * 0.7;
+    fontSize = Math.min(byWidth, byHeight);
+    
+    if( len > 15 && (len*fontSize) > (0.8*rectWidth) )
+    {
         // 2 line
-        const charsPerLine = Math.ceil(len / 2);
-
-        const byWidth = rectWidth / (charsPerLine * charWidthCoef);
-        const byHeight = (rectHeight / 2)*0.8;
-
+        let charsPerLine = Math.ceil(len / 2);
+        let byWidth = rectWidth / (charsPerLine * charWidthCoef);
+        let byHeight = (rectHeight / 2)*0.8;
         fontSize = Math.min(byWidth, byHeight);
     }
         
@@ -1681,20 +1734,35 @@ function getUnrotatedRatios(el, e) {
 
 function pointerdownSiorect(e) {
     let el = this;
-    if( el.style.backgroundColor == rootcss_goodanswer || el.classList.contains('wordshow') || el.classList.contains('wordshow2') ) {
-        let w = el.getAttribute("word");
-        if( !(gamePauseSound && gameRun) ) speakText(w);
-    } 
+    let w = el.getAttribute("word");
+    let soundAttr = el.getAttribute('sound');
+    if( el.style.backgroundColor == rootcss_goodanswer || el.classList.contains('wordshow') || el.classList.contains('wordshow2') ) {        
+        if( !gamePauseSound && !(gameRun && gameI >= 0) ) {
+            const soundAttr = el.getAttribute('sound');
+            if (soundAttr) {
+                playSound(soundAttr);
+            } else {
+                playSound(''); 
+                speakText(w);
+            }            
+        }        
+    }     
 }
  
  
-function closeAllRelated(el, visited = new Set()) {
+function closeAllRelated(el, visited = new Set()) {    
     if (visited.has(el)) return;
     visited.add(el);
     
     el.classList.remove('selected');
     el.contentEditable = false;
-    el.style.display = 'none';
+    el.style.display = 'none';    
+        
+    const soundAttr = el.getAttribute('sound');
+    if (soundAttr) {
+        playSound(soundAttr);
+    }    
+    
     
     // hide related ones if any
     const leftEL = el.style.left; 
@@ -1754,35 +1822,35 @@ function clickSiorect(e) {
         let w = '';
         if(el.hasAttribute('word') && el.getAttribute('word') != '')
             w = el.getAttribute('word'); 
-        if( w != '' ) {
-            if( w != gameIWord) {
-                el.textContent = gameIWord;
-                el.contentEditable = "true";
-                el.style.color = "black";
-                el.style.backgroundColor = rootcss_badanswer;
-                gameEnd();
-                if ("vibrate" in navigator) {
-                    navigator.vibrate(150);
-                }    
-                const symbolsArray = ['💩', '🤷🏻‍♀️', '😭', '❓', '🗣', '😤', '🤡', '❌', '🙅', '😢', '🤔', '🙀'];
-                function getRandomSymbol(arr) {
-                    const randomIndex = Math.floor(Math.random() * arr.length);
-                    return arr[randomIndex];
-                }                    
-                showFloatingText(getRandomSymbol(symbolsArray), 'red', 1500);                    
-                
-            }
-            else {
-                el.textContent = w;
-                el.contentEditable = "false";
-                el.style.color = "black";
-                el.style.backgroundColor = rootcss_goodanswer;
-                gameNextWord();                    
-            }
+        
+        let sn = '';
+        if(el.hasAttribute('sound') && el.getAttribute('sound') != '')
+            sn = el.getAttribute('sound'); 
             
-            return;
-        }     
-        gameNextWord();       
+        if( (w != "" && w != gameIWord) || (sn != "" && sn != gameISound )  ) {
+            el.textContent = gameIWord;
+            el.contentEditable = "true";
+            el.style.color = "black";
+            el.style.backgroundColor = rootcss_badanswer;
+            gameEnd();
+            if ("vibrate" in navigator) {
+                navigator.vibrate(150);
+            }    
+            const symbolsArray = ['💩', '🤷🏻‍♀️', '😭', '❓', '🗣', '😤', '🤡', '❌', '🙅', '😢', '🤔', '🙀'];
+            function getRandomSymbol(arr) {
+                const randomIndex = Math.floor(Math.random() * arr.length);
+                return arr[randomIndex];
+            }                    
+            showFloatingText(getRandomSymbol(symbolsArray), 'red', 1500);                    
+            
+        }
+        else {
+            el.textContent = w;
+            el.contentEditable = "false";
+            el.style.color = "black";
+            el.style.backgroundColor = rootcss_goodanswer;
+            gameNextWord();                    
+        }              
     } 
        
     
@@ -1801,7 +1869,7 @@ function clickSiorect(e) {
     }
       
     
-    if( !ignore_rectangle_closing && !(el.hasAttribute('contentEditable') && el.contentEditable == "true" && el.classList.contains('selected')) && ((xRatio > closure_zone_X && yRatio < closure_zone_Y) || !el.hasAttribute('word')
+    if( !(gameRun && gameI >= 0) && !ignore_rectangle_closing && !(el.hasAttribute('contentEditable') && el.contentEditable == "true" && el.classList.contains('selected')) && ((xRatio > closure_zone_X && yRatio < closure_zone_Y) || !el.hasAttribute('word')
         || (el.hasAttribute('word') && el.getAttribute('word') == '')
         || el.classList.contains('hiding') ) ) {
               
@@ -1892,6 +1960,13 @@ function onlySimpleText(str) { // Simplifying text for comparison
     str = str.replace(/\s+/g, " "); // Multiple gaps -> one
     return str.toLowerCase().trim();
 }
+
+function onlySimpleTextNoDiacritic(str) { // Simplifying text for comparison   
+    str = str.replace(/<[^>]*>/g, ""); //Delete tags
+    str = str.replace(/[^\p{L}\p{N}\s]/gu, ""); //Leave only letters/numbers/gaps
+    str = str.replace(/\s+/g, " "); // Multiple gaps -> one
+    return str.toLowerCase().trim();
+}
  
  
 // text-to-speech
@@ -1970,14 +2045,27 @@ function validateInput(e) {
         .split("|")
         .map(s => onlySimpleText(s.trim()))
         .filter(s => s.length > 0);
+        
+    const userWordsND = (elRect.textContent || "")
+        .split("|")
+        .map(s => onlySimpleTextNoDiacritic(s.trim()))
+        .filter(s => s.length > 0);
     
     const targetWords = (w || "")
         .split("|")
         .map(s => onlySimpleText(s.trim()))
         .filter(s => s.length > 0);
+        
+    const targetWordsND = (w || "")
+        .split("|")
+        .map(s => onlySimpleTextNoDiacritic(s.trim()))
+        .filter(s => s.length > 0);
     
     const targetSet = new Set(targetWords);
     const userSet = new Set(userWords);
+    
+    const targetSetND = new Set(targetWordsND);
+    const userSetND = new Set(userWordsND);
     
     if (targetSet.size === 0 || userSet.size === 0) {
         elRect.style.color = "black";
@@ -1992,12 +2080,22 @@ function validateInput(e) {
     const common = [...targetSet].filter(word => userSet.has(word));
     const allTargetsMatched = common.length === targetSet.size;
     
+    const commonND = [...targetSetND].filter(word => userSetND.has(word));
+    const allTargetsMatchedND = commonND.length === targetSetND.size;
+    
     if (allTargetsMatched) {
-        elRect.style.color = "black";
+        if (allTargetsMatchedND) {
+            elRect.style.color = "black";
+        }
+        else {
+            elRect.style.color = rootcss_diactricnotequal;
+        }
+        
         elRect.style.backgroundColor = rootcss_goodanswer;
         return;
     }
     
+
     let allUserWordsValid = true;
     for (let userWord of userSet) {
         let isValid = false;
@@ -2012,9 +2110,30 @@ function validateInput(e) {
             break;
         }
     }
+
+    let allUserWordsValidND = true;
+    for (let userWordND of userSetND) {
+        let isValid = false;
+        for (let targetWordND of targetSetND) {
+            if (userWordND === targetWordND || targetWordND.startsWith(userWordND)) {
+                isValid = true;
+                break;
+            }
+        }
+        if (!isValid) {
+            allUserWordsValidND = false;
+            break;
+        }
+    }
     
     if (allUserWordsValid) {
-        elRect.style.color = "black";
+        if(allUserWordsValidND) {
+            elRect.style.color = "black";
+        }
+        else {
+            elRect.style.color = rootcss_diactricnotequal;
+        }
+        
         if (elRect.classList.contains('hiding') && !elRect.classList.contains('line')) {
             elRect.style.backgroundColor = rootcss_rectblue;
         } else {
@@ -2065,10 +2184,110 @@ function pasteSimpl(e) { // We insert only the text
 }
 
 
+
+window._audioMap = new Map();
+
+function buildAllAudios() {
+    const root = document.getElementById("qa");
+    if (!root) return;
+    
+    const soundSet = new Set();
+    document.querySelectorAll('.sio-rect').forEach(div => {
+        const sound = div.getAttribute('sound');
+        if (sound && sound.trim() !== '') {
+            soundSet.add(sound.trim());
+        }
+    });
+  
+    const existingAudios = new Map();
+    root.querySelectorAll('audio[sound]').forEach(audio => {
+        const soundAttr = audio.getAttribute('sound');
+        if (soundAttr) {
+            existingAudios.set(soundAttr, audio);
+        }
+    });
+
+    // We remove from _audioMap those that are no longer in soundSet
+    for (let [key, audio] of window._audioMap) {
+        if (!soundSet.has(key)) {
+            audio.pause();
+            audio.src = '';
+            if (audio.parentNode) {
+                audio.parentNode.removeChild(audio);
+            }
+            window._audioMap.delete(key);
+        }
+    }
+
+    // Now we add or update audio for each sound in the soundSet
+    for (let sound of soundSet) {        
+        let audio = existingAudios.get(sound);
+        if (!audio) {
+            audio = window._audioMap.get(sound);
+            if (audio) {
+                // If it is already in _audioMap, but not in root, then add it to root
+                if (!audio.parentNode) {
+                    root.appendChild(audio);
+                }
+            } else {
+                // Let's create a new one
+                audio = new Audio(sound);
+                audio.preload = 'auto';
+                audio.style.display = 'none';
+                audio.setAttribute('sound', sound);  // keep the original name
+                root.appendChild(audio);
+            }
+        } else {
+            // If the audio already exists, but it is not in _audioMap, we will add it
+            if (!window._audioMap.has(sound)) {           
+                if (!audio.hasAttribute('sound')) {
+                    audio.setAttribute('sound', sound);
+                }
+                // Let's also check that the audio is not in _audioMap
+                window._audioMap.set(sound, audio);
+            } else {
+                // already exists, we do nothing
+            }
+        }
+        
+        
+        const currentAudio = window._audioMap.get(sound);
+        if (currentAudio !== audio) {
+            // If you replaced it, we'll update it.
+            window._audioMap.set(sound, audio);
+        }
+    }  
+}
+
+
+function playSound(soundName) {    
+    for (let [key, audio] of window._audioMap) {
+        audio.pause();
+        audio.currentTime = 0;
+    }
+    if (soundName && soundName !== '') {
+        const audio = window._audioMap.get(soundName);
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.play().catch(err => console.warn('Play error:', err));
+        } else {
+            console.warn('Audio with sound name', soundName, 'not found');
+        }
+    }
+}
+
+
+
+
+
+
+
+
 function handlers_for_all_siorect() {
     if (window.myAbortController2) window.myAbortController2.abort();
     window.myAbortController2 = new AbortController();
-    const sig2 = {signal: window.myAbortController.signal};
+    const sig2 = {signal: window.myAbortController2.signal};
 
     document.querySelectorAll('.sio-rect').forEach(div => {
         // If there is a word, then the first should go in the hint '? '        
@@ -2086,6 +2305,7 @@ function handlers_for_all_siorect() {
         }
         div.contentEditable = "false";
         div.dataset.wasFocused = "false";
+                    
         div.addEventListener('click', clickSiorect, sig2);
         div.addEventListener('pointerdown', pointerdownSiorect, sig2);
         div.addEventListener('input', validateInput, sig2);
@@ -2094,6 +2314,8 @@ function handlers_for_all_siorect() {
         div.addEventListener('pointerdown', siorectFocus, sig2);
         div.addEventListener('blur', siorectBlur, sig2);
     });
+    
+    setTimeout( ()=>{buildAllAudios();}, 1000);
 }
 
 
@@ -2168,7 +2390,8 @@ function siorectBlur(e) {
 
         
 // reset selection states and so on
-function reset_States() {
+function reset_States() {        
+    playSound("");
     document.querySelectorAll('.sio-rect').forEach(el => {
         try{
             el.classList.remove('selected');
@@ -2393,7 +2616,16 @@ function init() { // initialization
                 moveRectEl.classList.remove('move-backlight');                
                 if( (moveRectEl.style && moveRectEl.style.backgroundColor == rootcss_goodanswer) || moveRectEl.classList.contains('wordshow') || moveRectEl.classList.contains('wordshow2') ) {
                     let w = moveRectEl.getAttribute("word");
-                    if( !(gamePauseSound && gameRun) ) speakText(w);
+                    
+                    if( !(gamePauseSound && gameRun) ) {
+                        const soundAttr = el.getAttribute('sound');
+                        if (soundAttr) {
+                            playSound(soundAttr);
+                        } else {
+                            playSound(''); 
+                            speakText(w);
+                        }            
+                    }
                 }
                                 
                 siorectFocus(null, moveRectEl);    
@@ -2423,7 +2655,16 @@ function init() { // initialization
             moveRectEl.classList.remove('move-backlight');
             if( (moveRectEl.style && moveRectEl.style.backgroundColor == rootcss_goodanswer) || moveRectEl.classList.contains('wordshow') || moveRectEl.classList.contains('wordshow2') ) {
                 let w = moveRectEl.getAttribute("word");
-                if( !(gamePauseSound && gameRun) ) speakText(w);
+                
+                if( !(gamePauseSound && gameRun) ) {
+                    const soundAttr = el.getAttribute('sound');
+                    if (soundAttr) {
+                        playSound(soundAttr);
+                    } else {
+                        playSound(''); 
+                        speakText(w);
+                    }            
+                }
             }            
                         
             siorectFocus(null, moveRectEl);
@@ -2850,7 +3091,7 @@ static #db = {
         "zh": "插件作者：A. Yu. Krutov"
     },
     "Show": {
-        "ru": "Показать",
+        "ru": "Показ.",
         "pt": "Mostrar",
         "ar": "إظهار",
         "de": "Anzeigen",
@@ -2876,7 +3117,7 @@ static #db = {
         "zh": "隐藏"
     },
     "Clear": {
-        "ru": "Очистить",
+        "ru": "Очист.",
         "pt": "Limpar",
         "ar": "مسح",
         "de": "Löschen",
@@ -3174,10 +3415,12 @@ async function ExportToHTML() {
     const audios = root.querySelectorAll("audio");        
     for (let audio of audios) {
         const src = audio.getAttribute("src");
+        const sound = audio.getAttribute("sound");
         if (!src) continue;        
         try {
             const base64 = await audioToBase64(src);
             audio.setAttribute("src", base64);
+            if(sound) audio.setAttribute("sound", sound);
         } catch (e) {
             console.warn("Error with audio src:", e);
         }
@@ -3668,7 +3911,5 @@ async function copyToClipboard(text) {
     }        
 }
 /* ^^^^ COPY ^^^^ */
-
-
 
 </script>

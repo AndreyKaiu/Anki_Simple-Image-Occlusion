@@ -1,3 +1,5 @@
+version: 2.3, date: 2026-09-04
+
 <details>
 <summary><b> =EN= Notes. Click to expand</b></summary>
 You can set the language by entering yours in "language": "en". If your language is not in "LOCALIZATION", you can replace some language block with your own values ​​or add another language.

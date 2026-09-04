@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 // add-on for anki program "Simple Image Occlusion" 
 // https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-// Version 2.1, date: 2026-08-14
+// Version 2.3, date: 2026-09-04
 var creation_mode = 0; // rectangle creation mode
 var disable_context_menu = false;
 const containerImg = document.getElementsByClassName('sio-image-container')[0];
@@ -669,6 +669,23 @@ function removeAllRectangle() {
 
 
 document.addEventListener('keydown', function (e) {
+	if (event.keyCode == 186 && !e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey) ) { // Ctrl+; in the English layout
+		e.preventDefault();
+		e.stopPropagation();		
+
+		const selection = window.getSelection();
+		if (!selection.rangeCount) return;
+		const range = selection.getRangeAt(0);
+		range.deleteContents();
+		const textNode = document.createTextNode(' | ');
+		range.insertNode(textNode);
+		
+		range.setStartAfter(textNode);
+		range.setEndAfter(textNode);
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+		
 	if (e.key === 'Delete' && !e.altKey && (e.ctrlKey || e.metaKey || e.shiftKey) ) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -859,6 +876,27 @@ document.addEventListener('keydown', function (e) {
 		e.preventDefault();
 		e.stopPropagation();
 		editText();
+		return;
+	}
+	
+	if (e.key === 'F2' && !(e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey) {
+		e.preventDefault();
+		e.stopPropagation();
+		editSound();
+		return;
+	}
+	
+	if (e.key === 'F3' && !(e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey) {
+		e.preventDefault();
+		e.stopPropagation();
+		addSound();
+		return;
+	}
+	
+	if (e.key === 'F5' && !(e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey) {
+		e.preventDefault();
+		e.stopPropagation();
+		recordSound();
 		return;
 	}
 
@@ -1714,6 +1752,69 @@ function editText() {
 }
 
 
+
+window.soundAdded = function(filename) {
+	if (window._selectedRect) {
+		window._selectedRect.setAttribute('sound', filename);
+		console.log('Sound set to:', filename);
+		selectedRect = window._selectedRect;
+	} else {
+		console.warn('No rectangle selected');
+	}	
+	window._selectedRect = '';
+};
+	
+	
+function addSound(){
+	if (!selectedRect) {
+        alert('Error! Rectangle not selected!');
+        return;
+    }
+	
+	window._selectedRect = selectedRect;
+	pyaddon_cmd('addSoundMedia');	
+	return;	
+}
+
+function recordSound(){
+	if (!selectedRect) {
+        alert('Error! Rectangle not selected!');
+        return;
+    }
+	
+	window._selectedRect = selectedRect;
+	pyaddon_cmd('recordSound');	
+	return;
+}
+
+function editSound(){
+	if (!selectedRect) {
+        alert('Error! Rectangle not selected!');
+        return;
+    }	
+	
+	if (selectedRect) {
+		window._selectedRect = selectedRect
+		const current = selectedRect.getAttribute('sound') || '';
+		const hint = 'Name sound:' + ' '.repeat(120);
+		const newSound = prompt(hint, current);	
+				
+		setTimeout(() => {
+			selectedRect = window._selectedRect; 
+		}, 50);
+		
+		if (newSound === null) return;		
+		
+		const trimmed = newSound.trim();
+		if (trimmed === '') {
+			selectedRect.removeAttribute('sound');
+		} else {			
+			selectedRect.setAttribute('sound', trimmed);
+		}		
+	}
+}
+
+
 function addClickHandlers(element) {
 	// Add an Input e processor to tell in red if only one is introduced:
 	element.oninput = function (e) {
@@ -1738,12 +1839,17 @@ function addClickHandlers(element) {
 		range.insertNode(document.createTextNode(text));
 	};
 
-	element.onclick = function (e) {
+	element.onclick = function (e) {		
+		if(window.audio1) {
+			window.audio1.pause();
+			window.audio1.currentTime = 0; 
+		}
+		
 		e.stopPropagation();
 		if (wasDragElement) { //dragged the element so that nothing to do
 			wasDragElement = false;
 			return;
-		}
+		}			
 		
 		if(autoMoveToPosition > -1) {
 			setTimeout( ()=>{
@@ -1754,6 +1860,32 @@ function addClickHandlers(element) {
 				autoMoveOldElement = element;
 			}, 50);
 		}
+		
+		const soundFile = this.getAttribute('sound');
+		if (!!soundFile) {
+			const rect = this.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const y = e.clientY - rect.top;
+			const iconSize = 20;         // font-size
+			const padding = 2;           // top and left
+			const isOnIcon = (
+				x >= 0 && x <= padding + iconSize &&
+				y >= 0 && y <= padding + iconSize
+			);
+			
+			if (isOnIcon) { // play sound
+				if(window.audio1) {
+					window.audio1.pause();
+					window.audio1.src = soundFile; 
+				}
+				else {
+					window.audio1 = new Audio(soundFile);
+				}								
+				window.audio1.currentTime = 0;				
+				window.audio1.play().catch(err => console.warn('Audio playback failed:', err));
+			}
+		}
+		 
 		
 		const textDiv = element.querySelector('.txt-sio-rect');
 		let issel = element.classList.contains('selected');
@@ -1910,6 +2042,10 @@ containerImg.onclick = function (e) {
 		rect.parentElement.classList.remove('text-editing'); //Remove the class of editing mode		
 	});
 	selectedRect = null;
+	if(window.audio1) {
+		window.audio1.pause();
+		window.audio1.currentTime = 0; 
+	}
 	document.querySelectorAll('.sio-rect').forEach(rect => {
 		rect.classList.remove('selectedRect');
 	});
@@ -2163,7 +2299,7 @@ function getCharCoef(fontFamily) {
     return (0.6*width) / (7.0 * 20);
 }
 
-var charWidthCoef = 0.6; // 0.8 not in the editor
+var charWidthCoef = 0.6; // 0.7 not in the editor
 elSR = document.querySelectorAll('.txt-sio-rect')[0];
 if(elSR) {
     const fontFamily = getComputedStyle(elSR).fontFamily;
@@ -2192,22 +2328,19 @@ function fitFontSizeToRect(rectElement) {
     let fontSize = 0;
 
 	if (len <= 4) len = 4;	
-   	if (len <= 15) {
-        // 1 line
-        const byWidth = rectWidth / (len * charWidthCoef);
-        const byHeight = rectHeight * 0.7;
-
+	let byWidth = rectWidth / (len * charWidthCoef);
+	let byHeight = rectHeight * 0.7;
+	fontSize = Math.min(byWidth, byHeight);
+	
+	if( len > 15 && (len*fontSize) > (0.8*rectWidth) )
+	{
+		// 2 line
+        let charsPerLine = Math.ceil(len / 2);
+        let byWidth = rectWidth / (charsPerLine * charWidthCoef);
+        let byHeight = (rectHeight / 2)*0.8;
         fontSize = Math.min(byWidth, byHeight);
-		//fontSize = byHeight;
-    } else {
-        // 2 line
-        const charsPerLine = Math.ceil(len / 2);
-
-        const byWidth = rectWidth / (charsPerLine * charWidthCoef);
-        const byHeight = (rectHeight / 2)*0.8;
-
-        fontSize = Math.min(byWidth, byHeight);
-    }
+	}
+	
     	
     let minPx = 8; // 6 not in the editor
 	fontSize = Math.max(minPx, Math.min(fontSize, 36)); // 36 or 100 not in the editor
