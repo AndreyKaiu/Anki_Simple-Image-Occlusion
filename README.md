@@ -200,9 +200,9 @@ Added support for the "Cloze TTS-Input mod Enhanced Cloze" add-on. If you are us
 
 The "img" image is wrapped in a tag with the class "sio-image-container":
 
-'''
+```
 <div class="sio-image-container"><img class="sio-image"
-'''
+```
 
 Since a "Cloze TTS-Input" note may contain hidden text segments with different languages ​​for text-to-speech (TTS) playback, a feature has been added to the prompt settings that allows you to specify both the language and the playback speed. Adjusting the speed is useful because you might prefer to listen to your native language at a faster pace, while a foreign language may sometimes need to be slowed down. Example: "::$ru07 hint" — Russian TTS at a speed of 0.7. Following the "$" symbol, you can specify a two-character language code (ar, bg, br, cn, de, es, fr, gb, it, jp, kr, pl, pt, ro, ru, tr, uk, us), optionally followed by two characters representing the speed. For instance, specifying the speed as "20" actually corresponds to a speed of "2.0".
 
