@@ -192,6 +192,21 @@ A note icon will appear on the rectangle, indicating that a sound has been assig
 If you want to save a sound file to the selected rectangle, press the hotkey: Shift+F5; if you want to select a sound file from another folder and have it automatically copied to the "collection.media" directory, press the hotkey: Shift+F3.
 
 
+=============================================
+
+**Version 2.4, date: 2026-11-21**
+
+Added support for the "Cloze TTS-Input mod Enhanced Cloze" add-on. If you are using the "Cloze TTS-Input" note type, you can create a simplified image-hiding effect (without interactive features or scale controls) by selecting a standard image—ideally including a few characters before and after it in your selection. 
+
+The "img" image is wrapped in a tag with the class "sio-image-container":
+
+'''
+<div class="sio-image-container"><img class="sio-image"
+'''
+
+Since a "Cloze TTS-Input" note may contain hidden text segments with different languages ​​for text-to-speech (TTS) playback, a feature has been added to the prompt settings that allows you to specify both the language and the playback speed. Adjusting the speed is useful because you might prefer to listen to your native language at a faster pace, while a foreign language may sometimes need to be slowed down. Example: "::$ru07 hint" — Russian TTS at a speed of 0.7. Following the "$" symbol, you can specify a two-character language code (ar, bg, br, cn, de, es, fr, gb, it, jp, kr, pl, pt, ro, ru, tr, uk, us), optionally followed by two characters representing the speed. For instance, specifying the speed as "20" actually corresponds to a speed of "2.0".
+
+Drawing on the concept from the "Cloze TTS-Input" note, we’ve implemented this feature here as well—since it’s entirely possible for an image to contain hidden text that, while appearing to consist of Latin letters, is certainly not meant to be read as Latin or English :)
 
 =============================================
 
@@ -217,6 +232,7 @@ The program already contains so much functionality that I can't even notice it a
 I don't get notified of your reviews, and properly troubleshooting an issue through them is nearly impossible. Instead, please either use the [issue tracker (preferred),](https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion/issues) add-on [support forums](https://forums.ankiweb.net/t/add-ons-simple-image-occlusion-official-support/60307), or just message me at [andreykaiu@gmail.com.](mailto:andreykaiu@gmail.com) Constructive feedback and suggestions are always welcome!
 
 **VERSIONS**
+- 2.4, date: 2026-11-21. You can now specify custom TTS settings in the "hint" field by prefixing them with a '$' sign. Example: "::$ru07 hint" — Russian TTS at a speed of 0.7. Added support for the "Cloze TTS-Input mod Enhanced Cloze" add-on.
 - 2.3, date: 2026-09-04. Blue font color if the only difference is in the diacritics. A sound can be specified for the rectangle. To simplify entering the "|" symbols, you can press the hotkey "Ctrl+;".
 - 2.2, date: 2026-08-17. Now, instead of a word or sentence, you can enter a list of words (separated by the | sign). Words from the list are checked in any order.
 - 2.1, date: 2026-08-14. The font size calculation algorithm has been slightly modified. A different display has been added for rectangles with reduced or increased difficulty ("hard -1 or +1"). Two different algorithms for tab positions, or disable them to set a custom order. In the "Front" field, the image will be displayed with a simplified rectangle layout. 
