@@ -208,6 +208,8 @@ Since a "Cloze TTS-Input" note may contain hidden text segments with different l
 
 Drawing on the concept from the "Cloze TTS-Input" note, we’ve implemented this feature here as well—since it’s entirely possible for an image to contain hidden text that, while appearing to consist of Latin letters, is certainly not meant to be read as Latin or English :)
 
+Attention! It is recommended to have Anki versions from 2026!
+
 =============================================
 
 **Some tips for creating (studying) flashcards:**
