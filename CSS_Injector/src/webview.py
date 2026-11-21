@@ -4,11 +4,11 @@ from aqt.webview import WebContent
 from aqt.editor import Editor
 from aqt.gui_hooks import webview_will_set_content
 
-# Получаем корневой ID аддона (675107747)
+# We get the root ID of the addon (675107747)
 addon_package = mw.addonManager.addonFromModule(__name__)
 print("addon_package =", addon_package)
 
-# Разрешаем доступ к статике внутри подпапки CSS_Injector
+# Allowing access to static content inside the CSS_Injector subfolder
 mw.addonManager.setWebExports(
     addon_package,
     r"CSS_Injector/user_files/.*\.(css|js|png|jpg|svg)|CSS_Injector/web/.*\.(js)"
@@ -17,10 +17,9 @@ mw.addonManager.setWebExports(
 def load_packages(webcontent: WebContent, context: Any) -> None:
     if isinstance(context, Editor):
         base_path = f"/_addons/{addon_package}"
-        # Загружаем injector.js из подпапки
+        # Load injector.js from the subfolder
         webcontent.js.append(f"{base_path}/CSS_Injector/web/injector.js")
-        # Не загружаем editor.css, так как injector.js сам подгрузит field.css
-        # (можно оставить, если нужен дополнительный CSS, но не обязательно)
+        # We do not load editor.css, since injector.js will load field.css itself        
 
 def init_webview() -> None:
     webview_will_set_content.append(load_packages)

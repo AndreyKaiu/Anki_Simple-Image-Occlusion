@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Simple Image Occlusion
 # https://github.com/AndreyKaiu/Anki_Simple-Image-Occlusion
-# Version 2.3, date: 2026-09-04
+# Version 2.4, date: 2026-11-21
+from . import CSS_Injector
+import json
 import aqt
 from aqt.qt import *
 from aqt.editor import Editor
@@ -25,13 +27,11 @@ from aqt import mw
 import anki.lang
 from aqt.utils import (showText, showInfo, tooltip, tr, getFile) 
 from bs4 import BeautifulSoup
-# from aqt.gui_hooks import collection_did_load
-from aqt.gui_hooks import profile_did_open
 
 
 from anki.consts import MODEL_STD
 
-from . import CSS_Injector
+
 
 
 
@@ -252,7 +252,19 @@ CreateTypeIOS = 'v2'
 v2_radio = None
 next_right = None
 next_down = None
+modelnameIOS = False
+modelnameTTSI = False
+save_selected_html = ''
 
+
+def handle_pycmd(handled, message, editor):
+    if message == "reload_note_keep_focus":
+        editor.loadNoteKeepingFocus()
+        editor.web.eval("window._restoreEditorCursor()")
+        return (True, None)
+    return handled
+
+gui_hooks.webview_did_receive_js_message.append(handle_pycmd)
 
 
 # needed to get the file name from "pycmd('play:'
@@ -318,8 +330,10 @@ def user_consent(text, title):
     return msg_box.exec() == QMessageBox.StandardButton.Yes 
 
 
+    
 def show_image_dialog(self):
-    global single_card_radio, next_right, next_down, editorD 
+    global modelnameIOS, modelnameTTSI 
+    global single_card_radio, next_right, next_down, editorD
     global idxcurrentField, close_avtosave
     global dialog, words_field_val, audiofile_field_val, Header_field_val, HeaderURL_filepdfpage_field_val, FrontExtra_field_val, Back_field_val, BackExtra_field_val, Comments_field_val, URLVictory_field_val, lngtag_field_val, ExistsIOS1, ExistsIOS2, CreateTypeIOS, v2_radio
     words_field_val = None # if the 'Words' field is found
@@ -334,173 +348,191 @@ def show_image_dialog(self):
     URLVictory_field_val = None
 
     editorD = self
+        
     
     img_field = None
     img_path = None
     content = None
     idx = getattr(self, "currentField", None)
     idxcurrentField = idx
+    self.currentField = idx
 
-    model_name = self.note.model()["name"]
-    if not model_name.startswith("Image Occlusion Simple"):
-        showInfo("ERROR. The note type must begin with 'Image Occlusion Simple'")
+    # model_name = self.note.model()["name"]
+    model_name = self.note.note_type()["name"]
+    modelnameIOS = model_name.startswith("Image Occlusion Simple")
+    modelnameTTSI = model_name.startswith("Cloze TTS-Input")
+    
+    if modelnameTTSI:
+        # Preserve cursor position
+        editorD.web.eval("window._saveEditorCursor()") 
+        
+        
+    if not modelnameIOS and not modelnameTTSI:    
+        showInfo("ERROR. The note type must begin with 'Image Occlusion Simple' or 'Cloze TTS-Input'")
         return
     
     field_names = list(self.note.keys())
-    if "Front" not in field_names:
-        showInfo("ERROR. Field 'Front' not found.")
-        return
+    
+    if modelnameIOS:            
         
-        
-    # ------------------------------------------------------------
-    # CHECKING FIELDS FOR CONVERSION FROM STANDARD IMAGE HIDING
-    # ------------------------------------------------------------
-    content_cloze = []          #  {{cX::image-occlusion:...}}
-    content_img_tag = None      #  <img>
-    fields_to_clear = []        
+        if "Front" not in field_names:
+            showInfo("ERROR. Field 'Front' not found.")
+            return
+            
+            
+        # ------------------------------------------------------------
+        # CHECKING FIELDS FOR CONVERSION FROM STANDARD IMAGE HIDING
+        # ------------------------------------------------------------
+        content_cloze = []          #  {{cX::image-occlusion:...}}
+        content_img_tag = None      #  <img>
+        fields_to_clear = []        
 
-    for fname in field_names:
-        val = self.note[fname]
-        if not val:
-            continue
-        
-        if '::image-occlusion:' in val:            
-            matches = re.findall(r'{{c\d+::image-occlusion:[^}]+}}', val)
-            if matches:
-                content_cloze.extend(matches)                
-                self.note[fname] = ""
-                fields_to_clear.append(fname)
-                continue    
-
-
-    if content_cloze:
-        
         for fname in field_names:
             val = self.note[fname]
             if not val:
                 continue
-                    
-            stripped = val.strip()
-            img_match = re.match(r'^<img[^>]*>$', stripped)
-            if img_match:
-                content_img_tag = stripped
-                self.note[fname] = ""
-                fields_to_clear.append(fname)
-                continue
-
-
-        # Now let's transform each cloze line into a div
-        divs = []
-        for cloze in content_cloze:
-            inner = re.search(r'{{c\d+::image-occlusion:([^}]+)}}', cloze)
-            if not inner:
-                continue
-            inner_str = inner.group(1)
-            # Let's analyze the parameters
-            parts = inner_str.split(':')
-            if not parts:
-                continue
-            typ = parts[0]  # rect, ellipse, polygon, text
-            params = {}
-            for p in parts[1:]:
-                if '=' in p:
-                    k, v = p.split('=', 1)
-                    params[k] = v
-
-            left = top = width = height = None
-            text = ""
-
-            if typ == 'rect':
-                left = float(params.get('left', 0))
-                top = float(params.get('top', 0))
-                width = float(params.get('width', 0))
-                height = float(params.get('height', 0))
-            elif typ == 'ellipse':
-                left = float(params.get('left', 0))
-                top = float(params.get('top', 0))
-                rx = float(params.get('rx', 0))
-                ry = float(params.get('ry', 0))
-                width = 2 * rx
-                height = 2 * ry    
-            elif typ == 'polygon':
-                # Extracting points
-                points_str = params.get('points', '')
-                if points_str:
-                    point_pairs = points_str.split()
-                    points = []
-                    for pair in point_pairs:
-                        if ',' in pair:
-                            x, y = pair.split(',')
-                            points.append((float(x), float(y)))
-                    if points:
-                        xs = [p[0] for p in points]
-                        ys = [p[1] for p in points]
-                        left = min(xs)
-                        top = min(ys)
-                        width = max(xs) - left
-                        height = max(ys) - top
-            elif typ == 'text':
-                left = float(params.get('left', 0))
-                top = float(params.get('top', 0))
-                scale = float(params.get('scale', 1.0))
-                fs = float(params.get('fs', 0.01))
-                text = params.get('text', '')            
-                width = scale * fs * len(text)            
-                height = 1.2 * scale * fs
-            else:
-                # Unknown type - skip
-                continue
-
-            # If any parameter is not defined, skip it.
-            if left is None or top is None or width is None or height is None:
-                continue
-
-            # Convert fractions to percentages (multiply by 100)
-            left_pct = left * 100
-            top_pct = top * 100
-            width_pct = width * 100
-            height_pct = height * 100
-
-            # Forming a style (with 5 decimal places)
-            style = f"left: {left_pct:.5f}%; top: {top_pct:.5f}%; width: {width_pct:.5f}%; height: {height_pct:.5f}%;"
-
-            cls = "sio-rect"
-            if typ == 'ellipse':
-                cls += " round"
             
+            if '::image-occlusion:' in val:            
+                matches = re.findall(r'{{c\d+::image-occlusion:[^}]+}}', val)
+                if matches:
+                    content_cloze.extend(matches)                
+                    self.note[fname] = ""
+                    fields_to_clear.append(fname)
+                    continue    
 
-            div_html = f'<div class="{cls}" style="{style}" word="{text}" hint=""></div>'
-            divs.append(div_html)
+
+        if content_cloze:
+            
+            for fname in field_names:
+                val = self.note[fname]
+                if not val:
+                    continue
+                        
+                stripped = val.strip()
+                img_match = re.match(r'^<img[^>]*>$', stripped)
+                if img_match:
+                    content_img_tag = stripped
+                    self.note[fname] = ""
+                    fields_to_clear.append(fname)
+                    continue
 
 
-        # Now let's prepare the image
-        img_src = None
-        if content_img_tag:
-            src_match = re.search(r'src=["\'](.*?)["\']', content_img_tag)
-            if src_match:
-                img_src = src_match.group(1)
-                # Create a new img tag with a class
-                content_img_tag = f'<img src="{img_src}" class="sio-image">'
+            # Now let's transform each cloze line into a div
+            divs = []
+            for cloze in content_cloze:
+                inner = re.search(r'{{c\d+::image-occlusion:([^}]+)}}', cloze)
+                if not inner:
+                    continue
+                inner_str = inner.group(1)
+                # Let's analyze the parameters
+                parts = inner_str.split(':')
+                if not parts:
+                    continue
+                typ = parts[0]  # rect, ellipse, polygon, text
+                params = {}
+                for p in parts[1:]:
+                    if '=' in p:
+                        k, v = p.split('=', 1)
+                        params[k] = v
+
+                left = top = width = height = None
+                text = ""
+
+                if typ == 'rect':
+                    left = float(params.get('left', 0))
+                    top = float(params.get('top', 0))
+                    width = float(params.get('width', 0))
+                    height = float(params.get('height', 0))
+                elif typ == 'ellipse':
+                    left = float(params.get('left', 0))
+                    top = float(params.get('top', 0))
+                    rx = float(params.get('rx', 0))
+                    ry = float(params.get('ry', 0))
+                    width = 2 * rx
+                    height = 2 * ry    
+                elif typ == 'polygon':
+                    # Extracting points
+                    points_str = params.get('points', '')
+                    if points_str:
+                        point_pairs = points_str.split()
+                        points = []
+                        for pair in point_pairs:
+                            if ',' in pair:
+                                x, y = pair.split(',')
+                                points.append((float(x), float(y)))
+                        if points:
+                            xs = [p[0] for p in points]
+                            ys = [p[1] for p in points]
+                            left = min(xs)
+                            top = min(ys)
+                            width = max(xs) - left
+                            height = max(ys) - top
+                elif typ == 'text':
+                    left = float(params.get('left', 0))
+                    top = float(params.get('top', 0))
+                    scale = float(params.get('scale', 1.0))
+                    fs = float(params.get('fs', 0.01))
+                    text = params.get('text', '')            
+                    width = scale * fs * len(text)            
+                    height = 1.2 * scale * fs
+                else:
+                    # Unknown type - skip
+                    continue
+
+                # If any parameter is not defined, skip it.
+                if left is None or top is None or width is None or height is None:
+                    continue
+
+                # Convert fractions to percentages (multiply by 100)
+                left_pct = left * 100
+                top_pct = top * 100
+                width_pct = width * 100
+                height_pct = height * 100
+
+                # Forming a style (with 5 decimal places)
+                style = f"left: {left_pct:.5f}%; top: {top_pct:.5f}%; width: {width_pct:.5f}%; height: {height_pct:.5f}%;"
+
+                cls = "sio-rect"
+                if typ == 'ellipse':
+                    cls += " round"
+                
+
+                div_html = f'<div class="{cls}" style="{style}" word="{text}" hint=""></div>'
+                divs.append(div_html)
+
+
+            # Now let's prepare the image
+            img_src = None
+            if content_img_tag:
+                src_match = re.search(r'src=["\'](.*?)["\']', content_img_tag)
+                if src_match:
+                    img_src = src_match.group(1)
+                    # Create a new img tag with a class
+                    content_img_tag = f'<img src="{img_src}" class="sio-image">'
+            
+            
+            # Assembling the final HTML for the Front field
+            if content_img_tag:
+                final_front = content_img_tag + ''.join(divs)
+                self.note['Front'] = final_front
+            
+        # ------------------------------------------------------------
         
         
-        # Assembling the final HTML for the Front field
-        if content_img_tag:
-            final_front = content_img_tag + ''.join(divs)
-            self.note['Front'] = final_front
+        idx = field_names.index("Front")
+        # Set the current field index
+        self.currentField = idx                
+            
+        # Force focus on the editor
+        self.web.eval(f"focusField({idx});")
         
-    # ------------------------------------------------------------
-    
-    
-    idx = field_names.index("Front")
-    # Set the current field index
-    self.currentField = idx
-    # Force focus on the editor
-    self.web.eval(f"focusField({idx});")
+      
+        
 
-    # if idx is None:
-    #     locF = localizationF("Unable_to_determine_active_field", "Unable to determine active field.")
-    #     showInfo(locF)
-    #     return        
+    if idx is None:
+        locF = localizationF("Unable_to_determine_active_field", "Unable to determine active field.")
+        showInfo(locF)
+        return        
 
     # Get the field name by index    
     if idx < 0 or idx >= len(field_names):
@@ -508,7 +540,7 @@ def show_image_dialog(self):
         showInfo(locF)
         return
     field = field_names[idx]
-
+    
     # We are looking for <img> in this field
     content = self.note[field]
     m = re.search(r'<img[^>]+src=["\'](.*?)["\']', content)
@@ -516,66 +548,15 @@ def show_image_dialog(self):
         locF = localizationF("There_are_no_images_in_the_field", "There are no images in the field {field}")        
         showInfo(f"{locF.format(field=field)}.")
         return
-    
-    # Check for the presence of the 'Words' field and save its value
-    if 'Words' in field_names:
-        words_field_val = self.note['Words']
-        if words_field_val is None:
-            words_field_val = ""
-
-    # Check for the presence of the 'LngTag' field and save its value
-    if 'LngTag' in field_names:
-        lngtag_field_val = self.note['LngTag']       
-        if lngtag_field_val is None:
-            lngtag_field_val = ""
-    
-    if 'AudioFile' in field_names:
-        audiofile_field_val = self.note['AudioFile']
-        if audiofile_field_val is None:
-            audiofile_field_val = ""
-
-    if 'Header' in field_names:
-        Header_field_val = self.note['Header']
-        if Header_field_val is None:
-            Header_field_val = ""
-
-    if 'HeaderURL_filepdf#page=' in field_names:
-        HeaderURL_filepdfpage_field_val = self.note['HeaderURL_filepdf#page=']
-        if HeaderURL_filepdfpage_field_val is None:
-            HeaderURL_filepdfpage_field_val = ""
-
-    if 'Front Extra' in field_names:
-        FrontExtra_field_val = self.note['Front Extra']
-        if FrontExtra_field_val is None:
-            FrontExtra_field_val = ""
-    
-    if 'Back' in field_names:
-        Back_field_val = self.note['Back']
-        if Back_field_val is None:
-            Back_field_val = ""
-    
-    if 'Back Extra' in field_names:
-        BackExtra_field_val = self.note['Back Extra']
-        if BackExtra_field_val is None:
-            BackExtra_field_val = ""
-    
-    if 'Comments' in field_names:
-        Comments_field_val = self.note['Comments']
-        if Comments_field_val is None:
-            Comments_field_val = ""
-    
-    if 'URLVictory' in field_names:
-        URLVictory_field_val = self.note['URLVictory']
-        if URLVictory_field_val is None:
-            URLVictory_field_val = ""
-    
-
+        
     img_field = field
     img_path = m.group(1).split("?")[0]    
     collection = self.note.col
     media_dir = collection.media.dir()
-    full_path = os.path.join(media_dir, img_path)
-
+    full_path = os.path.join(media_dir, img_path)   
+    rectangles_html = ''
+    
+    
     if not os.path.exists(full_path):
         locF = localizationF("Image_not_found", "Image not found")
         showInfo(f"{locF}: {full_path}")
@@ -589,46 +570,17 @@ def show_image_dialog(self):
         showInfo(f"{locF}: {html_file_path}")
         return
 
+    html_content = ''
     with open(html_file_path, "r", encoding="utf-8") as html_file:
         html_content = html_file.read()
-    
-
-    
-
-    html_content = html_content.replace(
-        '<img src="test.jpg" class="sio-image">',
-        f'<img src="{img_path}" class="sio-image">'
-    )
-   
-    html_field = self.note[img_field] # get HTML in the field    
-    rectangles_html = transform_html(html_field, words_field_val)
-    if rectangles_html:
-        html_content = html_content.replace(
-            f'<img src="{img_path}" class="sio-image">',
-            f'<img src="{img_path}" class="sio-image">\n{rectangles_html}'
-        )
-
-
-    # Embed JavaScript content directly into HTML
-    js_file_path = os.path.join(addon_dir, "EditRectangle.js")
-    if os.path.exists(js_file_path):
-        with open(js_file_path, "r", encoding="utf-8") as js_file:
-            js_content = js_file.read()
-        html_content = html_content.replace(
-            '<script src="EditRectangle.js"></script>',
-            f'<script>{js_content}</script>'
-        )
-    else:
-        locF = localizationF("HTML_file_not_found", "JavaScript file not found")
-        showInfo(f"{locF}: {js_file_path}")
-        return
-    
-    
-
+        
+        
     # Create a window to display HTML
     dialog = QDialog(self.widget)
 
     locF = localizationF("Simple_image_occlusion", "Simple image occlusion")
+    if modelnameTTSI:
+        locF = "[Cloze TTS-Input] <= " + locF
     dialog.setWindowTitle(locF)
     if pyqt_version == "PyQt6":
         dialog.setWindowFlag(dialog.windowFlags() | Qt.WindowType.WindowMaximizeButtonHint)
@@ -650,7 +602,195 @@ def show_image_dialog(self):
     
     media_path = os.path.join(mw.pm.profileFolder(), "collection.media") + "/"
     media_url = QUrl.fromLocalFile(media_path) 
-    web_view.setHtml(html_content, media_url)
+    
+    
+    
+    def process_selected_html(selected_html, words_field_val):
+        global save_selected_html
+        nonlocal img_field, img_path, collection, media_dir, full_path, rectangles_html, html_content, media_url    
+
+        save_selected_html = selected_html
+        
+        if not selected_html:
+            dialog.close()
+            showInfo("No text selected.")
+            return
+        
+        soup = BeautifulSoup(selected_html, 'html.parser')
+
+        # Find the first image in the selected HTML
+        img = soup.find('img')
+
+        if not img:
+            dialog.close()
+            showInfo("There are no images in the selected text.")
+            return
+
+        # Get image path
+        img_path = img.get('src', '').split("?")[0]
+        
+        if not img_path:
+            showInfo("Image path is empty.")
+            return
+
+        img_field = self.note.keys()[self.currentField]
+
+        collection = self.note.col
+        media_dir = collection.media.dir()
+        full_path = os.path.join(media_dir, img_path)
+                
+
+        if not os.path.exists(full_path):
+            dialog.close()
+            showInfo(f"Image not found: {full_path}")
+            return
+
+        # Convert only the selected HTML
+        rectangles_html = transform_html(selected_html, words_field_val)
+        
+        html_content = html_content.replace(
+            '<img src="test.jpg" class="sio-image">',
+            f'<img src="{img_path}" class="sio-image">'
+        )
+        
+        if rectangles_html:
+            html_content = html_content.replace(
+                f'<img src="{img_path}" class="sio-image">',
+                f'<img src="{img_path}" class="sio-image">\n{rectangles_html}'
+            )
+        
+        # Embed JavaScript content directly into HTML
+        js_file_path = os.path.join(addon_dir, "EditRectangle.js")
+        if os.path.exists(js_file_path):
+            with open(js_file_path, "r", encoding="utf-8") as js_file:
+                js_content = js_file.read()
+            html_content = html_content.replace(
+                '<script src="EditRectangle.js"></script>',
+                f'<script>{js_content}</script>'
+            )
+        else:
+            dialog.close()
+            locF = localizationF("HTML_file_not_found", "JavaScript file not found")
+            showInfo(f"{locF}: {js_file_path}")
+            return
+            
+        web_view.setHtml(html_content, media_url)
+        
+
+    
+    if modelnameTTSI:
+        js = """
+        (function() {
+            return window._savedSelectedHTML || "";
+        })()
+        """
+
+        words_field_val = ""
+
+        self.web.evalWithCallback(
+            js,
+            lambda selected_html: process_selected_html(
+                selected_html, words_field_val
+            )
+        )
+        
+    
+    
+    
+    if modelnameIOS:
+    
+        # Check for the presence of the 'Words' field and save its value
+        if 'Words' in field_names:
+            words_field_val = self.note['Words']
+            if words_field_val is None:
+                words_field_val = ""
+
+        # Check for the presence of the 'LngTag' field and save its value
+        if 'LngTag' in field_names:
+            lngtag_field_val = self.note['LngTag']       
+            if lngtag_field_val is None:
+                lngtag_field_val = ""
+        
+        if 'AudioFile' in field_names:
+            audiofile_field_val = self.note['AudioFile']
+            if audiofile_field_val is None:
+                audiofile_field_val = ""
+
+        if 'Header' in field_names:
+            Header_field_val = self.note['Header']
+            if Header_field_val is None:
+                Header_field_val = ""
+
+        if 'HeaderURL_filepdf#page=' in field_names:
+            HeaderURL_filepdfpage_field_val = self.note['HeaderURL_filepdf#page=']
+            if HeaderURL_filepdfpage_field_val is None:
+                HeaderURL_filepdfpage_field_val = ""
+
+        if 'Front Extra' in field_names:
+            FrontExtra_field_val = self.note['Front Extra']
+            if FrontExtra_field_val is None:
+                FrontExtra_field_val = ""
+        
+        if 'Back' in field_names:
+            Back_field_val = self.note['Back']
+            if Back_field_val is None:
+                Back_field_val = ""
+        
+        if 'Back Extra' in field_names:
+            BackExtra_field_val = self.note['Back Extra']
+            if BackExtra_field_val is None:
+                BackExtra_field_val = ""
+        
+        if 'Comments' in field_names:
+            Comments_field_val = self.note['Comments']
+            if Comments_field_val is None:
+                Comments_field_val = ""
+        
+        if 'URLVictory' in field_names:
+            URLVictory_field_val = self.note['URLVictory']
+            if URLVictory_field_val is None:
+                URLVictory_field_val = ""
+    
+
+       
+
+    
+     
+    html_field = ''
+    if modelnameIOS:         
+        html_content = html_content.replace(
+            '<img src="test.jpg" class="sio-image">',
+            f'<img src="{img_path}" class="sio-image">'
+        )
+
+        html_field = self.note[img_field] # get HTML in the field   
+        rectangles_html = transform_html(html_field, words_field_val)
+        
+    
+        if rectangles_html:
+            html_content = html_content.replace(
+                f'<img src="{img_path}" class="sio-image">',
+                f'<img src="{img_path}" class="sio-image">\n{rectangles_html}'
+            )
+
+
+        # Embed JavaScript content directly into HTML
+        js_file_path = os.path.join(addon_dir, "EditRectangle.js")
+        if os.path.exists(js_file_path):
+            with open(js_file_path, "r", encoding="utf-8") as js_file:
+                js_content = js_file.read()
+            html_content = html_content.replace(
+                '<script src="EditRectangle.js"></script>',
+                f'<script>{js_content}</script>'
+            )
+        else:
+            locF = localizationF("HTML_file_not_found", "JavaScript file not found")
+            showInfo(f"{locF}: {js_file_path}")
+            return
+       
+    
+    if modelnameIOS:
+        web_view.setHtml(html_content, media_url)
     
     layout = QVBoxLayout()
     layout.addWidget(web_view)
@@ -769,8 +909,9 @@ def show_image_dialog(self):
     card_option_group.addButton(multi_card_radio)
     card_option_layout.addWidget(single_card_radio)
     card_option_layout.addWidget(multi_card_radio)
-    layout.addLayout(card_option_layout)
-
+    
+    if modelnameIOS:
+        layout.addLayout(card_option_layout)
 
     button_layout = QHBoxLayout()    
     # Adding a save button
@@ -808,6 +949,7 @@ def show_image_dialog(self):
 
 def setup_image_button(buttons, editor):
     locF = localizationF("Simple_image_occlusion", "Simple image occlusion")
+        
     image_button = editor.addButton(
         icon=None,
         cmd="Simple_image_occlusion",        
@@ -1154,8 +1296,21 @@ def get_modified_html(web_view, callback):
     web_view.page().toHtml(internal_callback)
 
 
-def save(editor, web_view, img_field):    
+def strip_self_closing(html):
+    # delete '/' in <img .../> -> <img ...>
+    return re.sub(
+        r'<(img|br|hr|input|meta|link|area|base|col|embed|param|source|track|wbr)\b([^>]*?)\s*/>',
+        r'<\1\2>',
+        html,
+        flags=re.IGNORECASE
+    )
+
+
+def save(editor, web_view, img_field): 
+    global modelnameIOS, modelnameTTSI
+
     def on_html_processed(html_content, words_list):
+        global modelnameIOS, modelnameTTSI, save_selected_html
         global words_field_val, lngtag_field_val, audiofile_field_val, Header_field_val, HeaderURL_filepdfpage_field_val, FrontExtra_field_val, Back_field_val, BackExtra_field_val, Comments_field_val, URLVictory_field_val
         if not html_content:
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Save...</p>")
@@ -1167,59 +1322,120 @@ def save(editor, web_view, img_field):
             tooltip(f"<p style='color: yellow; background-color: black'>ERROR. Note not initialized...</p>")
             return
 
-        # Saving HTML in the image field
-        editor.note[img_field] = html_content
-        
-        # If words_field_val is passed and it is not None, update the Words field
-        if words_field_val is not None:
-            # If there is a list of words, combine them
-            if words_list and len(words_list) > 0:
-                # We combine words using a space or another separator
-                combined_words = '; '.join(words_list)
-                editor.note['Words'] = combined_words
-            else:
-                # If there are no words, save the empty line
-                editor.note['Words'] = ''
-        
-        # If lngtag_field_val is passed and it is not None, update the LngTag field
-        if lngtag_field_val is not None:
-            editor.note['LngTag'] = lngtag_field_val
-        
-        if audiofile_field_val is not None:
-            editor.note['AudioFile'] = audiofile_field_val
-        
-        if Header_field_val is not None:
-            editor.note['Header'] = Header_field_val
-        
-        if HeaderURL_filepdfpage_field_val is not None:
-            editor.note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+                    
+        if modelnameTTSI:
+            # Getting all the HTML from the note field
+            note_html = editor.note[img_field]
 
-        if FrontExtra_field_val is not None:
-            editor.note['Front Extra'] = FrontExtra_field_val
+            # Saving global HTML to a local variable
+            loc_selected_html = save_selected_html
 
-        if Back_field_val is not None:
-            editor.note['Back'] = Back_field_val
+            if loc_selected_html:
+                soup = BeautifulSoup(loc_selected_html, "html.parser")
+
+                # Removing all divs with the sio-rect class
+                for div in soup.find_all("div", class_="sio-rect"):
+                    div.decompose()
+
+                # Finding the first img
+                first_img = soup.find("img")
+
+                if first_img:
+                    # Checking if img is inside sio-image-container
+                    image_container = first_img.find_parent(
+                        "div", class_="sio-image-container"
+                    )
+
+                    # Preparing HTML for replacement
+                    replacement = BeautifulSoup(html_content, "html.parser")
+
+                    if not image_container:
+                        # If there is no container, wrap html_content
+                        wrapper = soup.new_tag("div", **{"class": "sio-image-container"})
+                        wrapper.append(replacement)
+                        replacement = wrapper
+
+                    # Replace img with prepared HTML
+                    first_img.replace_with(replacement)
+
+                loc_selected_html = str(soup)
+                loc_selected_html= strip_self_closing(loc_selected_html)
+
+                # Replace all occurrences of save_selected_html
+                if save_selected_html:                                      
+                    note_html = note_html.replace(
+                        save_selected_html, loc_selected_html
+                    )
+                
+                editor.note[img_field] = note_html
+                editor.web.eval(f"window._savedSelectedHTML = {json.dumps(loc_selected_html)};")
+                
+                
+            
+        if modelnameIOS:
+            # Saving HTML in the image field
+            editor.note[img_field] = html_content
         
-        if BackExtra_field_val is not None:
-            editor.note['Back Extra'] = BackExtra_field_val
+            # If words_field_val is passed and it is not None, update the Words field
+            if words_field_val is not None:
+                # If there is a list of words, combine them
+                if words_list and len(words_list) > 0:
+                    # We combine words using a space or another separator
+                    combined_words = '; '.join(words_list)
+                    editor.note['Words'] = combined_words
+                else:
+                    # If there are no words, save the empty line
+                    editor.note['Words'] = ''
+            
+            # If lngtag_field_val is passed and it is not None, update the LngTag field
+            if lngtag_field_val is not None:
+                editor.note['LngTag'] = lngtag_field_val
+            
+            if audiofile_field_val is not None:
+                editor.note['AudioFile'] = audiofile_field_val
+            
+            if Header_field_val is not None:
+                editor.note['Header'] = Header_field_val
+            
+            if HeaderURL_filepdfpage_field_val is not None:
+                editor.note['HeaderURL_filepdf#page='] = HeaderURL_filepdfpage_field_val
+
+            if FrontExtra_field_val is not None:
+                editor.note['Front Extra'] = FrontExtra_field_val
+
+            if Back_field_val is not None:
+                editor.note['Back'] = Back_field_val
+            
+            if BackExtra_field_val is not None:
+                editor.note['Back Extra'] = BackExtra_field_val
+            
+            if Comments_field_val is not None:
+                editor.note['Comments'] = Comments_field_val
+            
+            if URLVictory_field_val is not None:
+                editor.note['URLVictory'] = URLVictory_field_val
+            
+            # Mark the note as modified
+            # editor.note.modified = True
         
-        if Comments_field_val is not None:
-            editor.note['Comments'] = Comments_field_val
-        
-        if URLVictory_field_val is not None:
-            editor.note['URLVictory'] = URLVictory_field_val
-        
-        # Mark the note as modified
-        # editor.note.modified = True
-        
-        
+        if modelnameTTSI:
+            # Saving the cursor position
+            editorD.web.eval("window._saveEditorCursor()")   
+          
         if editor.note.id != 0:
-            editor.note.flush()
-            # editor.mw.col.update_note(editor.note)
+            # editor.note.flush()
+            editor.mw.col.update_note(editor.note)
             editor.mw.fade_in_webview()
             editor._refresh_needed = None
         
         editor.loadNoteKeepingFocus()
+        
+        if modelnameTTSI:
+            # Restoring the cursor position
+            editor.web.eval("window._restoreEditorCursor()")
+            
+            
+        
                                 
 
         locF = localizationF("Saved", "Saved")
@@ -1227,11 +1443,17 @@ def save(editor, web_view, img_field):
 
     # Pass both values ​​to get_modified_html
     get_modified_html(web_view, on_html_processed)
+    
+    
+    
+    
 
 
 
-def saveclose(editor, web_view, img_field):
+def saveclose(editor, web_view, img_field):    
     global dialog, close_avtosave, idxcurrentField, editorD  
+    global modelnameIOS, modelnameTTSI
+                   
     save(editor, web_view, img_field)
     close_avtosave = True
     if idxcurrentField is not None and editorD is not None:
@@ -1239,14 +1461,28 @@ def saveclose(editor, web_view, img_field):
         editorD.web.eval(f"focusField({idxcurrentField});")
     dialog.close()
 
+    
+    if modelnameTTSI:
+        # Restoring the cursor position
+        editorD.web.eval("window._restoreEditorCursor()")
+
 
 def closeDialog():
+    global modelnameIOS, modelnameTTSI
     global dialog, close_avtosave, idxcurrentField, editorD 
     close_avtosave = False
+        
+        
     if idxcurrentField is not None and editorD is not None:
         editorD.currentField = idxcurrentField
         editorD.web.eval(f"focusField({idxcurrentField});")
     dialog.close()
+    
+    editorD.loadNoteKeepingFocus()
+    
+    if modelnameTTSI:
+        # Restoring the cursor position
+        editorD.web.eval("window._restoreEditorCursor()")
 
 
 def RefreshDeck_id(editor, deck_id):  
@@ -1630,7 +1866,7 @@ def create_note_type_if_not_exists():
     models = col.models    
     name = "Image Occlusion Simple (v2)"
 
-    Attention_Addon_Key = 'attention_Addon_675107747_20260904_20'
+    Attention_Addon_Key = 'attention_Addon_675107747_20261121_23'
     try:        
         attention_Addon = mw.pm.profile.get(Attention_Addon_Key, '')
     except:
@@ -1639,6 +1875,11 @@ def create_note_type_if_not_exists():
         try:
             if askUser(text="""PLEASE READ the "Simple Image Occlusion" add-on page!
 https://ankiweb.net/shared/info/675107747
+Version 2.4:
+You can now specify custom TTS settings in the "hint" field by prefixing them with a '$' sign. Example: "::$ru07 hint" — Russian TTS at a speed of 0.7.
+Added support for the "Cloze TTS-Input mod Enhanced Cloze" add-on.
+
+Version 2.3:
 Small changes have been made to the "Image Occlusion Simple (v2)" note type:
 An answer is considered correct even if you don't enter diacritics. However, to still distinguish missing diacritics, the text in such a field will be blue (you can change the "--diactricnotequal" CSS variable).
 For a rectangle, you can specify a sound to play instead of speech synthesis (since speech synthesis is not available for all languages ​​or its quality is low).
@@ -1646,7 +1887,7 @@ Now, instead of a word or sentence, you can enter a list of words (separated by 
 Do not show this window again?""",                     
                         msgfunc=QMessageBox.information,
                         defaultno=False,
-                        title="Add-on 'Image Occlusion Simple' version 2.3. Attention!"):
+                        title="Add-on 'Image Occlusion Simple' version 2.4. Attention!"):
                 mw.pm.profile[Attention_Addon_Key] = 'True'
         except:
             pass
@@ -1754,7 +1995,7 @@ Do not show this window again?""",
     models.add_template(model, template)
     models.add(model)    
 
-profile_did_open.append(create_note_type_if_not_exists)
+gui_hooks.profile_did_open.append(create_note_type_if_not_exists)
 
 
 

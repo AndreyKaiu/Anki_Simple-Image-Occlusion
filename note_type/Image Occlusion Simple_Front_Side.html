@@ -1,4 +1,4 @@
-<!-- Version 2.3, date: 2026-09-04 -->
+<!-- Version 2.4, date: 2026-11-21 -->
 {{#Header}}<div id="f_header">{{#HeaderURL_filepdf#page=}}<a href="{{text:HeaderURL_filepdf#page=}}" target="_blank">{{/HeaderURL_filepdf#page=}}{{Header}}{{#HeaderURL_filepdf#page=}}<span id="pagePdf"></span></a>{{/HeaderURL_filepdf#page=}}</div>{{/Header}}
 <div class="sio-container">    
     <div class="sio-image-container wfit">        
@@ -1250,7 +1250,7 @@ function getCharCoef(fontFamily) {
 }
 
 
-var charWidthCoef = 0.7; // 0.6in the editor
+var charWidthCoef = 0.8; // 0.6in the editor
 elSR = document.querySelectorAll('.txt-sio-rect')[0];
 if(elSR) {
     const fontFamily = getComputedStyle(elSR).fontFamily;
@@ -1258,10 +1258,77 @@ if(elSR) {
     // charWidthCoef += 0.1; // in the editor   
 }
 
+
+
+function parseLnSpTxt(str) {
+    const result = {
+        lang: '',
+        speed: '',
+        hint: str
+    };
+
+    if (!str.startsWith('$')) {
+        return result;
+    }
+
+    const match = str.match(/^\$(?:([a-zA-Z]{2}))?(\d{1,3})?(?:\s+|$)([\s\S]*)$/);
+
+    if (!match) return result;
+
+    const languages = {
+        AR: 'ar-SA',
+        BG: 'bg-BG',
+        BR: 'pt-BR',
+        CN: 'zh-CN',
+        DE: 'de-DE',
+        ES: 'es-ES',
+        FR: 'fr-FR',
+        GB: 'en-GB',
+        IT: 'it-IT',
+        JP: 'ja-JP',
+        KR: 'ko-KR',
+        PL: 'pl-PL',
+        PT: 'pt-PT',
+        RO: 'ro-RO',
+        RU: 'ru-RU',
+        TR: 'tr-TR',
+        UK: 'uk-UA',
+        US: 'en-US'
+    };
+
+    result.lang = match[1]
+        ? languages[match[1].toUpperCase()] || ''
+        : '';
+
+    if (match[2]) {
+        const num = match[2];
+
+        result.speed = num.length === 1
+            ? num + '.0'
+            : num[0] + '.' + num.slice(1);
+    }
+
+    result.hint = match[3];
+
+    return result;
+}
+
+function cleanFullText(str) {
+    if (!str) return '';        
+    let text = str.replace(/\{\{c\d+::([^{}]+?)(::[^{}]+?)?\}\}/g, '$1');            
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    text = doc.body.textContent || '';            
+    text = text
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();    
+    return text;
+}
+
 function fitFontSizeToRect(rectElement) {
     let txt = rectElement.textContent || "";
-    let word = rectElement.getAttribute('word') || "";
-    let hint = rectElement.getAttribute('hint') || "";
+    let word = rectElement.getAttribute('word') || "";    
+    let hint = rectElement.getAttribute('hint') || "";    
 
     if (txt.length === 0 && hint.length > word.length) txt = hint;
     else if (word.length > txt.length) txt = word;
@@ -1732,18 +1799,25 @@ function getUnrotatedRatios(el, e) {
     };
 }
 
+
+
+    
 function pointerdownSiorect(e) {
     let el = this;
-    let w = el.getAttribute("word");
-    let soundAttr = el.getAttribute('sound');
+    const w = el.getAttribute('word');    
+    
     if( el.style.backgroundColor == rootcss_goodanswer || el.classList.contains('wordshow') || el.classList.contains('wordshow2') ) {        
         if( !gamePauseSound && !(gameRun && gameI >= 0) ) {
             const soundAttr = el.getAttribute('sound');
             if (soundAttr) {
                 playSound(soundAttr);
             } else {
-                playSound(''); 
-                speakText(w);
+                playSound('');                 
+                let txttoSpeak = w;
+                txttoSpeak = cleanFullText(txttoSpeak);                
+                let langST = el.getAttribute('ttslang') == '' ? "" : el.getAttribute('ttslang');  
+                let speedST = el.getAttribute('ttspeed') == '' ? 1.0 : parseFloat(el.getAttribute('ttspeed'));                
+                speakText(txttoSpeak, langST, "", speedST, 1.0, 1.0);
             }            
         }        
     }     
@@ -1969,71 +2043,186 @@ function onlySimpleTextNoDiacritic(str) { // Simplifying text for comparison
 }
  
  
-// text-to-speech
-function speakText(txtSpeak, lng='langSS') {  
-    if( langSS == '' ) return;
-    if(lng == 'langSS') {        
-        lng = langSS; 
-    }        
+ 
+// function speakTextOLD(txtSpeak, lng='langSS') {  
+    // if( langSS == '' ) return;
+    // if(lng == 'langSS') {        
+        // lng = langSS; 
+    // }        
         
-    /* AnkiDroidJS API */
-    if (typeof AnkiDroidJS !== 'undefined') {        
-        async function apiADResult() {
-            try { apiAnkiDroid.ankiTtsSetLanguage(lng); } catch(e){}
+    // /* AnkiDroidJS API */
+    // if (typeof AnkiDroidJS !== 'undefined') {        
+        // async function apiADResult() {
+            // try { apiAnkiDroid.ankiTtsSetLanguage(lng); } catch(e){}
+            // try {
+                // if(speedSS != '') apiAnkiDroid.ankiTtsSetSpeechRate(parseFloat(speedSS)); 
+                // else apiAnkiDroid.ankiTtsSetSpeechRate(1.0);
+            // } catch(e){}
+            // try { apiAnkiDroid.ankiTtsStop(); } catch(e){}
+            // try { apiAnkiDroid.ankiTtsSpeak( txtSpeak ); } catch(e){}            
+        // }
+        // apiADResult();
+    // }
+    // else {
+        // try {
+            // let voices = speechSynthesis.getVoices();
+            // if (voices.length === 0) {
+                // speechSynthesis.onvoiceschanged = () => {
+                    // speakText(txtSpeak);
+                // };
+                // return;
+            // }
+                            
+            // const utterance = new SpeechSynthesisUtterance(txtSpeak);
+            // let selectedVoice = null;                
+             // if (voicesSS && voicesSS.trim() !== '') {
+                // const preferredVoices = voicesSS
+                    // .split(',')
+                    // .map(v => v.trim().replace(/_/g, ' ').toLowerCase());
+                 // for (const pref of preferredVoices) {
+                    // selectedVoice = voices.find(v =>
+                        // v.name.toLowerCase().includes(pref)
+                    // );
+                    // if (selectedVoice) break;
+                // }
+            // }
+            
+            // if (!selectedVoice) {
+                // selectedVoice = voices.find(v =>
+                                    // v.lang === lng || v.lang.startsWith(lng.slice(0, 2))
+                                // );
+            // }
+            
+            // if (selectedVoice) {
+                // utterance.voice = selectedVoice;
+                // utterance.lang = selectedVoice.lang;
+            // } else {
+                // utterance.lang = lng;
+            // }
+             // utterance.rate = parseFloat(speedSS) || 1.0;
+                            
+            // if ('speechSynthesis' in window) {
+                // speechSynthesis.cancel();
+                // speechSynthesis.speak(utterance);                    
+            // }
+        // }
+        // catch(e){}
+    // }
+// } 
+ 
+// text-to-speech
+function speakText(txtSpeak, lng='langSS', voiceName = '', rate=1.0, pitch=1.0, volume=1.0) {
+        
+        if( langSS == '' ) return;
+        if(lng == 'langSS') {
+            lng = langSS; 
+        }
+        
+        console.log("txtSpeak="+txtSpeak+" lng="+lng+" voiceName="+voiceName);
+
+        /* AnkiDroidJS API */
+        if (typeof AnkiDroidJS !== 'undefined') {
+            async function apiADResult() {
+                try { 
+                    apiAnkiDroid.ankiTtsSetSpeechRate(rate);
+                    apiAnkiDroid.ankiTtsSetPitch(pitch);
+                    // For AnkiDroid, you can transmit voice in the "en_US" or "en-US" format
+                    const langCode = lng.replace('_', '-');
+                    apiAnkiDroid.ankiTtsSetLanguage(langCode); 
+                } catch(e){}
+                try { apiAnkiDroid.ankiTtsStop(); } catch(e){}
+                try { apiAnkiDroid.ankiTtsSpeak(txtSpeak); } catch(e){}
+            }
+            apiADResult();
+        }
+        else {
+            
+            // For the web version
             try {
-                if(speedSS != '') apiAnkiDroid.ankiTtsSetSpeechRate(parseFloat(speedSS)); 
-                else apiAnkiDroid.ankiTtsSetSpeechRate(1.0);
-            } catch(e){}
-            try { apiAnkiDroid.ankiTtsStop(); } catch(e){}
-            try { apiAnkiDroid.ankiTtsSpeak( txtSpeak ); } catch(e){}            
-        }
-        apiADResult();
-    }
-    else {
-        try {
-            let voices = speechSynthesis.getVoices();
-            if (voices.length === 0) {
-                speechSynthesis.onvoiceschanged = () => {
-                    speakText(txtSpeak);
-                };
-                return;
-            }
-                            
-            const utterance = new SpeechSynthesisUtterance(txtSpeak);
-            let selectedVoice = null;                
-             if (voicesSS && voicesSS.trim() !== '') {
-                const preferredVoices = voicesSS
-                    .split(',')
-                    .map(v => v.trim().replace(/_/g, ' ').toLowerCase());
-                 for (const pref of preferredVoices) {
-                    selectedVoice = voices.find(v =>
-                        v.name.toLowerCase().includes(pref)
-                    );
-                    if (selectedVoice) break;
+                if (!('speechSynthesis' in window)) {
+                    console.warn('Speech synthesis not supported');
+                    return;
                 }
+        
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+        
+                const utterance = new SpeechSynthesisUtterance(txtSpeak);
+                const availableVoices = window.speechSynthesis.getVoices();
+                
+                // Normalizing the language
+                const normalizedLang = (lng || 'en-US').replace('_', '-');
+                utterance.lang = normalizedLang;
+        
+               
+                let selectedVoice = null;
+        
+                // Check that voiceName is passed and is a string
+                if (voiceName && typeof voiceName === 'string' && voiceName.trim() !== '') {
+                    // Search for a voice
+                    selectedVoice = availableVoices.find(voice => {
+                        const voiceNameLower = voiceName.toLowerCase().trim();
+                        const voiceNameNormalized = voiceNameLower.replace(/\s/g, '');
+                        
+                        return voice.name === voiceName ||
+                               voice.name.toLowerCase() === voiceNameLower ||
+                               voice.name.toLowerCase().includes(voiceNameLower) ||
+                               voice.name.replace(/\s/g, '').toLowerCase() === voiceNameNormalized;
+                    });
+                }
+        
+                // If no voice is found, search by language
+                if (!selectedVoice) {
+                    // First, an exact match
+                    selectedVoice = availableVoices.find(voice => 
+                        voice.lang === normalizedLang
+                    );
+                    
+                    // Then by the first two letters
+                    if (!selectedVoice) {
+                        const langPrefix = normalizedLang.substring(0, 2);
+                        selectedVoice = availableVoices.find(voice => 
+                            voice.lang.startsWith(langPrefix)
+                        );
+                    }
+                }
+        
+                // If there's still no voice, take the first available one
+                if (!selectedVoice && availableVoices.length > 0) {
+                    selectedVoice = availableVoices[0];
+                }
+        
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                    if (selectedVoice.lang) {
+                        utterance.lang = selectedVoice.lang;
+                    }
+                }
+
+                utterance.rate = rate;
+                utterance.pitch = pitch;
+                utterance.volume = volume;
+        
+                utterance.onstart = function() {                    
+                    //console.log('lang='+String(utterance.lang)+' rate='+String(rate) + ' pitch='+String(pitch) + ' ');
+                };
+        
+                utterance.onend = function() {
+                    // console.log('✅ Speaking finished');
+                };
+        
+                utterance.onerror = function(event) {
+                    //console.error('❌ TTS error:', event.error);
+                };
+        
+                window.speechSynthesis.speak(utterance);
+        
+            } catch(e) {
+                console.error('❌ TTS error:', e);
             }
             
-            if (!selectedVoice) {
-                selectedVoice = voices.find(v =>
-                                    v.lang === lng || v.lang.startsWith(lng.slice(0, 2))
-                                );
-            }
-            
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-                utterance.lang = selectedVoice.lang;
-            } else {
-                utterance.lang = lng;
-            }
-             utterance.rate = parseFloat(speedSS) || 1.0;
-                            
-            if ('speechSynthesis' in window) {
-                speechSynthesis.cancel();
-                speechSynthesis.speak(utterance);                    
-            }
         }
-        catch(e){}
-    }
 }
     
 
@@ -2292,7 +2481,13 @@ function handlers_for_all_siorect() {
     document.querySelectorAll('.sio-rect').forEach(div => {
         // If there is a word, then the first should go in the hint '? '        
         let atW = div.getAttribute('word');
-        let atH = div.getAttribute('hint');
+        //let atH = div.getAttribute('hint');
+        const h = div.getAttribute('hint') || "";    
+        var masLnSpTxt = parseLnSpTxt( h );        
+        let atH = masLnSpTxt.hint;
+        div.setAttribute('ttslang', masLnSpTxt.lang=='' ? "" : masLnSpTxt.lang);
+        div.setAttribute('ttspeed', masLnSpTxt.speed=='' ? "1.0" : masLnSpTxt.speed);
+        
         if (atW && atW !== "" && (!atH || atH.trimLeft().indexOf("?") < 0)) {
             if (atH) {
                 div.setAttribute('hint', '? ' + atH);

@@ -1,4 +1,4 @@
-version: 2.3, date: 2026-09-04
+version: 2.4, date: 2026-11-21
 
 <details>
 <summary><b> =EN= Notes. Click to expand</b></summary>

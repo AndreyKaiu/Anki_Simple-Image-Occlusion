@@ -2299,7 +2299,7 @@ function getCharCoef(fontFamily) {
     return (0.6*width) / (7.0 * 20);
 }
 
-var charWidthCoef = 0.6; // 0.7 not in the editor
+var charWidthCoef = 0.6; // 0.8 not in the editor
 elSR = document.querySelectorAll('.txt-sio-rect')[0];
 if(elSR) {
     const fontFamily = getComputedStyle(elSR).fontFamily;

@@ -1,8 +1,8 @@
 {
     "name": "Simple Image Occlusion",
-    "mod": 1788540441,
+    "mod": 1795293564,
     "min_point_version": 250902,
-    "max_point_version": 260801,
+    "max_point_version": 260940,
     "branch_index": 0,
     "disabled": false,
     "conflicts": [],

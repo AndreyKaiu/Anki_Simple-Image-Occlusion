@@ -13,7 +13,6 @@ anki-editable:has(.sio-image) {
     max-width: none !important;       
     display: inline-block;    
     -webkit-touch-callout: none;
-    line-height: 0;
     border-width: 1px;
     border-color: gray;
     border-style: solid;
@@ -21,7 +20,24 @@ anki-editable:has(.sio-image) {
     padding: 0;
 
 
-    .sio-image {
+    .sio-image-container {
+		position: relative;
+		width: fit-content;
+		height: fit-content;
+		max-height: none !important;
+		max-width: none !important;       
+		display: inline-block;    
+		user-select: none;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none; 
+		z-index: 3;
+		line-height: 0;        						
+		margin: 0;
+		padding: 0;
+	}
+	
+		
+	.sio-image {
         margin: 0;
         object-fit: cover;
         -webkit-user-drag: none !important;   
@@ -75,13 +91,14 @@ anki-editable:has(.sio-image) {
     }
 
     .sio-rect.hiding {
-        background-color: rgba(1, 78, 140, 1);
+        background-color: rgba(1, 78, 140, 0.5);
         border: 1px solid blue;
         user-select: none;          
         -webkit-touch-callout: none;
         -webkit-user-select: none;
         z-index: 5;
     }    
+		
 
     .sio-rect[word]:not([word=""]):not(.hiding) {
         background-color: rgba(169, 251, 3, 0.5);
@@ -103,8 +120,16 @@ anki-editable:has(.sio-image) {
 		border: 2px solid #ca0101;
 		color: #ca0101 !important;
 	}
-
+	
 }
+
+anki-editable:has(> img.sio-image:first-child) {
+    line-height: 0 !important;
+}
+
+
+
+
 
 
 
